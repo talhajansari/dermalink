@@ -119,6 +119,9 @@ strong {
 .btn-primary, .label-primary {
 	background-color: #1abc9c;
 }
+#btn-signup {
+	margin-left: 10px;
+}
 .btn-primary:hover, .btn-primary:focus {
 	background-color: #16a085;
 }
@@ -247,7 +250,16 @@ label {
 .input-group {
 	margin-bottom: 10px;
 }
+.input-group-btn {
+	width: 200px;
+	height: 40px;
+}
+
+input {
+	display: block;
+}
 .form-control {
+	display: block;
 	font-weight: 300;
 	border-color: #ecf0f1;
 	background-color: #ecf0f1;
@@ -346,6 +358,8 @@ label {
 	margin-top: 0 !important;
 }
 
+
+
 /*	Parallax Background
 	==================================================*/
 
@@ -353,7 +367,7 @@ label {
   height: 680px;
   width: 100%;
   position: fixed;
-  background: url('http://placehold.it/1920x1080') center center no-repeat; 
+  background: url('http://s28.postimg.org/d3cecf8r1/earth_business.jpg') center center no-repeat;
   background-size: cover;
   z-index: -100;
 }
@@ -363,7 +377,18 @@ label {
 .navbar-brand {
 	padding: 25px 15px;
 	margin-right: 30px;
+	width: 100px;
 }
+
+img.header_logo {
+	height: auto;
+	width: auto;
+	max-width: 90px;
+	padding: 0;
+	margin-top: -8px;
+	margin-bottom: -10px;
+}
+
 .navbar-inverse {
 	background-color: #FFF;
 	
@@ -535,6 +560,18 @@ label {
 	margin: 0 25%;
 }
 
+/*	Login
+	==================================================*/ 
+#login_container {
+	border-top: 1px solid #ececec;
+	text-align: center;
+	margin-right: auto; margin-left: auto;
+}
+#login_container form {
+	width: 50%;
+	margin: 0 25%;
+}
+
 /*	Responsive
 	==================================================*/ 
 
@@ -546,7 +583,7 @@ label {
 		max-width: 690px;
 	}
 	.section {
-		padding-top: 80px;
+		padding-top: 50px;
 		padding-bottom: 80px;
 	}
 	.service-block, .img-responsive, .carousel, .content-block {
