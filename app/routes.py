@@ -2,14 +2,13 @@ from app import app, db, lm, bcrypt
 from flask import render_template, flash, redirect, session, url_for, request, g, jsonify
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from flaskext.uploads import UploadSet, configure_uploads, IMAGES
-from forms import LoginForm, SignupForm
-from models import User, Image
+from forms import LoginForm, SignupForm, IssueForm
+from models import User, Image, Issue
 
 reserved_usernames = 'home signup login logout post'
 
 images = UploadSet('images', IMAGES)
 configure_uploads(app, images)
-
 
 
 @lm.user_loader
@@ -19,6 +18,7 @@ def load_user(id):
 @app.before_request   
 def before_request():
 	g.user = current_user
+
 
 @app.route('/')
 @app.route('/index')
@@ -48,7 +48,7 @@ def login():
 			return redirect(url_for('index'))
 		login_user(user, remember=True)
 		#return redirect(request.args.get("next") or url_for("user", email=user.email, user=user))
-		return redirect(url_for("upload"))
+		return redirect(url_for("issue"))
 	return render_template("index.html", title = 'Sign In', form1=loginForm, form2=signupForm)
 
 @app.route("/signup", methods=["POST"])
@@ -73,8 +73,62 @@ def signup():
 			db.session.commit()
 		login_user(user, remember=True)
 		#return redirect(request.args.get("next") or url_for("editProfile", username=user.username, user=user))
-		return redirect(url_for("upload"))
+		return redirect(url_for("issue"))
 	return render_template("index.html", title = 'Sign Up', form1=loginForm, form2=signupForm)
+
+
+@app.route('/issue')
+@login_required
+def issue():
+	issueForm = IssueForm()
+	user = g.user
+	issues = Issue.query.filter_by(user_id=user.id) 
+	return render_template('issues.html', issues=issues, form1=issueForm)
+
+@app.route('/issue/create', methods=['POST'])
+@login_required
+def create_issue():
+	issueForm = IssueForm()
+	if issueForm.validate_on_submit():
+		summary = issueForm.summary.data
+		user_id = g.user.id
+		issue = Issue(summary=summary, user_id=user_id, isClosed=0,)
+		db.session.add(issue)
+		db.session.commit()
+		return redirect(url_for('upload', issue=issue))
+
+# @app.route('/issue/<id>')
+# @login_required
+# def show_issue(id):
+# 	issue = Issue.query.get(id)
+# 	if issue is None:
+# 		return 'No such issue found'
+# 	return render_template('show_issue.html', issue=issue)
+
+
+@app.route('/upload', methods=['GET', 'POST'])
+@login_required
+def upload():
+	if request.method == 'POST' and 'image' in request.files:
+		filename = images.save(request.files['image'])
+		issue_id = issue.id
+		image = Image(filename=filename, issue_id=issue_id)
+		db.session.add(image)
+		db.session.commit()
+		return redirect(url_for('show_image', id=image.id))
+	#issue = Issue.query.get(issue_id)
+	return render_template('upload.html', issue=issue)
+
+@app.route('/image/<id>')
+@login_required
+def show_image(id):
+	image = Image.query.get(id)
+	if image is None:
+		abort(404)
+	url = images.url(image.filename)
+	return render_template('show_image.html', url=url, image=image)
+
+
 
 @app.route("/logout")
 @login_required
@@ -82,26 +136,5 @@ def logout():
 	logout_user()
 	form = LoginForm()
 	return redirect("/")
-
-@app.route('/upload', methods=['GET', 'POST'])
-@login_required
-def upload():
-	if request.method == 'POST' and 'image' in request.files:
-		filename = images.save(request.files['image'])
-		image = Image(filename=filename, user=g.user)
-		db.session.add(image)
-		db.session.commit()
-		return redirect(url_for('show', id=image.id))
-	return render_template('upload.html')
-
-@app.route('/image/<id>')
-@login_required
-def show(id):
-	image = Image.query.get(id)
-	if image is None:
-		abort(404)
-	url = images.url(image.filename)
-	return render_template('show.html', url=url, image=image)
-
 
 

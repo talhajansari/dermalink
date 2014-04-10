@@ -2,7 +2,8 @@
 <head>
 </head></head>
 <body>
-<form method=POST enctype=multipart/form-data action="{{ url_for('upload') }}">
+<h4>{{ issue.summary}}</h4>
+<form method=POST enctype=multipart/form-data action="{{ url_for('upload', issue=issue) }}">
 <input type="file" name="image" id="image"></input>
 <input type="submit"></input>
 <form>

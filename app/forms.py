@@ -14,3 +14,6 @@ class SignupForm(Form):
 class EditProfileForm(Form):
     password = PasswordField('password', id="form-field-pass1")
     confirmPassword = PasswordField('confirmPassword', id="form-field-pass2")
+
+class IssueForm(Form):
+    summary = TextAreaField('summary', validators = [Required()])
