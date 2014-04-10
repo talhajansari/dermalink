@@ -29,8 +29,9 @@ def index():
 
 @app.route("/login", methods=["POST"])
 def login():
+	logout_user()
 	if g.user is not None and g.user.is_authenticated():
-		return redirect(url_for('index'))
+		return redirect(url_for('issues'))
 	loginForm = LoginForm()
 	signupForm = SignupForm()
 	if loginForm.validate_on_submit():
@@ -53,6 +54,7 @@ def login():
 
 @app.route("/signup", methods=["POST"])
 def signup():
+	logout_user()
 	if g.user is not None and g.user.is_authenticated():
 		return redirect(url_for('index'))
 	loginForm = LoginForm
