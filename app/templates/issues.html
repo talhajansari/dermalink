@@ -1,0 +1,31 @@
+<html>
+<head>
+</head></head>
+<body>
+<h3>Reported Issues</h3>
+<ol>
+{% for issue in issues %}
+{% set issue_id = issue.id %}
+<li> <a href= "{{ url_for('show_issue', id=issue.id) }}" > {{issue.summary}} </a> </li>
+{% endfor %}
+</ol>
+<br>
+Create a new Issue: 
+<form action="issue/create" method="post" name="create_issue">
+    {{form1.hidden_tag()}}
+    <p>
+        Please summarize your issue:<br>
+        {{form1.summary(size=256)}}<br>
+        {% for error in form1.errors.email %}
+        <span style="color: red;">[{{error}}]</span>
+        {% endfor %}<br>
+    </p>
+    <p><input type="submit" value="Create"></p>
+</form>
+<br><br>
+
+<br><br>
+<a href="{{ url_for('logout') }}">logout</a>
+</body>
+</html>
+

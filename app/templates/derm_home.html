@@ -1,0 +1,19 @@
+<html>
+<head>
+</head></head>
+<body>
+<h3>Reported Issues</h3>
+<ol>
+{% for issue in issues %}
+{% set issue_id = issue.id %}
+<li> <a href= "{{ url_for('show_issue', id=issue.id) }}" > {{issue.summary}} </a> </li>
+{% endfor %}
+</ol>
+<br>
+
+
+<br><br>
+<a href="{{ url_for('logout') }}">logout</a>
+</body>
+</html>
+
