@@ -43,6 +43,26 @@
     </p>
     <p><input type="submit" value="Sign Up"></p>
 </form>
+<br><br>
+<h1>Dermatologist Sign Up</h1>
+<form action="derm_signup" method="post" name="derm_signup">
+    {{form3.hidden_tag()}}
+    <p>
+        Please enter your email:<br>
+        {{form3.email(size=80)}}<br>
+        {% for error in form3.errors.email %}
+        <span style="color: red;">[{{error}}]</span>
+        {% endfor %}<br>
+    </p>
+    <p>
+        Please enter your password:<br>
+        {{form3.password(size=80)}}<br>
+        {% for error in form3.errors.password %}
+        <span style="color: red;">[{{error}}]</span>
+        {% endfor %}<br>
+    </p>
+    <p><input type="submit" value="Sign Up"></p>
+</form>
 </body>
 </html>
 

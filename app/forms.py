@@ -11,6 +11,10 @@ class SignupForm(Form):
     email = TextField('email', validators = [Required()])
     password = PasswordField('password', validators = [Required()])
 
+class DermSignupForm(Form):
+    email = TextField('email', validators = [Required()])
+    password = PasswordField('password', validators = [Required()])
+
 class EditProfileForm(Form):
     password = PasswordField('password', id="form-field-pass1")
     confirmPassword = PasswordField('confirmPassword', id="form-field-pass2")
