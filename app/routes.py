@@ -23,13 +23,18 @@ def before_request():
 @app.route('/')
 @app.route('/index')
 def index():
-	loginForm = LoginForm()
-	signupForm = SignupForm()
-	return render_template("index.html", title = 'Log in', form1=loginForm, form2=signupForm)
+	if g.user is not None and g.user.is_authenticated():
+		return redirect(url_for("issues"))
+	else:
+		loginForm = LoginForm()
+		signupForm = SignupForm()
+		return render_template("index.html", title = 'Log in', form1=loginForm, form2=signupForm)
+
+
 
 @app.route("/login", methods=["POST"])
 def login():
-	logout_user()
+	#logout_user()
 	if g.user is not None and g.user.is_authenticated():
 		return redirect(url_for('issues'))
 	loginForm = LoginForm()
@@ -54,9 +59,9 @@ def login():
 
 @app.route("/signup", methods=["POST"])
 def signup():
-	logout_user()
+	#logout_user()
 	if g.user is not None and g.user.is_authenticated():
-		return redirect(url_for('index'))
+		return redirect(url_for('issues'))
 	loginForm = LoginForm
 	signupForm = SignupForm()
 	if signupForm.validate_on_submit():

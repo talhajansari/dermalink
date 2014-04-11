@@ -2,6 +2,11 @@ from app import db
 import time
 import datetime
 
+derm_table = db.Table('derm_table',
+	db.Column('dermatologist_id', db.Integer, db.ForeignKey('dermatologist.id')),
+	db.Column('issue_id', db.Integer, db.ForeignKey('issue.id'))
+)
+
 
 class User(db.Model):
 	id = db.Column(db.Integer, primary_key = True)
@@ -47,7 +52,6 @@ class Issue(db.Model):
 	isClosed = db.Column(db.Boolean, index = False, unique = False) # has the 'issue' been resolved?
 	# Relationships
 	images = db.relationship('Image', backref='issue', lazy='dynamic')
-	dermatologist_id = db.Column(db.Integer, db.ForeignKey('dermatologist.id'))
 
 # An image within an issue
 class Image(db.Model):
@@ -80,7 +84,7 @@ class Dermatologist(db.Model):
 	country = db.Column(db.String(120), index = True, unique = False)
 
 	# Relationships
-	issues = db.relationship('Issue', backref='dermatologist', lazy='dynamic') 
+	issues = db.relationship('Issue', secondary=derm_table, backref=db.backref('dermatologists', lazy='dynamic')) 
 	
 
 
