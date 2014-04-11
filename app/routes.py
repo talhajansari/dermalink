@@ -151,6 +151,8 @@ def create_issue():
 @app.route('/issues/<id>')
 @login_required
 def show_issue(id):
+	if g.user.owns_issue(id) is False:
+		return redirect(url_for("issues"))
 	issue = Issue.query.get(id)
 	if issue is None:
 		return 'No such issue found'
@@ -170,20 +172,10 @@ def upload(issue_id):
 		image = Image(filename=filename, issue_id=issue_id)
 		db.session.add(image)
 		db.session.commit()
-		return redirect(url_for('show_image', id=image.id))
+		return redirect(url_for("issues"))
 	issue = Issue.query.get(issue_id)
 	#return str(issue.summary)
 	return render_template('upload.html', issue=issue)
-
-@app.route('/image/<id>')
-@login_required
-def show_image(id):
-	image = Image.query.get(id)
-	if image is None:
-		abort(404)
-	url = images.url(image.filename)
-	return render_template('show_image.html', url=url, image=image)
-
 
 
 @app.route("/logout")
