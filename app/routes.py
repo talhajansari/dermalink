@@ -57,12 +57,6 @@ def login():
 				return redirect(url_for('index'))
 			login_user(user, remember=True)
 			return redirect(url_for("issues"))
-		# elif dermatologist is not None:
-		# 	if bcrypt.check_password_hash(dermatologist.password, password) is False:
-		# 		flash('Invalid Login. Please try again.')
-		# 		return redirect(url_for('index'))
-		# 	login_user(dermatologist, remember=True)
-		# 	return redirect(url_for("derm_home"))
 	return render_template("index.html", title = 'Sign In', form1=loginForm, form2=signupForm, form3=derm_signupForm)
 
 
@@ -147,13 +141,6 @@ def issues():
 		issues = Issue.query.filter(Issue.doctors.any(id=doctor_id)).all()
 		return render_template('issues.html', issues=issues, isDoctor=1, form1=createIssueForm)
 
-# Not needed anymore
-# @app.route('/derm_home')
-# @login_required
-# def derm_home():
-# 	#return 'derm home'
-# 	issues = Issue.query.all()
-# 	return render_template('derm_home.html', issues=issues)
 
 @app.route('/issue/create', methods=['POST'])
 @login_required
@@ -173,11 +160,6 @@ def create_issue():
 			db.session.flush()
 			selectedDoc.issues.append(issue)  
 			db.session.commit()
-		#assignedDoc = assignIssueToDoctor(issue) # assign the issue to a doctor
-		#if assignedDoc is None:
-		#	return 'No Doctor found'
-		#else:
-		#	db.session.commit()
 		issue_id = issue.id
 		return redirect(url_for('upload', issue_id=issue_id))
 
