@@ -4,6 +4,7 @@ from flask.ext.login import login_user, logout_user, current_user, login_require
 from flaskext.uploads import UploadSet, configure_uploads, IMAGES
 from forms import LoginForm, SignupForm, CreateIssueForm, DermSignupForm
 from models import User, Image, Issue, Patient, Doctor
+from datetime import datetime
 
 reserved_usernames = 'home signup login logout post'
 
@@ -148,7 +149,7 @@ def create_issue():
 			return 'no doc found'
 		else:
 			selectedDoc = doctors.first()
-			issue = Issue(summary=summary, patient_id=patient_id, isClosed=0)
+			issue = Issue(summary=summary, timestamp= datetime.utcnow(), patient_id=patient_id, isClosed=0)
 			db.session.add(issue)
 			db.session.flush()
 			selectedDoc.issues.append(issue)  
@@ -188,7 +189,6 @@ def upload(issue_id):
 	issue = Issue.query.get(issue_id)
 	#return str(issue.summary)
 	return render_template('upload.html', issue=issue)
-
 
 
 @app.route("/logout")
