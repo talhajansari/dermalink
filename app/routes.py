@@ -2,7 +2,7 @@ from app import app, db, lm, bcrypt
 from flask import render_template, flash, redirect, session, url_for, request, g, jsonify
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from flaskext.uploads import UploadSet, configure_uploads, IMAGES
-from forms import LoginForm, SignupForm, CreateIssueForm, DermSignupForm
+from forms import LoginForm, SignupForm, CreateIssueForm, DermSignupForm, EditProfileForm
 from models import User, Image, Issue, Patient, Doctor
 
 reserved_usernames = 'home signup login logout post'
@@ -80,7 +80,7 @@ def signup():
 			user = User(password=password_hash, email=email, isDoctor=0)
 			db.session.add(user)
 			db.session.flush()
-			patient = Patient(user_id=user.id)
+			patient = Patient(user_id=user.id, isComplete = False)
 			db.session.add(patient)
 			db.session.flush()
 			user.patient = patient
@@ -109,10 +109,15 @@ def derm_signup():
 			if user is not None:
 				flash('That email is already in use')
 				return redirect(url_for('index'))
-			doctor = Doctor()
-			db.session.add(doctor)
-			user = User(password=password_hash, email=email, isDoctor=1, doctor=doctor)
+			# Create the user
+			user = User(password=password_hash, email=email, isDoctor=1)
 			db.session.add(user)
+			db.session.flush()
+			doctor = Doctor(user_id=user.id, isComplete = False)
+			db.session.add(doctor)
+			db.session.flush()
+			user.doctor = doctor
+			db.session.flush()
 			db.session.commit()
 		login_user(user, remember=True)
 		#return redirect(request.args.get("next") or url_for("editProfile", username=user.username, user=user))
@@ -133,6 +138,71 @@ def home():
 		#issues = Issue.query.filter_by(doctor_id=g.user.doctor.id)
 		issues = Issue.query.filter(Issue.doctors.any(id=doctor_id)).all()
 		return render_template('issues.html', issues=issues, isDoctor=1, form1=createIssueForm)
+
+@app.route("/edit/<id>", methods=["POST", "GET"])
+@login_required
+def editProfile(id):
+	user = User.query.get(id)
+	if user == None:
+		return redirect(url_for('home'))
+	if g.user.id is not int(id):
+		return redirect(url_for('home'))
+	form = EditProfileForm()
+	if request.method == 'POST':
+		if not g.user.isDoctor==1: #is not doctor
+			patient = user.patient
+			if form.firstName.data:
+				patient.firstName = form.firstName.data
+			if form.lastName.data:
+				patient.lastName = form.lastName.data
+			if form.gender.data:
+				patient.gender = form.gender.data
+			if form.age.data:
+				patient.age = form.age.data
+			if form.ethnicity.data:
+				patient.ethnicity = form.ethnicity.data
+			if form.password.data:
+				if form.confirmPassword.data is None:
+					flash('Please confirm your password.')
+					return redirect(url_for("editProfile", id=user.id))
+				if form.password.data != form.confirmPassword.data:
+					flash('Confirmation does not match.')
+					return redirect(url_for("editProfile", id=user.id))
+				password_hash = bcrypt.generate_password_hash(form.password.data)
+				user.password = password_hash
+			db.session.commit()
+			isPatientComplete(patient)
+			return redirect(url_for('home'))
+		else:
+			doctor = user.doctor
+			if form.firstName.data:
+				doctor.firstName = form.firstName.data
+			if form.lastName.data:
+				doctor.lastName = form.lastName.data
+			if form.hospital.data:
+				doctor.hospital = form.hospital.data
+			if form.city.data:
+				doctor.city = form.city.data
+			if form.state.data:
+				doctor.state = form.state.data
+			if form.country.data:
+				doctor.country = form.country.data
+			if form.password.data:
+				if form.confirmPassword.data is None:
+					flash('Please confirm your password.')
+					return redirect(url_for("editProfile", id=user.id))
+				if form.password.data != form.confirmPassword.data:
+					flash('Confirmation does not match.')
+					return redirect(url_for("editProfile", id=user.id))
+				password_hash = bcrypt.generate_password_hash(form.password.data)
+				user.password = password_hash
+			db.session.commit()
+			isDoctorComplete(doctor)
+			return redirect(url_for('home'))
+	return render_template("edit.html", form=form)
+
+
+
 
 
 @app.route('/issue/create', methods=['POST'])
@@ -211,4 +281,17 @@ def assignIssueToDoctor(issue):
 		issue.doctor = selectedDoc
 		db.session.commit()
 		return selectedDoc
+
+
+def isPatientComplete(patient):
+	if patient.firstName and patient.lastName and patient.gender and patient.age:
+		patient.isComplete = True
+		db.session.commit()
+
+def isPatientComplete(doctor):
+	if doctor.firstName and doctor.lastName and doctor.hospital and doctor.city and doctor.state and doctor.country:
+		doctor.isComplete = True
+		db.session.commit()
+
+
 

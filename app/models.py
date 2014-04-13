@@ -14,18 +14,7 @@ class User(db.Model):
 	password = db.Column(db.String(64), index = False, unique = False)
 	email = db.Column(db.String(120), index = True, unique = True)
 	isDoctor = db.Column(db.Boolean, )
-	# Profile information
-	firstName = db.Column(db.String(120), index = True, unique = False)
-	lastName = db.Column(db.String(120), index = True, unique = False)
-	gender = db.Column(db.String(12), index = True, unique = False)
-	age = db.Column(db.Integer, index = True, unique = False)
-	# Address fields
-	city = db.Column(db.String(120), index = True, unique = False)
-	state = db.Column(db.String(120), index = True, unique = False)
-	zipcode = db.Column(db.Integer, index = True, unique = False)
-	country = db.Column(db.String(120), index = True, unique = False)
-	# Others
-	ethnicity = db.Column(db.String(120), index = True, unique = False) # Should be optional - legal issues(?) if we force users to reveal this information
+	
 	# Relationships
 	patient = db.relationship('Patient', backref='user', uselist=False)
 	doctor = db.relationship('Doctor', backref='user', uselist=False)
@@ -51,6 +40,12 @@ class Patient(db.Model):
 	# Relationships
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 	issues = db.relationship('Issue', backref='patient', lazy='dynamic')
+	isComplete = db.Column(db.Boolean()) # is profile complete
+	firstName = db.Column(db.String(120), index = True, unique = False)
+	lastName = db.Column(db.String(120), index = True, unique = False)
+	gender = db.Column(db.String(12), index = True, unique = False)
+	age = db.Column(db.Integer, index = True, unique = False)
+	ethnicity = db.Column(db.String(120), index = True, unique = False)
 
 	def owns_issue(self, id):
 		issue = Issue.query.get(id)
@@ -62,8 +57,11 @@ class Patient(db.Model):
 class Doctor(db.Model):
 	id = db.Column(db.Integer, primary_key = True)	
 	# Certification information
+	isComplete = db.Column(db.Boolean()) # is profile complete
 	isCertified = db.Column(db.Boolean, index = True, unique=False)
 	isAvailable = db.Column(db.Boolean, index = True, unique=False)
+	firstName = db.Column(db.String(120), index = True, unique = False)
+	lastName = db.Column(db.String(120), index = True, unique = False)
 	# Address fields
 	hospital = db.Column(db.String(120), index = True, unique = False) # which hospital does the doctor practice?
 	city = db.Column(db.String(120), index = True, unique = False)

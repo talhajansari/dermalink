@@ -17,8 +17,17 @@ class DermSignupForm(Form):
     password = PasswordField('password', validators = [Required()])
 
 class EditProfileForm(Form):
-    password = PasswordField('password', id="form-field-pass1")
-    confirmPassword = PasswordField('confirmPassword', id="form-field-pass2")
+    password = PasswordField('password')
+    confirmPassword = PasswordField('confirmPassword')
+    firstName = TextField('firstName')
+    lastName = TextField('lastName')
+    gender = RadioField('gender', choices=[('male', 'male'), ('female', 'female')])
+    age = TextField('age')
+    ethnicity = TextField('ethnicity')
+    hospital = TextField('hospital')
+    city = TextField('city')
+    state = TextField('state')
+    country = TextField('country')
 
 class CreateIssueForm(Form):
     summary = TextAreaField('summary', validators = [Required()])
