@@ -2,13 +2,18 @@
 <head>
 </head></head>
 <body>
-<h3>Reported Issues</h3>
+{% if not isDoctor %}
+<h3>Patient: Reported Issues</h3>
+{% else %}
+<h3>Doctor: Assigned Issues</h3>
+{% endif %}
 <ol>
 {% for issue in issues %}
 {% set issue_id = issue.id %}
 <li> <a href= "{{ url_for('show_issue', id=issue.id) }}" > {{issue.summary}} </a> </li>
 {% endfor %}
 </ol>
+{% if not isDoctor %}
 <br>
 Create a new Issue: 
 <form action="issue/create" method="post" name="create_issue">
@@ -23,7 +28,7 @@ Create a new Issue:
     <p><input type="submit" value="Create"></p>
 </form>
 <br><br>
-
+{% endif %}
 <br><br>
 <a href="{{ url_for('logout') }}">logout</a>
 </body>

@@ -1,5 +1,5 @@
 from flask.ext.wtf import Form
-from wtforms import TextField, BooleanField, PasswordField, FileField, TextAreaField, SelectField, HiddenField
+from wtforms import TextField, BooleanField, PasswordField, FileField, TextAreaField, SelectField, HiddenField, RadioField
 from wtforms.validators import Required
 
 class LoginForm(Form):
@@ -10,6 +10,7 @@ class LoginForm(Form):
 class SignupForm(Form):
     email = TextField('email', validators = [Required()])
     password = PasswordField('password', validators = [Required()])
+    #usertype = RadioField('usertype', validators = Required(), choices = ['Patient', 'Dermatologist']
 
 class DermSignupForm(Form):
     email = TextField('email', validators = [Required()])
