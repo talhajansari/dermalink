@@ -4,7 +4,7 @@
 <body>
 <h4> Issue: {{issue.summary}}</h4>
 Issue ID: {{issue.id}} <br>
-Patient: {{issue.user.firstName}} {{issue.user.lastName}} <br>
+Patient: {{issue.patient.user.firstName}} {{issue.patient.user.lastName}} <br>
 Date Created: {{issue.timestamp}} <br>
 {% if (issue.isClosed) %}
 Resolved: Yes
