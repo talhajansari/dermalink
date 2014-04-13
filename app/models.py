@@ -29,7 +29,6 @@ class User(db.Model):
 	# Relationships
 	patient = db.relationship('Patient', backref='user', uselist=False)
 	doctor = db.relationship('Doctor', backref='user', uselist=False)
-	#issues = db.relationship('Issue', backref='user', lazy='dynamic')
 
 	def is_authenticated(self):
 		return True
@@ -92,7 +91,6 @@ class Issue(db.Model):
 	# howOld = db.Column(db.Integer(2), index = False, unique = False) # how many weeks old is the 'issue'
 	isClosed = db.Column(db.Boolean, index = False, unique = False) # has the 'issue' been resolved?
 	# Relationships
-	#user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 	patient_id = db.Column(db.Integer, db.ForeignKey('patient.id'))
 	images = db.relationship('Image', backref='issue', lazy='dynamic')
 

@@ -3,7 +3,7 @@ from flask import render_template, flash, redirect, session, url_for, request, g
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from flaskext.uploads import UploadSet, configure_uploads, IMAGES
 from forms import LoginForm, SignupForm, CreateIssueForm, DermSignupForm
-from models import User, Image, Issue, Dermatologist, Patient, Doctor
+from models import User, Image, Issue, Patient, Doctor
 
 reserved_usernames = 'home signup login logout post'
 
@@ -25,7 +25,7 @@ def before_request():
 @app.route('/index')
 def index():
 	if g.user is not None and g.user.is_authenticated():
-		return redirect(url_for("issues"))
+		return redirect(url_for("home"))
 	else:
 		loginForm = LoginForm()
 		signupForm = SignupForm()
@@ -36,7 +36,7 @@ def index():
 @app.route("/login", methods=["POST"])
 def login():
 	if g.user is not None and g.user.is_authenticated():
-		return redirect(url_for('issues'))
+		return redirect(url_for('home'))
 	loginForm = LoginForm()
 	signupForm = SignupForm()
 	derm_signupForm = DermSignupForm()
@@ -47,7 +47,6 @@ def login():
 			flash('Invalid login. Please try again.')
 			return redirect(url_for('index'))
 		user = User.query.filter_by(email = email).first()
-		#dermatologist = Dermatologist.query.filter_by(email = email).first()
 		if user is None: # and dermatologist is None:
 			flash('That email does not exist. Please try again.')
 			return redirect(url_for('index'))
@@ -56,14 +55,14 @@ def login():
 				flash('Invalid Login. Please try again.')
 				return redirect(url_for('index'))
 			login_user(user, remember=True)
-			return redirect(url_for("issues"))
+			return redirect(url_for("home"))
 	return render_template("index.html", title = 'Sign In', form1=loginForm, form2=signupForm, form3=derm_signupForm)
 
 
 @app.route("/signup", methods=["POST"])
 def signup():
 	if g.user is not None and g.user.is_authenticated():
-		return redirect(url_for('issues'))
+		return redirect(url_for('home'))
 	loginForm = LoginForm()
 	signupForm = SignupForm()
 	derm_signupForm = DermSignupForm()
@@ -72,7 +71,6 @@ def signup():
 		if email not in reserved_usernames.split():
 			password = signupForm.password.data
 			password_hash = bcrypt.generate_password_hash(password)
-			#dermatologist = Dermatologist.query.filter_by(email = email).first() # Check if that email already exists
 			user = User.query.filter_by(email = email).first() # Check if that email already exists
 			#if dermatologist is not None or user is not None:
 			if user is not None:
@@ -90,7 +88,7 @@ def signup():
 			db.session.commit()
 		login_user(user, remember=True)
 		#return redirect(request.args.get("next") or url_for("editProfile", username=user.username, user=user))
-		return redirect(url_for("issues"))
+		return redirect(url_for("home"))
 	return render_template("index.html", title = 'Sign Up', form1=loginForm, form2=signupForm, form3=derm_signupForm)
 
 
@@ -106,16 +104,11 @@ def derm_signup():
 		if email not in reserved_usernames.split():
 			password = derm_signupForm.password.data
 			password_hash = bcrypt.generate_password_hash(password)
-			#dermatologist = Dermatologist.query.filter_by(email = email).first() # Check if that email already exists
 			user = User.query.filter_by(email = email).first() # Check if that email already exists
 			#if dermatologist is not None or user is not None:
 			if user is not None:
 				flash('That email is already in use')
 				return redirect(url_for('index'))
-			# Create the dermatologist
-			# dermatologist = Dermatologist(password=password_hash, email=email)
-			# db.session.add(dermatologist)
-			# db.session.commit()
 			doctor = Doctor()
 			db.session.add(doctor)
 			user = User(password=password_hash, email=email, isDoctor=1, doctor=doctor)
@@ -124,13 +117,13 @@ def derm_signup():
 		login_user(user, remember=True)
 		#return redirect(request.args.get("next") or url_for("editProfile", username=user.username, user=user))
 		#return redirect(url_for("derm_home"))
-		return redirect(url_for("issues"))
+		return redirect(url_for("home"))
 	return render_template("index.html", title = 'Sign Up', form1=loginForm, form2=signupForm, form3=derm_signupForm)
 
 
-@app.route('/issues')
+@app.route('/home')
 @login_required
-def issues():
+def home():
 	createIssueForm = CreateIssueForm()
 	if not g.user.isDoctor==1: #is not doctor
 		issues = Issue.query.filter_by(patient_id=g.user.patient.id) 
@@ -171,7 +164,7 @@ def show_issue(id):
 	elif g.user.isDoctor:
 		authenticate = g.user.doctor.owns_issue(id)
 	if authenticate is False:
-		return redirect(url_for("issues"))
+		return redirect(url_for("home"))
 	issue = Issue.query.get(id)
 	if issue is None:
 		return 'No such issue found'
@@ -191,7 +184,7 @@ def upload(issue_id):
 		image = Image(filename=filename, issue_id=issue_id)
 		db.session.add(image)
 		db.session.commit()
-		return redirect(url_for("issues"))
+		return redirect(url_for("show_issue", id=issue_id))
 	issue = Issue.query.get(issue_id)
 	#return str(issue.summary)
 	return render_template('upload.html', issue=issue)
