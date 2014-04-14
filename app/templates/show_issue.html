@@ -12,16 +12,36 @@ Resolved: Yes
 Resolved: No
 {% endif %}
 
-<form method=POST enctype=multipart/form-data action="{{ url_for('upload', issue_id=issue.id) }}">
-Upload a picture: 
-<input type="file" name="image" id="image"></input>
-<input type="submit"></input>
-<form>
-<br>
-{% for url in URLs%}
-<img src={{url}}></img>
-<br>
-{% endfor %}
+{% if g.user.isDoctor %}
+
+	<form action="showIssue" method="post" name="showIssue">
+	    {{form.hidden_tag()}}
+	    <p>
+	        Please enter your diagnosis:<br>
+	        {{form.diagnosis(size=80)}}<br>
+	    </p>
+	    <input type="hidden" id="hidden" name="hidden" value="{{issue.id}}"></input>
+	    <p><input type="submit" value="Submit"></p>
+	</form>
+
+{% else %}
+	<form method=POST enctype=multipart/form-data action="{{ url_for('upload', issue_id=issue.id) }}">
+	Upload a picture: 
+	<input type="file" name="image" id="image"></input>
+	<input type="submit"></input>
+	<form>
+	<br>
+	{% for url in URLs%}
+		<img src={{url}}></img>
+		<br>
+	{% endfor %}
+
+	Diagnoses:
+	{% for diagnosis in issue.diagnoses %}
+		<p>{{ diagnosis.diagnosis }}</p>
+	{% endfor %}
+	
+{% endif %}
 <br><br>
 <a href="{{ url_for('logout') }}">logout</a>
 </body>

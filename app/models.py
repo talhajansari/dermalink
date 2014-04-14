@@ -70,13 +70,16 @@ class Doctor(db.Model):
 	# Relationships
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 	issues = db.relationship('Issue', secondary=doc_table, backref=db.backref('doctors', lazy='dynamic')) 
+	# Number of issues they are willing to have at a time
+	issueLimit = db.Column(db.Integer())
+	diagnoses = db.relationship('Diagnosis', backref='doctor', lazy='dynamic')
 
 	def owns_issue(self, id):
 		authenticate = False
 		doctor_id = self.id
 		assignedIssues = Issue.query.filter(Issue.doctors.any(id=doctor_id)).all()
 		for issue in assignedIssues:
-			if int(issue.id)==int(id):
+			if int(issue.id) is int(id):
 				authenticate = True
 		return authenticate
 
@@ -91,6 +94,7 @@ class Issue(db.Model):
 	# Relationships
 	patient_id = db.Column(db.Integer, db.ForeignKey('patient.id'))
 	images = db.relationship('Image', backref='issue', lazy='dynamic')
+	diagnoses = db.relationship('Diagnosis', backref='issue', lazy='dynamic')
 
 # An image within an issue
 class Image(db.Model):
@@ -101,7 +105,11 @@ class Image(db.Model):
 	timestamp = db.Column(db.DateTime)
 	issue_id = db.Column(db.Integer, db.ForeignKey('issue.id'))
 
-	
+class Diagnosis(db.Model):
+	id = db.Column(db.Integer, primary_key = True)
+	doc_id = db.Column(db.Integer, db.ForeignKey('doctor.id'))
+	issue_id = db.Column(db.Integer, db.ForeignKey('issue.id'))
+	diagnosis = db.Column(db.String(512), unique=False)
 
 
 

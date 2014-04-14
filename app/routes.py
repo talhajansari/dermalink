@@ -2,8 +2,8 @@ from app import app, db, lm, bcrypt
 from flask import render_template, flash, redirect, session, url_for, request, g, jsonify
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from flaskext.uploads import UploadSet, configure_uploads, IMAGES
-from forms import LoginForm, SignupForm, CreateIssueForm, DermSignupForm, EditProfileForm
-from models import User, Image, Issue, Patient, Doctor
+from forms import LoginForm, SignupForm, CreateIssueForm, DermSignupForm, EditProfileForm, DiagnosisForm
+from models import User, Image, Issue, Patient, Doctor, Diagnosis
 
 reserved_usernames = 'home signup login logout post'
 
@@ -226,16 +226,27 @@ def create_issue():
 		issue_id = issue.id
 		return redirect(url_for('upload', issue_id=issue_id))
 
-@app.route('/issues/<id>')
+@app.route('/issues/<id>', methods=['GET', 'POST'])
 @login_required
 def show_issue(id):
+	form = DiagnosisForm()
+	if request.method == 'POST':
+		id = request.form['hidden']
+		issue = Issue.query.get(id)
+		summary = form.diagnosis.data
+		diagnosis = Diagnosis(diagnosis=summary, doc_id=g.user.doctor.id, issue_id=id)
+		db.session.add(diagnosis)
+		issue.diagnoses.append(diagnosis)
+		g.user.doctor.diagnoses.append(diagnosis)
+		db.session.commit()
+		return redirect(url_for("home"))
+	issue = Issue.query.get(id)
 	if not g.user.isDoctor:
 		authenticate = g.user.patient.owns_issue(id)
 	elif g.user.isDoctor:
 		authenticate = g.user.doctor.owns_issue(id)
 	if authenticate is False:
 		return redirect(url_for("home"))
-	issue = Issue.query.get(id)
 	if issue is None:
 		return 'No such issue found'
 	pics = Image.query.filter_by(issue_id=id).all()
@@ -243,7 +254,7 @@ def show_issue(id):
 	for image in pics:
 		url = images.url(image.filename)
 		URLs.append(url)
-	return render_template('show_issue.html', issue=issue, URLs=URLs, images=images)
+	return render_template('show_issue.html', issue=issue, URLs=URLs, images=images, form=form)
 
 
 @app.route('/issue/<issue_id>/upload', methods=['GET', 'POST'])
@@ -289,7 +300,7 @@ def isPatientComplete(patient):
 		db.session.commit()
 
 def isPatientComplete(doctor):
-	if doctor.firstName and doctor.lastName and doctor.hospital and doctor.city and doctor.state and doctor.country:
+	if doctor.firstName and doctor.lastName and doctor.hospital and doctor.city and doctor.state and doctor.country and doctor.issueLimit:
 		doctor.isComplete = True
 		db.session.commit()
 
