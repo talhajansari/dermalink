@@ -131,12 +131,13 @@ def home():
 		return render_template('issues.html', issues=issues, isDoctor=0, form1=createIssueForm)
 	elif g.user.isDoctor:
 		doctor_id = g.user.doctor.id
+		#return str(g.user.doctor.isAvailableMethod())
 		#issues = Issue.query.filter_by(doctor_id=g.user.doctor.id)
 		issues = Issue.query.filter(Issue.doctors.any(id=doctor_id)).all()
 		return render_template('issues.html', issues=issues, isDoctor=1, form1=createIssueForm)
 
 
-@app.route('/issue/create', methods=['POST'])
+@app.route('/create', methods=['POST'])
 @login_required
 def create_issue():
 	createIssueForm = CreateIssueForm()
@@ -144,20 +145,16 @@ def create_issue():
 		summary = createIssueForm.summary.data
 		user_id = g.user.id
 		patient_id = g.user.patient.id
-		doctors = Doctor.query
-		if doctors is None:
-			return 'no doc found'
-		else:
-			selectedDoc = doctors.first()
-			issue = Issue(summary=summary, timestamp= datetime.utcnow(), patient_id=patient_id, isClosed=0)
-			db.session.add(issue)
-			db.session.flush()
-			selectedDoc.issues.append(issue)  
-			db.session.commit()
+		issue = Issue(summary=summary, timestamp= datetime.utcnow(), patient_id=patient_id, isClosed=0)
+		db.session.add(issue)
+		db.session.flush()
+		assignIssueToDoctor(issue)
+		db.session.commit()
 		issue_id = issue.id
 		return redirect(url_for('upload', issue_id=issue_id))
 
-@app.route('/issues/<id>')
+
+@app.route('/home/<id>')
 @login_required
 def show_issue(id):
 	if not g.user.isDoctor:
@@ -177,7 +174,7 @@ def show_issue(id):
 	return render_template('show_issue.html', issue=issue, URLs=URLs, images=images)
 
 
-@app.route('/issue/<issue_id>/upload', methods=['GET', 'POST'])
+@app.route('/home/<issue_id>/upload', methods=['GET', 'POST'])
 @login_required
 def upload(issue_id):
 	if request.method == 'POST' and 'image' in request.files:
@@ -203,12 +200,16 @@ def logout():
 
 # For now, it only assigns the issues to the first dermatologist
 def assignIssueToDoctor(issue):
-	doctors = Doctor.query.all()
-	if doctors is None:
-		return None
-	else:
-		selectedDoc = doctors.first()
-		issue.doctor = selectedDoc
+	doctors = Doctor.query.filter_by(isAvailable=1).all()
+	if len(doctors) is 0:
+		doc = Doctor.query.first()
+		doc.issues.append(issue)
 		db.session.commit()
-		return selectedDoc
-
+		return doc
+	else:
+		for doc in doctors:
+			if doc.isAvailableMethod():
+				doc.issues.append(issue)
+				doc.isAvailableMethod()
+				db.session.commit()
+				return doc
