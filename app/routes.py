@@ -151,14 +151,14 @@ def home():
 	if g.user.isPatient(): #is not doctor
 		issues = Issue.query.filter_by(patient_id=g.user.patient.id) 
 		complete = isPatientComplete(g.user.patient)
-		return render_template('issues.html', issues=issues, isDoctor=0, isComplete=complete, form1=createIssueForm)
+		return render_template('home.html', issues=issues, isDoctor=0, isComplete=complete, form1=createIssueForm)
 	elif g.user.isDoctor:
 		doctor_id = g.user.doctor.id
 		complete = isDoctorComplete(g.user.doctor)
 		#return str(g.user.doctor.isAvailableMethod())
 		#issues = Issue.query.filter_by(doctor_id=g.user.doctor.id)
 		issues = Issue.query.filter(Issue.doctors.any(id=doctor_id)).all()
-		return render_template('issues.html', issues=issues, isDoctor=1, isComplete=complete, form1=createIssueForm)
+		return render_template('home.html', issues=issues, isDoctor=1, isComplete=complete, form1=createIssueForm)
 
 
 
