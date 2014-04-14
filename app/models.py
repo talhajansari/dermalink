@@ -65,11 +65,11 @@ class Patient(db.Model):
 	# Relationships
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 	issues = db.relationship('Issue', backref='patient', lazy='dynamic')
-	isComplete = db.Column(db.Boolean()) # is profile complete
+	isComplete = db.Column(db.Boolean(), default=False) # is profile complete
 	firstName = db.Column(db.String(120), index = True, unique = False)
 	lastName = db.Column(db.String(120), index = True, unique = False)
 	gender = db.Column(db.String(12), index = True, unique = False)
-	age = db.Column(db.Integer, index = True, unique = False)
+	age = db.Column(db.Integer, default=0, index = True, unique = False)
 	ethnicity = db.Column(db.String(120), index = True, unique = False)
 
 	def owns_issue(self, id):
@@ -112,7 +112,7 @@ class Doctor(db.Model):
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 	issues = db.relationship('Issue', secondary=doc_table, backref=db.backref('doctors', lazy='dynamic')) 
 	# Number of issues they are willing to have at a time
-	issueLimit = db.Column(db.Integer())
+	issueLimit = db.Column(db.Integer(), default=0)
 	diagnoses = db.relationship('Diagnosis', backref='doctor', lazy='dynamic')
 
 	def isAvailableMethod(self):

@@ -21,6 +21,22 @@ def load_user(id):
 def before_request():
 	g.user = current_user
 
+def isPatientComplete(patient):
+	if patient.firstName is not None:
+		if patient.lastName is not None:
+			if patient.age !='0':
+				if patient.gender == 'male' or patient.gender == 'female':
+					patient.isComplete = 1
+					db.session.commit()
+					return True
+	return False
+
+def isDoctorComplete(doctor):
+	if doctor.firstName is not None and doctor.lastName is not None and doctor.hospital is not None and doctor.city is not None and doctor.state is not None and doctor.country is not None and doctor.issueLimit != '0':
+		doctor.isComplete = 1
+		db.session.commit()
+		return True
+	return False
 
 @app.route('/')
 @app.route('/index')
@@ -81,7 +97,7 @@ def signup():
 			user = User(password=password_hash, email=email, isDoctor=0)
 			db.session.add(user)
 			db.session.flush()
-			patient = Patient(user_id=user.id, isComplete = False)
+			patient = Patient(user_id=user.id, isComplete = 0)
 			db.session.add(patient)
 			db.session.flush()
 			user.patient = patient
@@ -114,7 +130,7 @@ def derm_signup():
 			user = User(password=password_hash, email=email, isDoctor=1)
 			db.session.add(user)
 			db.session.flush()
-			doctor = Doctor(user_id=user.id, isComplete = False)
+			doctor = Doctor(user_id=user.id, isComplete = 0)
 			db.session.add(doctor)
 			db.session.flush()
 			user.doctor = doctor
@@ -133,13 +149,15 @@ def home():
 	createIssueForm = CreateIssueForm()
 	if not g.user.isDoctor==1: #is not doctor
 		issues = Issue.query.filter_by(patient_id=g.user.patient.id) 
-		return render_template('issues.html', issues=issues, isDoctor=0, form1=createIssueForm)
+		complete = isPatientComplete(g.user.patient)
+		return render_template('issues.html', issues=issues, isDoctor=0, isComplete=complete, form1=createIssueForm)
 	elif g.user.isDoctor:
 		doctor_id = g.user.doctor.id
+		complete = isDoctorComplete(g.user.doctor)
 		#return str(g.user.doctor.isAvailableMethod())
 		#issues = Issue.query.filter_by(doctor_id=g.user.doctor.id)
 		issues = Issue.query.filter(Issue.doctors.any(id=doctor_id)).all()
-		return render_template('issues.html', issues=issues, isDoctor=1, form1=createIssueForm)
+		return render_template('issues.html', issues=issues, isDoctor=1, isComplete=complete, form1=createIssueForm)
 
 
 @app.route("/edit/<id>", methods=["POST", "GET"])
@@ -161,7 +179,7 @@ def editProfile(id):
 			if form.gender.data:
 				patient.gender = form.gender.data
 			if form.age.data:
-				patient.age = form.age.data
+				patient.age = int(form.age.data)
 			if form.ethnicity.data:
 				patient.ethnicity = form.ethnicity.data
 			if form.password.data:
@@ -174,7 +192,9 @@ def editProfile(id):
 				password_hash = bcrypt.generate_password_hash(form.password.data)
 				user.password = password_hash
 			db.session.commit()
-			isPatientComplete(patient)
+			if patient.firstName and patient.lastName and patient.gender and patient.age:
+				patient.isComplete = 1
+				db.session.commit()
 			return redirect(url_for('home'))
 		else:
 			doctor = user.doctor
@@ -280,7 +300,7 @@ def logout():
 
 # For now, it only assigns the issues to the first dermatologist
 def assignIssueToDoctor(issue):
-	doctors = Doctor.query.filter_by(isAvailable=1).all()
+	doctors = Doctor.query.filter_by(isAvailable=1, isComplete=1).all()
 	if len(doctors) is 0: # No available doctors
 		doc = Doctor.query.first()
 		doc.issues.append(issue)
@@ -294,14 +314,6 @@ def assignIssueToDoctor(issue):
 				db.session.commit()
 				return doc
 
-def isPatientComplete(patient):
-	if patient.firstName and patient.lastName and patient.gender and patient.age:
-		patient.isComplete = True
-		db.session.commit()
 
-def isDoctorComplete(doctor):
-	if doctor.firstName and doctor.lastName and doctor.hospital and doctor.city and doctor.state and doctor.country and doctor.issueLimit:
-		doctor.isComplete = True
-		db.session.commit()
 
 

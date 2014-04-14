@@ -4,7 +4,7 @@
 <body>
 <h1>Edit Profile</h1>
 {% if g.user.isDoctor %}
-{% if not g.user.isComplete%}
+{% if not g.user.doctor.isComplete %}
     You need to complete your profile before you can be assigned patient cases
 {% endif %}
 
@@ -45,19 +45,14 @@
     </p>
      <p>
         Number of cases willing to take at a time:<br>
-        {% for subfield in form.issueLimit %}
-            <tr>
-                <td>{{ subfield }}</td>
-                <td>{{ subfield.label }}</td>
-            </tr>
-        {% endfor %}
+        {{form.issueLimit()}}
     </p>
     <p><input type="submit" value="Submit"></p>
 </form>
 <br><br>
 {% else %}
 
-{% if not g.user.isComplete %}
+{% if g.user.patient.isComplete == 0 %}
     You need to complete your profile before you can create a case for doctors to look at
 {% endif %}
 
