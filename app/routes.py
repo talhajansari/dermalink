@@ -141,6 +141,7 @@ def home():
 		issues = Issue.query.filter(Issue.doctors.any(id=doctor_id)).all()
 		return render_template('issues.html', issues=issues, isDoctor=1, form1=createIssueForm)
 
+
 @app.route("/edit/<id>", methods=["POST", "GET"])
 @login_required
 def editProfile(id):
@@ -151,7 +152,7 @@ def editProfile(id):
 		return redirect(url_for('home'))
 	form = EditProfileForm()
 	if request.method == 'POST':
-		if not g.user.isDoctor==1: #is not doctor
+		if not g.user.isDoctor: #is not doctor
 			patient = user.patient
 			if form.firstName.data:
 				patient.firstName = form.firstName.data
@@ -201,10 +202,8 @@ def editProfile(id):
 			db.session.commit()
 			isDoctorComplete(doctor)
 			return redirect(url_for('home'))
+	# elif request.method == 'GET':
 	return render_template("edit.html", form=form)
-
-
-
 
 
 @app.route('/create', methods=['POST'])
@@ -271,12 +270,12 @@ def logout():
 # For now, it only assigns the issues to the first dermatologist
 def assignIssueToDoctor(issue):
 	doctors = Doctor.query.filter_by(isAvailable=1).all()
-	if len(doctors) is 0:
+	if len(doctors) is 0: # No available doctors
 		doc = Doctor.query.first()
 		doc.issues.append(issue)
 		db.session.commit()
 		return doc
-	else:
+	else: # At least one doctor available
 		for doc in doctors:
 			if doc.isAvailableMethod():
 				doc.issues.append(issue)
@@ -284,13 +283,12 @@ def assignIssueToDoctor(issue):
 				db.session.commit()
 				return doc
 
-
 def isPatientComplete(patient):
 	if patient.firstName and patient.lastName and patient.gender and patient.age:
 		patient.isComplete = True
 		db.session.commit()
 
-def isPatientComplete(doctor):
+def isDoctorComplete(doctor):
 	if doctor.firstName and doctor.lastName and doctor.hospital and doctor.city and doctor.state and doctor.country:
 		doctor.isComplete = True
 		db.session.commit()
