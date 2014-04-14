@@ -6,35 +6,53 @@
 {% else %}
 <h3>Doctor: Assigned Issues</h3>
 {% endif %}
-<ol>
-{% for issue in issues %}
-{% set issue_id = issue.id %}
-<li> <a href= "{{ url_for('show_issue', id=issue.id) }}" > {{issue.summary}} </a> - assigned to doctor ID
-	{% if issue.doctors is none %}
-	None
+
+{% if isDoctor %}
+	{% if not isComplete %}
+	    You need to complete your profile before you can be assigned a case
 	{% else %}
-	{% for doc in issue.doctors %}
-	{{ doc.id }}
-	{% endfor %}.
-	{% endif %}
-</li>
-{% endfor %}
-</ol>
+	<ol>
+	{% for issue in issues %}
+	{% set issue_id = issue.id %}
+	<li> <a href= "{{ url_for('show_issue', id=issue.id) }}" > {{issue.summary}} </a> 
+	</li>
+	{% endfor %}
+	</ol>
+	{%  endif %}
+{% endif %}
 {% if not isDoctor %}
-<br>
-Create a new Issue: 
-<form action="issue/create" method="post" name="create_issue">
-    {{form1.hidden_tag()}}
-    <p>
-        Please summarize your issue:<br>
-        {{form1.summary(size=256)}}<br>
-        {% for error in form1.errors.email %}
-        <span style="color: red;">[{{error}}]</span>
-        {% endfor %}<br>
-    </p>
-    <p><input type="submit" value="Create"></p>
-</form>
-<br><br>
+	{% if not isComplete %}
+    You need to complete your profile before you can create a case for doctors to look at
+	{% else %}
+		<ol>
+		{% for issue in issues %}
+		{% set issue_id = issue.id %}
+		<li> <a href= "{{ url_for('show_issue', id=issue.id) }}" > {{issue.summary}} </a> - assigned to doctor ID
+			{% if issue.doctors is none %}
+			None
+			{% else %}
+			{% for doc in issue.doctors %}
+			{{ doc.id }}
+			{% endfor %}.
+			{% endif %}
+		</li>
+		{% endfor %}
+		</ol>
+		<br>
+		Create a new Issue: 
+		<form action="{{url_for('create_issue')}}" method="post" name="create_issue">
+		    {{form1.hidden_tag()}}
+		    <p>
+		        Please summarize your issue:<br>
+		        {{form1.summary(size=256)}}<br>
+		        {% for error in form1.errors.email %}
+		        <span style="color: red;">[{{error}}]</span>
+		        {% endfor %}<br>
+		    </p>
+		    <p><input type="submit" value="Create"></p>
+		</form>
+		<br><br>
+	{% endif %}
 {% endif %}
 {% endblock %}
 

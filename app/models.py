@@ -71,7 +71,7 @@ class Patient(db.Model):
 	# Relationships
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 	issues = db.relationship('Issue', backref='patient', lazy='dynamic')
-	
+
 	def owns_issue(self, id):
 		issue = Issue.query.get(id)
 		if issue.patient == self:
@@ -111,7 +111,7 @@ class Doctor(db.Model):
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 	issues = db.relationship('Issue', secondary=doc_table, backref=db.backref('doctors', lazy='dynamic')) 
 	# Number of issues they are willing to have at a time
-	issueLimit = db.Column(db.Integer())
+	issueLimit = db.Column(db.Integer(), default=0)
 	diagnoses = db.relationship('Diagnosis', backref='doctor', lazy='dynamic')
 
 	def isAvailableMethod(self):

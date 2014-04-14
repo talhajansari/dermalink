@@ -2,6 +2,7 @@
 {% block content %}
 
 <h1>Edit Profile</h1>
+
 {% if g.user.isDoctor() %}
 {% if not g.user.doctor.isComplete %}
     You need to complete your profile before you can be assigned patient cases
@@ -44,12 +45,7 @@
     </p>
      <p>
         Number of cases willing to take at a time:<br>
-        {% for subfield in form.issueLimit %}
-            <tr>
-                <td>{{ subfield }}</td>
-                <td>{{ subfield.label }}</td>
-            </tr>
-        {% endfor %}
+        {{form.issueLimit()}}
     </p>
     <p><input type="submit" value="Submit"></p>
 </form>
