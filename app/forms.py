@@ -1,6 +1,10 @@
 from flask.ext.wtf import Form
 from wtforms import TextField, BooleanField, PasswordField, FileField, TextAreaField, SelectField, HiddenField, RadioField
+from flask_wtf.file import FileField, FileAllowed, FileRequired
 from wtforms.validators import Required
+from flask.ext.uploads import UploadSet, IMAGES
+
+images = UploadSet('images', IMAGES)
 
 class LoginForm(Form):
     email = TextField('email', validators = [Required()])
@@ -28,6 +32,12 @@ class EditProfileForm(Form):
     city = TextField('city')
     state = TextField('state')
     country = TextField('country')
+    issueLimit = SelectField('issueLimit', choices=[('1', '1'), ('2', '2'), ('3', '3'), ('4', '4'), ('5', '5'), ('6', '6'), ('7', '7'), ('8', '8'), ('9', '9'), ('10', '10')])
+
 
 class CreateIssueForm(Form):
     summary = TextAreaField('summary', validators = [Required()])
+    image = FileField('image', validators = [FileRequired(), FileAllowed(images, 'Images Only!')])
+
+class DiagnosisForm(Form):
+    diagnosis = TextAreaField('diagnosis', validators = [Required()])

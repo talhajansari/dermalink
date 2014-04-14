@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>Create Issue</h1>
+<br><br>
+<form action="{{ url_for('create_issue') }}" method="post" name="create_issue", enctype="multipart/form-data">
+
+    {{form.hidden_tag()}}
+    <p>
+        Please describe your problem:<br>
+        {{form.summary(size=250)}}<br>
+    </p>
+    <p>
+        Upload a picture:<br>
+        {{form.image(size=80)}}<br>
+    </p>
+    <p><input type="submit" value="Submit"></p>
+</form>
+
+{% endblock %}
+

@@ -1,6 +1,7 @@
 from app import db
 import time
-import datetime
+from datetime import datetime
+from sqlalchemy.orm import class_mapper, ColumnProperty
 
 
 
@@ -13,11 +14,26 @@ class User(db.Model):
 	id = db.Column(db.Integer, primary_key = True)
 	password = db.Column(db.String(64), index = False, unique = False)
 	email = db.Column(db.String(120), index = True, unique = True)
-	timestamp = db.Column(db.DateTime, index = False, unique = False)
-	isDoctor = db.Column(db.Boolean, index=True, unique = False)
+	timestamp = db.Column(db.DateTime, index = False, unique = False, default=datetime.utcnow())
+	role = db.Column(db.String(64), index=True, unique=False)
 	# Relationships
 	patient = db.relationship('Patient', backref='user', uselist=False)
 	doctor = db.relationship('Doctor', backref='user', uselist=False)
+
+	def isPatient(self):
+		if self.role=='PATIENT':
+			return True
+		return False
+
+	def isDoctor(self):
+		if self.role=='DOCTOR':
+			return True
+		return False
+
+	def isAdmin(self):
+		if self.role=='ADMIN':
+			return True
+		return False
 
 	def is_authenticated(self):
 		return True
@@ -50,16 +66,12 @@ class Patient(db.Model):
 	phone = db.Column(db.Integer, index=True, unique = False)
 	# Others
 	ethnicity = db.Column(db.String(120), index = True, unique = False) # Should be optional - legal issues(?) if we force users to reveal this information
+	# DermaNet
+	isComplete = db.Column(db.Boolean(), index = True, unique=False, default=0) # is profile complete
 	# Relationships
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 	issues = db.relationship('Issue', backref='patient', lazy='dynamic')
-	isComplete = db.Column(db.Boolean()) # is profile complete
-	firstName = db.Column(db.String(120), index = True, unique = False)
-	lastName = db.Column(db.String(120), index = True, unique = False)
-	gender = db.Column(db.String(12), index = True, unique = False)
-	age = db.Column(db.Integer, index = True, unique = False)
-	ethnicity = db.Column(db.String(120), index = True, unique = False)
-
+	
 	def owns_issue(self, id):
 		issue = Issue.query.get(id)
 		if issue.patient == self:
@@ -98,6 +110,9 @@ class Doctor(db.Model):
 	# Relationships
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 	issues = db.relationship('Issue', secondary=doc_table, backref=db.backref('doctors', lazy='dynamic')) 
+	# Number of issues they are willing to have at a time
+	issueLimit = db.Column(db.Integer())
+	diagnoses = db.relationship('Diagnosis', backref='doctor', lazy='dynamic')
 
 	def isAvailableMethod(self):
 		currentIssues = self.currentNumIssues()
@@ -123,7 +138,7 @@ class Doctor(db.Model):
 		doctor_id = self.id
 		assignedIssues = Issue.query.filter(Issue.doctors.any(id=doctor_id)).all()
 		for issue in assignedIssues:
-			if int(issue.id)==int(id):
+			if int(issue.id) is int(id):
 				authenticate = True
 		return authenticate
 
@@ -131,14 +146,29 @@ class Doctor(db.Model):
 # Set of images pertaining to a single issue
 class Issue(db.Model):
 	id = db.Column(db.Integer, primary_key = True)
-	summary = db.Column(db.String(64), index = False, unique = False)
+	# bodyPart = db.Column(db.String(64), index = False, unique = False) 
+	summary = db.Column(db.String(250), index = False, unique = False)
 	# # Need to keep more information about the issue
-	timestamp = db.Column(db.DateTime, index = False, unique = False) # when was the issue created online
+	timestamp = db.Column(db.DateTime, index = False, unique = False, default=datetime.utcnow()) # when was the issue created online
 	# howOld = db.Column(db.Integer(2), index = False, unique = False) # how many weeks old is the 'issue'
 	isClosed = db.Column(db.Boolean, index = False, unique = False) # has the 'issue' been resolved?
+	isComplete = db.Column(db.Boolean, index = False, unique = False, default = False) 
 	# Relationships
 	patient_id = db.Column(db.Integer, db.ForeignKey('patient.id'))
 	images = db.relationship('Image', backref='issue', lazy='dynamic')
+	diagnoses = db.relationship('Diagnosis', backref='issue', lazy='dynamic')
+
+	def isIssueComplete(self):
+		for col in self.columns:
+			if self.col:
+				self.isComplete = False
+				return False
+		self.isComplete = True
+		return True
+
+	def columns(self):
+		return [prop.key for prop in class_mapper(self.__class__).iterate_properties
+			if isinstance(prop, ColumnProperty)]
 
 # An image within an issue
 class Image(db.Model):
@@ -149,7 +179,11 @@ class Image(db.Model):
 	timestamp = db.Column(db.DateTime)
 	issue_id = db.Column(db.Integer, db.ForeignKey('issue.id'))
 
-	
+class Diagnosis(db.Model):
+	id = db.Column(db.Integer, primary_key = True)
+	doc_id = db.Column(db.Integer, db.ForeignKey('doctor.id'))
+	issue_id = db.Column(db.Integer, db.ForeignKey('issue.id'))
+	diagnosis = db.Column(db.String(512), unique=False)
 
 
 

@@ -23,11 +23,29 @@ Resolved: No
   {% endfor %}
 </ul>
 
+{% if g.user.isDoctor() %}
+	<form action="{{url_for('show_issue', id=issue.id)}}" method="post" name="showIssue">
+	    {{form.hidden_tag()}}
+	    <p>
+	        Please enter your diagnosis:<br>
+	        {{form.diagnosis(size=80)}}<br>
+	    </p>
+	    <p><input type="submit" value="Submit"></p>
+	</form>
+{% else %}
 
 <h4> Upload a new picture: </h4> <br>
 <form method=POST enctype=multipart/form-data action="{{ url_for('upload', issue_id=issue.id) }}">
-<input type="file" name="image" id="image"></input>
-<input type="submit"></input>
+	<input type="file" name="image" id="image"></input>
+	<input type="submit"></input>
 <form>
+<br>
+
+Diagnoses:
+	{% for diagnosis in issue.diagnoses %}
+		<p>{{ diagnosis.diagnosis }}</p>
+	{% endfor %}
+
+{% endif %}
 
 {% endblock %}

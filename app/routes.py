@@ -2,9 +2,11 @@ from app import app, db, lm, bcrypt
 from flask import render_template, flash, redirect, session, url_for, request, g, jsonify
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from flaskext.uploads import UploadSet, configure_uploads, IMAGES
-from forms import LoginForm, SignupForm, CreateIssueForm, DermSignupForm, EditProfileForm
-from models import User, Image, Issue, Patient, Doctor
+from forms import LoginForm, SignupForm, CreateIssueForm, DermSignupForm, EditProfileForm, DiagnosisForm
+from models import User, Image, Issue, Patient, Doctor, Diagnosis
 from datetime import datetime
+from flask.ext.sendmail import Message
+from werkzeug import secure_filename
 
 reserved_usernames = 'home signup login logout post'
 
@@ -78,7 +80,7 @@ def signup():
 				flash('That email is already in use')
 				return redirect(url_for('index'))			
 			# Create the user
-			user = User(password=password_hash, email=email, isDoctor=0)
+			user = User(password=password_hash, email=email, role='PATIENT')
 			db.session.add(user)
 			db.session.flush()
 			patient = Patient(user_id=user.id, isComplete = False)
@@ -89,7 +91,7 @@ def signup():
 			db.session.commit()
 		login_user(user, remember=True)
 		#return redirect(request.args.get("next") or url_for("editProfile", username=user.username, user=user))
-		return redirect(url_for("home"))
+		return redirect(url_for("editProfile", id=user.id))
 	return render_template("index.html", title = 'Sign Up', form1=loginForm, form2=signupForm, form3=derm_signupForm)
 
 
@@ -111,7 +113,7 @@ def derm_signup():
 				flash('That email is already in use')
 				return redirect(url_for('index'))
 			# Create the user
-			user = User(password=password_hash, email=email, isDoctor=1)
+			user = User(password=password_hash, email=email, role='DOCTOR')
 			db.session.add(user)
 			db.session.flush()
 			doctor = Doctor(user_id=user.id, isComplete = False)
@@ -122,8 +124,7 @@ def derm_signup():
 			db.session.commit()
 		login_user(user, remember=True)
 		#return redirect(request.args.get("next") or url_for("editProfile", username=user.username, user=user))
-		#return redirect(url_for("derm_home"))
-		return redirect(url_for("home"))
+		return redirect(url_for("editProfile", id=user.id))
 	return render_template("index.html", title = 'Sign Up', form1=loginForm, form2=signupForm, form3=derm_signupForm)
 
 
@@ -131,15 +132,15 @@ def derm_signup():
 @login_required
 def home():
 	createIssueForm = CreateIssueForm()
-	if not g.user.isDoctor==1: #is not doctor
+	if g.user.isPatient(): #is not doctor
 		issues = Issue.query.filter_by(patient_id=g.user.patient.id) 
-		return render_template('issues.html', issues=issues, isDoctor=0, form1=createIssueForm)
-	elif g.user.isDoctor:
+		return render_template('home.html', issues=issues, isDoctor=0, form1=createIssueForm)
+	elif g.user.isDoctor():
 		doctor_id = g.user.doctor.id
 		#return str(g.user.doctor.isAvailableMethod())
 		#issues = Issue.query.filter_by(doctor_id=g.user.doctor.id)
 		issues = Issue.query.filter(Issue.doctors.any(id=doctor_id)).all()
-		return render_template('issues.html', issues=issues, isDoctor=1, form1=createIssueForm)
+		return render_template('home.html', issues=issues, isDoctor=1, form1=createIssueForm)
 
 
 @app.route("/edit/<id>", methods=["POST", "GET"])
@@ -152,7 +153,7 @@ def editProfile(id):
 		return redirect(url_for('home'))
 	form = EditProfileForm()
 	if request.method == 'POST':
-		if not g.user.isDoctor: #is not doctor
+		if g.user.isPatient(): #is not doctor
 			patient = user.patient
 			if form.firstName.data:
 				patient.firstName = form.firstName.data
@@ -203,36 +204,58 @@ def editProfile(id):
 			isDoctorComplete(doctor)
 			return redirect(url_for('home'))
 	# elif request.method == 'GET':
-	return render_template("edit.html", form=form)
+	return render_template("edit_profile.html", form=form)
 
 
-@app.route('/create', methods=['POST'])
+@app.route('/create', methods=['GET', 'POST'])
 @login_required
 def create_issue():
 	createIssueForm = CreateIssueForm()
+	if request.method=='GET':
+		return render_template('create_issue.html', form=createIssueForm)
 	if createIssueForm.validate_on_submit():
 		summary = createIssueForm.summary.data
+		filename = secure_filename(createIssueForm.image.data.filename)
 		user_id = g.user.id
 		patient_id = g.user.patient.id
 		issue = Issue(summary=summary, timestamp= datetime.utcnow(), patient_id=patient_id, isClosed=0)
 		db.session.add(issue)
 		db.session.flush()
+		image = Image(filename=filename, issue_id=issue.id)
+		createIssueForm.image.file.save('uploads/'+str(filename))
+		db.session.add(image)
+		db.session.flush()
 		assignIssueToDoctor(issue)
 		db.session.commit()
 		issue_id = issue.id
-		return redirect(url_for('upload', issue_id=issue_id))
+		return redirect(url_for('show_issue', id=issue_id))
 
 
-@app.route('/home/<id>')
+@app.route('/home/<id>', methods=['GET', 'POST'])
 @login_required
 def show_issue(id):
-	if not g.user.isDoctor:
+	form = DiagnosisForm()
+	if request.method == 'POST':
+		issue = Issue.query.get(id)
+		summary = form.diagnosis.data
+		diagnosis = Diagnosis(diagnosis=summary, doc_id=g.user.doctor.id, issue_id=id)
+		db.session.add(diagnosis)
+		issue.diagnoses.append(diagnosis)
+		g.user.doctor.diagnoses.append(diagnosis)
+		issue.isClosed = True
+		db.session.commit()
+		#send a message
+		msg = Message("Your complaint, \'" + str(issue.summary) + "\', has been diagnosed by Dr. " + str(diagnosis.doctor.lastName) + ".",
+                  sender="talhajansari+dermalink_sender@gmail.com",
+                  recipients=["talhajansari+dermalink_receiver@gmail.com"])
+		return redirect(url_for("home"))
+	issue = Issue.query.get(id)
+	if g.user.isPatient():
 		authenticate = g.user.patient.owns_issue(id)
-	elif g.user.isDoctor:
+	elif g.user.isDoctor():
 		authenticate = g.user.doctor.owns_issue(id)
 	if authenticate is False:
 		return redirect(url_for("home"))
-	issue = Issue.query.get(id)
 	if issue is None:
 		return 'No such issue found'
 	pics = Image.query.filter_by(issue_id=id).all()
@@ -240,7 +263,7 @@ def show_issue(id):
 	for image in pics:
 		url = images.url(image.filename)
 		URLs.append(url)
-	return render_template('show_issue.html', issue=issue, URLs=URLs, images=images)
+	return render_template('show_issue.html', issue=issue, URLs=URLs, images=images, form=form)
 
 
 @app.route('/home/<issue_id>/upload', methods=['GET', 'POST'])
@@ -289,7 +312,7 @@ def isPatientComplete(patient):
 		db.session.commit()
 
 def isDoctorComplete(doctor):
-	if doctor.firstName and doctor.lastName and doctor.hospital and doctor.city and doctor.state and doctor.country:
+	if doctor.firstName and doctor.lastName and doctor.hospital and doctor.city and doctor.state and doctor.country and doctor.issueLimit:
 		doctor.isComplete = True
 		db.session.commit()
 

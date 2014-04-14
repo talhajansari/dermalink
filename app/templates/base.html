@@ -22,10 +22,15 @@
 		<div class="navbar-inner">
 			<a class="brand" href="{{url_for('index') }}">Skin Check</a>
 			<ul class="nav">
-				<li><a href="{{ url_for('home') }}">Home</a></li>
 				{% set user_id = g.user.id %}
+				{% if g.user.is_authenticated() %}
+				<li><a href="{{ url_for('home') }}">Home</a></li>
 				<li><a href="{{ url_for('editProfile', id=user_id) }}">Edit Profile</a></li>
 				<li><a href="{{ url_for('logout') }}">Logout</a></li>
+				<li class="active"><a href=""> You are logged in as a {{g.user.role}} </a></li>
+				{% else %}
+				<li class="active"><a href=""> Sign up or login to use the service</a></li>
+				{% endif %}
 			</ul>
 		</div>
 	</div>

@@ -2,8 +2,13 @@
 {% block content %}
 
 <h1>Edit Profile</h1>
-{% if g.user.isDoctor %}
+{% if g.user.isDoctor() %}
+{% if not g.user.doctor.isComplete %}
+    You need to complete your profile before you can be assigned patient cases
+{% endif %}
+<br>
 <form action="{{ url_for('editProfile', id=g.user.id) }}" method="post" name="editProfile">
+
     {{form.hidden_tag()}}
     <p>
         Please enter your Password:<br>
@@ -37,10 +42,24 @@
         Please enter your Country:<br>
         {{form.country(size=80)}}<br>
     </p>
+     <p>
+        Number of cases willing to take at a time:<br>
+        {% for subfield in form.issueLimit %}
+            <tr>
+                <td>{{ subfield }}</td>
+                <td>{{ subfield.label }}</td>
+            </tr>
+        {% endfor %}
+    </p>
     <p><input type="submit" value="Submit"></p>
 </form>
 <br><br>
-{% else %}
+{% elif g.user.isPatient() %}
+
+{% if not g.user.patient.isComplete %}
+    You need to complete your profile before you can create a case for doctors to look at
+{% endif %}
+<br>
 <form action="{{ url_for('editProfile', id=g.user.id) }}" method="post" name="editProfile">
     {{form.hidden_tag()}}
     <p>
