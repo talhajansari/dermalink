@@ -28,15 +28,15 @@ def isPatientComplete(patient):
 				if patient.gender == 'male' or patient.gender == 'female':
 					patient.isComplete = 1
 					db.session.commit()
-					return True
-	return False
+					return 1
+	return 0
 
 def isDoctorComplete(doctor):
 	if doctor.firstName is not None and doctor.lastName is not None and doctor.hospital is not None and doctor.city is not None and doctor.state is not None and doctor.country is not None and doctor.issueLimit != '0':
 		doctor.isComplete = 1
 		db.session.commit()
-		return True
-	return False
+		return 1
+	return 0
 
 @app.route('/')
 @app.route('/index')
