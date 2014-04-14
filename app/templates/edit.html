@@ -1,0 +1,85 @@
+<html>
+<head>
+</head>
+<body>
+<h1>Edit Profile</h1>
+{% if g.user.isDoctor %}
+<form action="editProfile" method="post" name="editProfile">
+    {{form.hidden_tag()}}
+    <p>
+        Please enter your Password:<br>
+        {{form.password(size=80)}}<br>
+    </p>
+    <p>
+        Please confirm your password:<br>
+        {{form.confirmPassword(size=80)}}<br>
+    </p>
+    <p>
+        Please enter your First Name:<br>
+        {{form.firstName(size=80)}}<br>
+    </p>
+    <p>
+        Please enter your Last Name:<br>
+        {{form.lastName(size=80)}}<br>
+    </p>
+    <p>
+        Please enter your Hospital:<br>
+        {{form.hospital(size=80)}}<br>
+    </p>
+    <p>
+        Please enter your City:<br>
+        {{form.city(size=80)}}<br>
+    </p>
+    <p>
+        Please enter your State:<br>
+        {{form.state(size=80)}}<br>
+    </p>
+    <p>
+        Please enter your Country:<br>
+        {{form.country(size=80)}}<br>
+    </p>
+    <p><input type="submit" value="Submit"></p>
+</form>
+<br><br>
+{% else %}
+<form action="editProfile" method="post" name="editProfile">
+    {{form.hidden_tag()}}
+    <p>
+        Please enter your Password:<br>
+        {{form.password(size=80)}}<br>
+    </p>
+    <p>
+        Please confirm your password:<br>
+        {{form.confirmPassword(size=80)}}<br>
+    </p>
+    <p>
+        Please enter your First Name:<br>
+        {{form.firstName(size=80)}}<br>
+    </p>
+    <p>
+        Please enter your Last Name:<br>
+        {{form.lastName(size=80)}}<br>
+    </p>
+    <p>
+        Select your gender:<br>
+        {% for subfield in form.gender %}
+            <tr>
+                <td>{{ subfield }}</td>
+                <td>{{ subfield.label }}</td>
+            </tr>
+        {% endfor %}
+    </p>
+    <p>
+        Please enter your Age:<br>
+        {{form.city(size=80)}}<br>
+    </p>
+    <p>
+        Please enter your Ethnicity:<br>
+        {{form.state(size=80)}}<br>
+    </p>
+    <p><input type="submit" value="Submit"></p>
+</form>
+{% endif %}
+</body>
+</html>
+
