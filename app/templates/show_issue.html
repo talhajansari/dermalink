@@ -14,7 +14,7 @@ Resolved: No
 
 {% if g.user.isDoctor %}
 
-	<form action="showIssue" method="post" name="showIssue">
+	<form action="{{url_for('show_issue', id=issue.id)}}" method="post" name="showIssue">
 	    {{form.hidden_tag()}}
 	    <p>
 	        Please enter your diagnosis:<br>

@@ -231,7 +231,6 @@ def create_issue():
 def show_issue(id):
 	form = DiagnosisForm()
 	if request.method == 'POST':
-		id = request.form['hidden']
 		issue = Issue.query.get(id)
 		summary = form.diagnosis.data
 		diagnosis = Diagnosis(diagnosis=summary, doc_id=g.user.doctor.id, issue_id=id)
