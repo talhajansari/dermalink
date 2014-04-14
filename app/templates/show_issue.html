@@ -1,8 +1,7 @@
-<html>
-<head>
-</head></head>
-<body>
-<h4> Issue: {{issue.summary}}</h4>
+{% extends "base.html" %}
+{% block content %}
+
+<h3> Issue: {{issue.summary}}</h3>
 Issue ID: {{issue.id}} <br>
 Patient: {{issue.patient.firstName}} {{issue.patient.lastName}} <br>
 Date Created: {{issue.timestamp}} <br>
@@ -12,17 +11,23 @@ Resolved: Yes
 Resolved: No
 {% endif %}
 
+<br>
+<h4> Already uploaded pictures </h4>
+<ul class="thumbnails">
+  {% for url in URLs%}
+  <li class="span4">
+    <a href="{{url}}" class="thumbnail">
+      <img src='{{url}}' alt="">
+    </a>
+  </li>
+  {% endfor %}
+</ul>
+
+
+<h4> Upload a new picture: </h4> <br>
 <form method=POST enctype=multipart/form-data action="{{ url_for('upload', issue_id=issue.id) }}">
-Upload a picture: 
 <input type="file" name="image" id="image"></input>
 <input type="submit"></input>
 <form>
-<br>
-{% for url in URLs%}
-<img src={{url}}></img>
-<br>
-{% endfor %}
-<br><br>
-<a href="{{ url_for('logout') }}">logout</a>
-</body>
-</html>
+
+{% endblock %}

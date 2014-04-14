@@ -1,14 +1,9 @@
-<html>
-<head>
-</head></head>
-<body>
+{% extends "base.html" %}
+{% block content %}
 <h4> Issue: {{issue.summary}}</h4>
 <form method=POST enctype=multipart/form-data action="{{ url_for('upload', issue_id=issue.id) }}">
 <input type="file" name="image" id="image"></input>
 <input type="submit"></input>
 <form>
-<br><br>
-<a href="{{ url_for('logout') }}">logout</a>
-</body>
-</html>
+{% endblock %}
 

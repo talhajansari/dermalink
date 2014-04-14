@@ -1,7 +1,6 @@
-<html>
-<head>
-</head></head>
-<body>
+{% extends "base.html" %}
+{% block content %}
+
 {% if not isDoctor %}
 <h3>Patient: Reported Issues</h3>
 {% else %}
@@ -37,10 +36,5 @@ Create a new Issue:
 </form>
 <br><br>
 {% endif %}
-<br><br>
-<a href="{{ url_for('editProfile', id=g.user.id) }}">Edit Profile</a>
-<br><br>
-<a href="{{ url_for('logout') }}">logout</a>
-</body>
-</html>
+{% endblock %}
 

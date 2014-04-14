@@ -15,18 +15,6 @@ class User(db.Model):
 	email = db.Column(db.String(120), index = True, unique = True)
 	timestamp = db.Column(db.DateTime, index = False, unique = False)
 	isDoctor = db.Column(db.Boolean, index=True, unique = False)
-	# # Profile information
-	# firstName = db.Column(db.String(120), index = True, unique = False)
-	# lastName = db.Column(db.String(120), index = True, unique = False)
-	# gender = db.Column(db.String(12), index = True, unique = False)
-	# age = db.Column(db.Integer, index = True, unique = False)
-	# # Address fields
-	# city = db.Column(db.String(120), index = True, unique = False)
-	# state = db.Column(db.String(120), index = True, unique = False)
-	# zipcode = db.Column(db.Integer, index = True, unique = False)
-	# country = db.Column(db.String(120), index = True, unique = False)
-	# # Others
-	# ethnicity = db.Column(db.String(120), index = True, unique = False) # Should be optional - legal issues(?) if we force users to reveal this information
 	# Relationships
 	patient = db.relationship('Patient', backref='user', uselist=False)
 	doctor = db.relationship('Doctor', backref='user', uselist=False)
@@ -89,7 +77,6 @@ class Doctor(db.Model):
 	age = db.Column(db.Integer, index = True, unique = False)
 	isComplete = db.Column(db.Boolean()) # is profile complete
 	# Home Address fields
-
 	city = db.Column(db.String(120), index = True, unique = False)
 	state = db.Column(db.String(120), index = True, unique = False)
 	zipcode = db.Column(db.Integer, index = True, unique = False)
@@ -152,10 +139,6 @@ class Issue(db.Model):
 	# Relationships
 	patient_id = db.Column(db.Integer, db.ForeignKey('patient.id'))
 	images = db.relationship('Image', backref='issue', lazy='dynamic')
-
-
-	#def assignedTo(self):
-	#	return Issue.query.filter(Issue.doctors.any(id=doctor_id)).all()
 
 # An image within an issue
 class Image(db.Model):

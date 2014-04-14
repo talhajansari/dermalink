@@ -1,7 +1,6 @@
-<html>
-<head>
-</head>
-<body>
+{% extends "base.html" %}
+{% block content %}
+
 <h1>Edit Profile</h1>
 {% if g.user.isDoctor %}
 <form action="{{ url_for('editProfile', id=g.user.id) }}" method="post" name="editProfile">
@@ -80,6 +79,6 @@
     <p><input type="submit" value="Submit"></p>
 </form>
 {% endif %}
-</body>
-</html>
+
+{% endblock %}
 
