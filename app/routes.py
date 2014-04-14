@@ -4,6 +4,7 @@ from flask.ext.login import login_user, logout_user, current_user, login_require
 from flaskext.uploads import UploadSet, configure_uploads, IMAGES
 from forms import LoginForm, SignupForm, CreateIssueForm, DermSignupForm, EditProfileForm, DiagnosisForm
 from models import User, Image, Issue, Patient, Doctor, Diagnosis
+from datetime import datetime
 
 reserved_usernames = 'home signup login logout post'
 
@@ -135,9 +136,11 @@ def home():
 		return render_template('issues.html', issues=issues, isDoctor=0, form1=createIssueForm)
 	elif g.user.isDoctor:
 		doctor_id = g.user.doctor.id
+		#return str(g.user.doctor.isAvailableMethod())
 		#issues = Issue.query.filter_by(doctor_id=g.user.doctor.id)
 		issues = Issue.query.filter(Issue.doctors.any(id=doctor_id)).all()
 		return render_template('issues.html', issues=issues, isDoctor=1, form1=createIssueForm)
+
 
 @app.route("/edit/<id>", methods=["POST", "GET"])
 @login_required
@@ -149,7 +152,7 @@ def editProfile(id):
 		return redirect(url_for('home'))
 	form = EditProfileForm()
 	if request.method == 'POST':
-		if not g.user.isDoctor==1: #is not doctor
+		if not g.user.isDoctor: #is not doctor
 			patient = user.patient
 			if form.firstName.data:
 				patient.firstName = form.firstName.data
@@ -199,13 +202,11 @@ def editProfile(id):
 			db.session.commit()
 			isDoctorComplete(doctor)
 			return redirect(url_for('home'))
+	# elif request.method == 'GET':
 	return render_template("edit.html", form=form)
 
 
-
-
-
-@app.route('/issue/create', methods=['POST'])
+@app.route('/create', methods=['POST'])
 @login_required
 def create_issue():
 	createIssueForm = CreateIssueForm()
@@ -213,20 +214,17 @@ def create_issue():
 		summary = createIssueForm.summary.data
 		user_id = g.user.id
 		patient_id = g.user.patient.id
-		doctors = Doctor.query
-		if doctors is None:
-			return 'no doc found'
-		else:
-			selectedDoc = doctors.first()
-			issue = Issue(summary=summary, patient_id=patient_id, isClosed=0)
-			db.session.add(issue)
-			db.session.flush()
-			selectedDoc.issues.append(issue)  
-			db.session.commit()
+		issue = Issue(summary=summary, timestamp= datetime.utcnow(), patient_id=patient_id, isClosed=0)
+		db.session.add(issue)
+		db.session.flush()
+		assignIssueToDoctor(issue)
+		db.session.commit()
 		issue_id = issue.id
 		return redirect(url_for('upload', issue_id=issue_id))
 
-@app.route('/issues/<id>', methods=['GET', 'POST'])
+
+
+@app.route('/home/<id>', methods=['GET', 'POST'])
 @login_required
 def show_issue(id):
 	form = DiagnosisForm()
@@ -256,7 +254,7 @@ def show_issue(id):
 	return render_template('show_issue.html', issue=issue, URLs=URLs, images=images, form=form)
 
 
-@app.route('/issue/<issue_id>/upload', methods=['GET', 'POST'])
+@app.route('/home/<issue_id>/upload', methods=['GET', 'POST'])
 @login_required
 def upload(issue_id):
 	if request.method == 'POST' and 'image' in request.files:
@@ -268,7 +266,6 @@ def upload(issue_id):
 	issue = Issue.query.get(issue_id)
 	#return str(issue.summary)
 	return render_template('upload.html', issue=issue)
-
 
 
 @app.route("/logout")
@@ -283,25 +280,28 @@ def logout():
 
 # For now, it only assigns the issues to the first dermatologist
 def assignIssueToDoctor(issue):
-	doctors = Doctor.query.all()
-	if doctors is None:
-		return None
-	else:
-		selectedDoc = doctors.first()
-		issue.doctor = selectedDoc
+	doctors = Doctor.query.filter_by(isAvailable=1).all()
+	if len(doctors) is 0: # No available doctors
+		doc = Doctor.query.first()
+		doc.issues.append(issue)
 		db.session.commit()
-		return selectedDoc
-
+		return doc
+	else: # At least one doctor available
+		for doc in doctors:
+			if doc.isAvailableMethod():
+				doc.issues.append(issue)
+				doc.isAvailableMethod()
+				db.session.commit()
+				return doc
 
 def isPatientComplete(patient):
 	if patient.firstName and patient.lastName and patient.gender and patient.age:
 		patient.isComplete = True
 		db.session.commit()
 
-def isPatientComplete(doctor):
+def isDoctorComplete(doctor):
 	if doctor.firstName and doctor.lastName and doctor.hospital and doctor.city and doctor.state and doctor.country and doctor.issueLimit:
 		doctor.isComplete = True
 		db.session.commit()
-
 
 

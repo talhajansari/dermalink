@@ -10,7 +10,15 @@
 <ol>
 {% for issue in issues %}
 {% set issue_id = issue.id %}
-<li> <a href= "{{ url_for('show_issue', id=issue.id) }}" > {{issue.summary}} </a> </li>
+<li> <a href= "{{ url_for('show_issue', id=issue.id) }}" > {{issue.summary}} </a> - assigned to doctor ID
+	{% if issue.doctors is none %}
+	None
+	{% else %}
+	{% for doc in issue.doctors %}
+	{{ doc.id }}
+	{% endfor %}.
+	{% endif %}
+</li>
 {% endfor %}
 </ol>
 {% if not isDoctor %}

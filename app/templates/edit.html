@@ -7,7 +7,9 @@
 {% if not g.user.isComplete%}
     You need to complete your profile before you can be assigned patient cases
 {% endif %}
-<form action="editProfile" method="post" name="editProfile">
+
+<form action="{{ url_for('editProfile', id=g.user.id) }}" method="post" name="editProfile">
+
     {{form.hidden_tag()}}
     <p>
         Please enter your Password:<br>
@@ -54,10 +56,12 @@
 </form>
 <br><br>
 {% else %}
+
 {% if not g.user.isComplete %}
     You need to complete your profile before you can create a case for doctors to look at
 {% endif %}
-<form action="editProfile" method="post" name="editProfile">
+
+<form action="{{ url_for('editProfile', id=g.user.id) }}" method="post" name="editProfile">
     {{form.hidden_tag()}}
     <p>
         Please enter your Password:<br>
