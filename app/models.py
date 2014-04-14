@@ -65,6 +65,12 @@ class Patient(db.Model):
 	# Relationships
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 	issues = db.relationship('Issue', backref='patient', lazy='dynamic')
+	isComplete = db.Column(db.Boolean()) # is profile complete
+	firstName = db.Column(db.String(120), index = True, unique = False)
+	lastName = db.Column(db.String(120), index = True, unique = False)
+	gender = db.Column(db.String(12), index = True, unique = False)
+	age = db.Column(db.Integer, index = True, unique = False)
+	ethnicity = db.Column(db.String(120), index = True, unique = False)
 
 	def owns_issue(self, id):
 		issue = Issue.query.get(id)
@@ -75,12 +81,15 @@ class Patient(db.Model):
 
 class Doctor(db.Model):
 	id = db.Column(db.Integer, primary_key = True)	
+
 	# Profile information
 	firstName = db.Column(db.String(120), index = True, unique = False)
 	lastName = db.Column(db.String(120), index = True, unique = False)
 	gender = db.Column(db.String(12), index = True, unique = False)
 	age = db.Column(db.Integer, index = True, unique = False)
+	isComplete = db.Column(db.Boolean()) # is profile complete
 	# Home Address fields
+
 	city = db.Column(db.String(120), index = True, unique = False)
 	state = db.Column(db.String(120), index = True, unique = False)
 	zipcode = db.Column(db.Integer, index = True, unique = False)
