@@ -7,12 +7,21 @@ from models import User, Image, Issue, Patient, Doctor, Diagnosis
 from datetime import datetime
 from flask.ext.sendmail import Message
 from werkzeug import secure_filename
+from twilio.rest import TwilioRestClient
+ 
+account = 'AC6056ccab9b128c038c932d4bbf81b662'
+token = 'd6a72dff4e0f118e2e52d15ef51f4548'
+client = TwilioRestClient(account, token)
+MY_TWILIO_NUMBER = '+14408478798'
 
 reserved_usernames = 'home signup login logout post'
 
 images = UploadSet('images', IMAGES)
 configure_uploads(app, images)
 
+def SendSMS(number, body):
+	client.sms.messages.create(to='+14403343014', from_=MY_TWILIO_NUMBER,
+                                     body=body)
 
 @lm.user_loader
 def load_user(id):
@@ -27,14 +36,15 @@ def isPatientComplete(patient):
 	if patient.firstName is not None:
 		if patient.lastName is not None:
 			if patient.age !='0':
-				if patient.gender == 'male' or patient.gender == 'female':
-					patient.isComplete = 1
-					db.session.commit()
-					return 1
+				if patient.phone !='0':
+					if patient.gender == 'male' or patient.gender == 'female':
+						patient.isComplete = 1
+						db.session.commit()
+						return 1
 	return 0
 
 def isDoctorComplete(doctor):
-	if doctor.firstName is not None and doctor.lastName is not None and doctor.hospital is not None and doctor.city is not None and doctor.state is not None and doctor.country is not None and doctor.issueLimit != '0':
+	if doctor.firstName is not None and doctor.lastName is not None and doctor.hospital is not None and doctor.city is not None and doctor.state is not None and doctor.country is not None and doctor.issueLimit != '0' and doctor.phone !='0':
 		doctor.isComplete = 1
 		db.session.commit()
 		return 1
@@ -174,12 +184,15 @@ def editProfile(id):
 	if request.method == 'POST':
 		if g.user.isPatient(): #is not doctor
 			patient = user.patient
+			SendSMS(patient.phone, "SkinCheck: Your complaint")
 			if form.firstName.data:
 				patient.firstName = form.firstName.data
 			if form.lastName.data:
 				patient.lastName = form.lastName.data
 			if form.gender.data:
 				patient.gender = form.gender.data
+			if form.phone.data:
+				patient.phone = form.phone.data
 			if form.age.data:
 				patient.age = int(form.age.data)
 			if form.ethnicity.data:
@@ -212,6 +225,8 @@ def editProfile(id):
 				doctor.state = form.state.data
 			if form.country.data:
 				doctor.country = form.country.data
+			if form.phone.data:
+				doctor.phone = form.phone.data
 			if form.password.data:
 				if form.confirmPassword.data is None:
 					flash('Please confirm your password.')
@@ -266,9 +281,10 @@ def show_issue(id):
 		issue.isClosed = True
 		db.session.commit()
 		#send a message
-		msg = Message("Your complaint, \'" + str(issue.summary) + "\', has been diagnosed by Dr. " + str(diagnosis.doctor.lastName) + ".",
-                  sender="talhajansari+dermalink_sender@gmail.com",
-                  recipients=["talhajansari+dermalink_receiver@gmail.com"])
+		SendSMS(issue.patient.phone, "SkinCheck: Your complaint, \'" + str(issue.summary) + "\', has been diagnosed by Dr. " + str(diagnosis.doctor.lastName) + ".")
+		#msg = Message("Your complaint, \'" + str(issue.summary) + "\', has been diagnosed by Dr. " + str(diagnosis.doctor.lastName) + ".",
+        #          sender="talhajansari+dermalink_sender@gmail.com",
+        #          recipients=["talhajansari+dermalink_receiver@gmail.com"])
 		return redirect(url_for("home"))
 	issue = Issue.query.get(id)
 	if g.user.isPatient():
@@ -325,6 +341,8 @@ def assignIssueToDoctor(issue):
 				doc.issues.append(issue)
 				doc.isAvailableMethod()
 				db.session.commit()
+				# Send SMS notification
+				SendSMS(doc.phone, "SkinCheck: You have been assigned a new issue to diagnose")
 				return doc
 
 
