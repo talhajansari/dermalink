@@ -184,7 +184,6 @@ def editProfile(id):
 	if request.method == 'POST':
 		if g.user.isPatient(): #is not doctor
 			patient = user.patient
-			SendSMS(patient.phone, "SkinCheck: Your complaint")
 			if form.firstName.data:
 				patient.firstName = form.firstName.data
 			if form.lastName.data:
