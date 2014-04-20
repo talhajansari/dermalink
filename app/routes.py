@@ -9,6 +9,7 @@ from flask.ext.sendmail import Message
 from werkzeug import secure_filename
 from twilio.rest import TwilioRestClient
  
+# Twilio Account Information
 account = 'AC6056ccab9b128c038c932d4bbf81b662'
 token = 'd6a72dff4e0f118e2e52d15ef51f4548'
 client = TwilioRestClient(account, token)
@@ -76,14 +77,15 @@ def login():
 			flash('Invalid login. Please try again.')
 			return redirect(url_for('index'))
 		user = User.query.filter_by(email = email).first()
-		if user is None: # and dermatologist is None:
-			flash('That email does not exist. Please try again.')
+		if user is None:
+			flash('This email does not exist. Please try again.')
 			return redirect(url_for('index'))
 		if user is not None:
 			if bcrypt.check_password_hash(user.password, password) is False:
-				flash('Invalid Login. Please try again.')
+				flash('Invalid password. Please try again.')
 				return redirect(url_for('index'))
 			login_user(user, remember=True)
+			flash('Succesfully logged in.')	
 			return redirect(url_for("home"))
 	return render_template("index.html", title = 'Sign In', form1=loginForm, form2=signupForm, form3=derm_signupForm)
 
@@ -162,7 +164,7 @@ def home():
 		issues = Issue.query.filter_by(patient_id=g.user.patient.id) 
 		complete = isPatientComplete(g.user.patient)
 		return render_template('home.html', issues=issues, isDoctor=0, isComplete=complete, form1=createIssueForm)
-	elif g.user.isDoctor:
+	elif g.user.isDoctor():
 		doctor_id = g.user.doctor.id
 		complete = isDoctorComplete(g.user.doctor)
 		#return str(g.user.doctor.isAvailableMethod())
@@ -284,7 +286,8 @@ def show_issue(id):
 		#msg = Message("Your complaint, \'" + str(issue.summary) + "\', has been diagnosed by Dr. " + str(diagnosis.doctor.lastName) + ".",
         #          sender="talhajansari+dermalink_sender@gmail.com",
         #          recipients=["talhajansari+dermalink_receiver@gmail.com"])
-		return redirect(url_for("home"))
+		return redirect(url_for("show_issue", id=id))
+	# else if request.method = GET:
 	issue = Issue.query.get(id)
 	if g.user.isPatient():
 		authenticate = g.user.patient.owns_issue(id)
@@ -292,7 +295,7 @@ def show_issue(id):
 		authenticate = g.user.doctor.owns_issue(id)
 	if authenticate is False:
 		return redirect(url_for("home"))
-	if issue is None:
+	if issue is None: # will never reach this condition - can delete it
 		return 'No such issue found'
 	pics = Image.query.filter_by(issue_id=id).all()
 	URLs = []
@@ -320,6 +323,7 @@ def upload(issue_id):
 @login_required
 def logout():
 	logout_user()
+	flash('Succesfully logged out.')
 	form = LoginForm()
 	return redirect("/")
 
