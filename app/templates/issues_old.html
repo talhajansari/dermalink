@@ -9,7 +9,7 @@
 
 {% if isDoctor %}
 	{% if not isComplete %}
-	    You need to complete your profile before you can be assigned a case
+		You need to complete your profile before you can be assigned a case
 	{% else %}
 	<ol>
 	{% for issue in issues %}
@@ -22,7 +22,7 @@
 {% endif %}
 {% if not isDoctor %}
 	{% if not isComplete %}
-    You need to complete your profile before you can create a case for doctors to look at
+	You need to complete your profile before you can create a case for doctors to look at
 	{% else %}
 		<ol>
 		{% for issue in issues %}
@@ -41,15 +41,15 @@
 		<br>
 		Create a new Issue: 
 		<form action="{{url_for('create_issue')}}" method="post" name="create_issue">
-		    {{form1.hidden_tag()}}
-		    <p>
-		        Please summarize your issue:<br>
-		        {{form1.summary(size=256)}}<br>
-		        {% for error in form1.errors.email %}
-		        <span style="color: red;">[{{error}}]</span>
-		        {% endfor %}<br>
-		    </p>
-		    <p><input type="submit" value="Create"></p>
+			{{form1.hidden_tag()}}
+			<p>
+				Please summarize your issue:<br>
+				{{form1.summary(size=256)}}<br>
+				{% for error in form1.errors.email %}
+				<span style="color: red;">[{{error}}]</span>
+				{% endfor %}<br>
+			</p>
+			<p><input type="submit" value="Create"></p>
 		</form>
 		<br><br>
 	{% endif %}

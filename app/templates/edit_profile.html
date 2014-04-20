@@ -55,7 +55,7 @@
 </form>
 <br><br>
 {% elif g.user.isPatient() %}
-
+{% set user = g.user.patient %}
 {% if not g.user.patient.isComplete %}
     You need to complete your profile before you can create a case for doctors to look at
 {% endif %}
@@ -72,32 +72,27 @@
     </p>
     <p>
         Please enter your First Name:<br>
-        {{form.firstName(size=80)}}<br>
+        {{form.firstName(size=80, value=user.firstName)}}<br>
     </p>
     <p>
         Please enter your Last Name:<br>
-        {{form.lastName(size=80)}}<br>
+        {{form.lastName(size=80, value=user.lastName)}}<br>
     </p>
     <p>
         Please enter your Phone Number:<br>
-        {{form.phone(size=80)}}<br>
+        {{form.phone(size=80, value=user.phone)}}<br>
     </p>
     <p>
         Select your gender:<br>
-        {% for subfield in form.gender %}
-            <tr>
-                <td>{{ subfield }}</td>
-                <td>{{ subfield.label }}</td>
-            </tr>
-        {% endfor %}
+        {% for subfield in form.gender %} {{ subfield }}{{ subfield.label }} {% endfor %}
     </p>
     <p>
         Please enter your Age:<br>
-        {{form.city(size=80)}}<br>
+        {{form.age(size=80, value=user.age)}}<br>
     </p>
     <p>
         Please enter your Ethnicity:<br>
-        {{form.state(size=80)}}<br>
+        {{form.ethnicity(size=80, value=user.ethnicity) }}<br>
     </p>
     <p><input type="submit" value="Submit"></p>
 </form>

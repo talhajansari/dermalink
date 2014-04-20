@@ -8,12 +8,13 @@ from datetime import datetime
 from flask.ext.sendmail import Message
 from werkzeug import secure_filename
 from twilio.rest import TwilioRestClient
+from wtforms.ext.appengine.db import model_form
  
 # Twilio Account Information
-account = 'AC6056ccab9b128c038c932d4bbf81b662'
-token = 'd6a72dff4e0f118e2e52d15ef51f4548'
-client = TwilioRestClient(account, token)
-MY_TWILIO_NUMBER = '+14408478798'
+# account = 'AC6056ccab9b128c038c932d4bbf81b662'
+# token = 'd6a72dff4e0f118e2e52d15ef51f4548'
+# client = TwilioRestClient(account, token)
+# MY_TWILIO_NUMBER = '+14408478798'
 
 reserved_usernames = 'home signup login logout post'
 
@@ -21,8 +22,9 @@ images = UploadSet('images', IMAGES)
 configure_uploads(app, images)
 
 def SendSMS(number, body):
-	client.sms.messages.create(to='+14403343014', from_=MY_TWILIO_NUMBER,
-                                     body=body)
+	return 1
+	# client.sms.messages.create(to='+14403343014', from_=MY_TWILIO_NUMBER,
+ #                                     body=body)
 
 @lm.user_loader
 def load_user(id):
@@ -136,7 +138,6 @@ def derm_signup():
 			password = derm_signupForm.password.data
 			password_hash = bcrypt.generate_password_hash(password)
 			user = User.query.filter_by(email = email).first() # Check if that email already exists
-			#if dermatologist is not None or user is not None:
 			if user is not None:
 				flash('That email is already in use')
 				return redirect(url_for('index'))
@@ -182,10 +183,11 @@ def editProfile(id):
 		return redirect(url_for('home'))
 	if g.user.id is not int(id):
 		return redirect(url_for('home'))
-	form = EditProfileForm()
+	form = EditProfileForm(obj=user)
 	if request.method == 'POST':
 		if g.user.isPatient(): #is not doctor
 			patient = user.patient
+			#form.populate_obj(patient)
 			if form.firstName.data:
 				patient.firstName = form.firstName.data
 			if form.lastName.data:
@@ -208,11 +210,8 @@ def editProfile(id):
 				password_hash = bcrypt.generate_password_hash(form.password.data)
 				user.password = password_hash
 			db.session.commit()
-			if patient.firstName and patient.lastName and patient.gender and patient.age:
-				patient.isComplete = 1
-				db.session.commit()
 			return redirect(url_for('home'))
-		else:
+		elif g.user.isDoctor():
 			doctor = user.doctor
 			if form.firstName.data:
 				doctor.firstName = form.firstName.data
@@ -241,6 +240,7 @@ def editProfile(id):
 			isDoctorComplete(doctor)
 			return redirect(url_for('home'))
 	# elif request.method == 'GET':
+	form.firstName.default = 'ali'
 	return render_template("edit_profile.html", form=form)
 
 
@@ -249,7 +249,7 @@ def editProfile(id):
 def create_issue():
 	createIssueForm = CreateIssueForm()
 	if request.method=='GET':
-		return render_template('create_issue.html', form=createIssueForm)
+		return render_template('create_issue.html', form=createIssueForm)	
 	if createIssueForm.validate_on_submit():
 		summary = createIssueForm.summary.data
 		filename = secure_filename(createIssueForm.image.data.filename)
@@ -258,7 +258,7 @@ def create_issue():
 		issue = Issue(summary=summary, timestamp= datetime.utcnow(), patient_id=patient_id, isClosed=0)
 		db.session.add(issue)
 		db.session.flush()
-		image = Image(filename=filename, issue_id=issue.id)
+		image = Image(filename=filename, timestamp= datetime.utcnow(), issue_id=issue.id)
 		createIssueForm.image.file.save('uploads/'+str(filename))
 		db.session.add(image)
 		db.session.flush()
@@ -272,14 +272,15 @@ def create_issue():
 @login_required
 def show_issue(id):
 	form = DiagnosisForm()
-	if request.method == 'POST':
+	if request.method == 'POST': # Diagnose
 		issue = Issue.query.get(id)
 		summary = form.diagnosis.data
-		diagnosis = Diagnosis(diagnosis=summary, doc_id=g.user.doctor.id, issue_id=id)
+		diagnosis = Diagnosis(diagnosis=summary, doc_id=g.user.doctor.id, issue_id=id, timestamp= datetime.utcnow())
 		db.session.add(diagnosis)
 		issue.diagnoses.append(diagnosis)
 		g.user.doctor.diagnoses.append(diagnosis)
-		issue.isClosed = True
+		issue.isClosed = int(form.resolved.data)
+		#return form.resolved.data
 		db.session.commit()
 		#send a message
 		SendSMS(issue.patient.phone, "SkinCheck: Your complaint, \'" + str(issue.summary) + "\', has been diagnosed by Dr. " + str(diagnosis.doctor.lastName) + ".")

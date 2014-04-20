@@ -23,29 +23,44 @@ Resolved: No
   {% endfor %}
 </ul>
 
-{% if g.user.isDoctor() %}
+<br>
+<h5> Diagnoses Information: </h5>
+	{% set allD = issue.diagnoses %}
+	<ul>
+	{% for diagnosis in issue.diagnoses %}
+		<li>Dr. {{diagnosis.doctor.lastName}} said "{{ diagnosis.diagnosis }}" - {{ diagnosis.timestamp.ctime()}}</li>
+	{% endfor %}
+	</ul>
+	<br>
+	{% if g.user.isDoctor() %}
+	<h5> Submit response: </h5>
 	<form action="{{url_for('show_issue', id=issue.id)}}" method="post" name="showIssue">
 	    {{form.hidden_tag()}}
 	    <p>
+	        Resolved:   {{form.resolved}} <br>
 	        Please enter your diagnosis:<br>
 	        {{form.diagnosis(size=80)}}<br>
+	        {% for error in form.errors.diagnosis %}
+			<span style="color: red;">[{{error}}]</span>
+			{% endfor %}
+			
 	    </p>
 	    <p><input type="submit" value="Submit"></p>
 	</form>
-{% else %}
 
+{% elif g.user.isPatient() %}
+{% if not issue.isClosed %}
 <h4> Upload a new picture: </h4> <br>
 <form method=POST enctype=multipart/form-data action="{{ url_for('upload', issue_id=issue.id) }}">
 	<input type="file" name="image" id="image"></input>
 	<input type="submit"></input>
 <form>
-<br>
-
-Diagnoses:
-	{% for diagnosis in issue.diagnoses %}
-		<p>{{ diagnosis.diagnosis }}</p>
-	{% endfor %}
-
 {% endif %}
+<br>
+{% endif %}
+
+
+
+
 
 {% endblock %}

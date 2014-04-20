@@ -79,6 +79,20 @@ class Patient(db.Model):
 		else:
 			return False
 
+	def isComplete(self):
+		patient = self
+		if self.firstName is not None:
+			if self.lastName is not None:
+				if self.age is not None and self.age !='0':
+					if self.phone is not None and self.phone !='0':
+						if self.gender == 'male' or self.gender == 'female':
+							self.isComplete = True
+							db.session.commit()
+							return True
+		self.isComplete = False
+		db.session.commit()
+		return False
+
 class Doctor(db.Model):
 	id = db.Column(db.Integer, primary_key = True)	
 
@@ -105,16 +119,17 @@ class Doctor(db.Model):
 	state2 = db.Column(db.String(120), index = True, unique = False) # or Province
 	country2 = db.Column(db.String(120), index = True, unique = False)
 	# DermaLink stuff
-	maxNumIssues = db.Column(db.Integer, index = True, unique = False, default=1) # Max Number of Issues at a time which doctor can handle
+	# maxNumIssues = db.Column(db.Integer, index = True, unique = False, default=1) # Max Number of Issues at a time which doctor can handle
+	issueLimit = db.Column(db.Integer(), index=True, unique=False, default=0) # Number of issues they are willing to have at a time
+	isComplete = db.Column(db.Boolean(), index = True, unique=False, default=0) # is profile complete
 	isAvailable = db.Column(db.Boolean, index = True, unique=False, default=1)
+	rating = db.Column(db.Float, index=True, unique=False)
 	# Relationships
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 	issues = db.relationship('Issue', secondary=doc_table, backref=db.backref('doctors', lazy='dynamic')) 
-	# Number of issues they are willing to have at a time
-	issueLimit = db.Column(db.Integer(), default=0)
 	diagnoses = db.relationship('Diagnosis', backref='doctor', lazy='dynamic')
 
-	def isAvailableMethod(self):
+	def isAvailable(self):
 		currentIssues = self.currentNumIssues()
 		if (currentIssues >= self.maxNumIssues):
 			self.isAvailable = 0
@@ -128,7 +143,7 @@ class Doctor(db.Model):
 			self.isAvailable = 0
 			db.session.commit()
 			return False
-
+	# Returns the number of unsolved issues currently assigned to the doctor		
 	def currentNumIssues(self):
 		assignedIssues = Issue.query.filter(Issue.doctors.any(id=self.id)).count()
 		return assignedIssues
@@ -142,6 +157,19 @@ class Doctor(db.Model):
 				authenticate = True
 		return authenticate
 
+	def isComplete(self):
+		if self.firstName is not None and self.lastName is not None:
+			if self.hospital is not None:
+				if self.city is not None and self.state is not None and self.country is not None:
+					if self.phone is not None and self.phone !='0':
+						if self.issueLimit != '0':
+							self.isComplete = True
+							db.session.commit()
+							return True
+		self.isComplete = False
+		db.session.commit()
+		return False
+
 
 # Set of images pertaining to a single issue
 class Issue(db.Model):
@@ -151,7 +179,7 @@ class Issue(db.Model):
 	# # Need to keep more information about the issue
 	timestamp = db.Column(db.DateTime, index = False, unique = False, default=datetime.utcnow()) # when was the issue created online
 	# howOld = db.Column(db.Integer(2), index = False, unique = False) # how many weeks old is the 'issue'
-	isClosed = db.Column(db.Boolean, index = False, unique = False) # has the 'issue' been resolved?
+	isClosed = db.Column(db.Boolean, index = False, unique = False, default=False) # has the 'issue' been resolved?
 	isComplete = db.Column(db.Boolean, index = False, unique = False, default = False) 
 	# Relationships
 	patient_id = db.Column(db.Integer, db.ForeignKey('patient.id'))
@@ -184,6 +212,7 @@ class Diagnosis(db.Model):
 	doc_id = db.Column(db.Integer, db.ForeignKey('doctor.id'))
 	issue_id = db.Column(db.Integer, db.ForeignKey('issue.id'))
 	diagnosis = db.Column(db.String(512), unique=False)
+	timestamp = db.Column(db.DateTime, index = False, unique = False)
 
 
 

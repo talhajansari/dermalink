@@ -3,6 +3,9 @@ from wtforms import TextField, BooleanField, PasswordField, FileField, TextAreaF
 from flask_wtf.file import FileField, FileAllowed, FileRequired
 from wtforms.validators import Required
 from flask.ext.uploads import UploadSet, IMAGES
+from routes import *
+#from wtforms.ext.appengine.db import model_form
+#from models import User, Image, Issue, Patient, Doctor, Diagnosis
 
 images = UploadSet('images', IMAGES)
 
@@ -23,7 +26,7 @@ class DermSignupForm(Form):
 class EditProfileForm(Form):
     password = PasswordField('password')
     confirmPassword = PasswordField('confirmPassword')
-    firstName = TextField('firstName')
+    firstName = TextField('firstName', default='as')
     lastName = TextField('lastName')
     gender = RadioField('gender', choices=[('male', 'male'), ('female', 'female')])
     age = TextField('age')
@@ -42,3 +45,6 @@ class CreateIssueForm(Form):
 
 class DiagnosisForm(Form):
     diagnosis = TextAreaField('diagnosis', validators = [Required()])
+    resolved = SelectField('resolved', choices = [(0, 'No'),(1, 'Yes')], default=1) 
+
+
