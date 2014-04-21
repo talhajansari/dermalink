@@ -16,6 +16,7 @@ class User(db.Model):
 	email = db.Column(db.String(120), index = True, unique = True)
 	timestamp = db.Column(db.DateTime, index = False, unique = False, default=datetime.utcnow())
 	role = db.Column(db.String(64), index=True, unique=False)
+	verified = db.Column(db.Boolean, default=False)
 	# Relationships
 	patient = db.relationship('Patient', backref='user', uselist=False)
 	doctor = db.relationship('Doctor', backref='user', uselist=False)
