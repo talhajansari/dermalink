@@ -73,9 +73,7 @@ strong {
 	top: 80px;
 }
 
-#align{
-	float:left;
-}
+
 /*	Button & Label
 	==================================================*/
 .alert {
@@ -612,7 +610,9 @@ img.header_logo {
 	}
 }
 
-
+.topDescriptionMargins{
+	margin-right:40em;
+}
 
 
 
