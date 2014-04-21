@@ -2,23 +2,50 @@
 {% block content %}
 
 {% if g.user.isPatient() %}
-<h3>Patient: Reported Issues</h3>
-{% else %}
-<h3>Doctor: Assigned Issues</h3>
+<h3>Patient: {{g.user.patient.first_name}} {{g.user.patient.last_name}}</h3>
+{% elif g.user.isDoctor() %}
+<h3>Doctor: {{g.user.doctor.first_name}} {{g.user.doctor.last_name}}</h3>
 {% endif %}
-<ol>
+
+{% set open_issues = [] %}
+{% set closed_issues = [] %}
 {% for issue in issues %}
+{% if not issue.isClosed %} {% if open_issues.append(issue) %} {% endif %}
+{% else %} {% if closed_issues.append(issue) %} {% endif %}
+{% endif %}
+{% endfor %}
+
+<h5>Unresolved Issues</h5>
+{% if open_issues|length ==0 %} <ul><li>None available</li></ul> {% else %}
+<ol>
+{% for issue in open_issues %}
 {% set issue_id = issue.id %}
-<li> <a href= "{{ url_for('show_issue', id=issue.id) }}" > {{issue.summary}} </a> - assigned to doctor ID
-	{% for doc in issue.doctors %}
-	{{ doc.id }}
-	{% endfor %}
+<li> <a href= "{{ url_for('show_issue', id=issue.id) }}" > {{issue.summary}} </a> 
+	{% if g.user.isPatient() %}  - Assigned to
+	{% for doc in issue.doctors %} Dr. {{ doc.first_name }} {{ doc.last_name}}{% endfor %}.
+	{% endif %}
 </li>
 {% endfor %}
 </ol>
+{% endif %}
+
+<h5>Closed Issues</h5>
+{% if closed_issues|length ==0 %} <ul><li>None available</li></ul> {% else %}
+<ol>
+{% for issue in closed_issues %}
+{% set issue_id = issue.id %}
+<li> <a href= "{{ url_for('show_issue', id=issue.id) }}" > {{issue.summary}} </a> 
+	{% if g.user.isPatient() %}  - Assigned to
+	{% for doc in issue.doctors %} Dr. {{ doc.first_name }} {{ doc.last_name}}{% endfor %}.
+	{% endif %}
+</li>
+{% endfor %}
+</ol>
+{% endif %}
+
 {% if g.user.isPatient() %}
 <br>
-<a href="{{url_for('create_issue')}}"> Create a new issue </a> 
+<a href="{{url_for('create_issue')}}"> Click to create a new issue </a> 
 <br> <br>
 {% endif %}
 {% endblock %}
