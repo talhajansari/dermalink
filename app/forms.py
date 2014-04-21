@@ -9,6 +9,7 @@ from routes import *
 
 images = UploadSet('images', IMAGES)
 
+
 class LoginForm(Form):
     email = TextField('email', validators = [Required()])
     password = PasswordField('password', validators = [Required()])

@@ -54,8 +54,8 @@ class User(db.Model):
 class Patient(db.Model):
 	id = db.Column(db.Integer, primary_key = True)
 	# Profile information
-	firstName = db.Column(db.String(120), index = True, unique = False)
-	lastName = db.Column(db.String(120), index = True, unique = False)
+	first_name = db.Column(db.String(120), index = True, unique = False)
+	last_name = db.Column(db.String(120), index = True, unique = False)
 	gender = db.Column(db.String(12), index = True, unique = False)
 	age = db.Column(db.Integer, index = True, unique = False)
 	# Address fields
@@ -67,7 +67,7 @@ class Patient(db.Model):
 	# Others
 	ethnicity = db.Column(db.String(120), index = True, unique = False) # Should be optional - legal issues(?) if we force users to reveal this information
 	# DermaNet
-	isComplete = db.Column(db.Boolean(), index = True, unique=False, default=0) # is profile complete
+	is_complete = db.Column(db.Boolean(), index = True, unique=False, default=0) # is profile complete
 	# Relationships
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 	issues = db.relationship('Issue', backref='patient', lazy='dynamic')
@@ -81,15 +81,15 @@ class Patient(db.Model):
 
 	def isComplete(self):
 		patient = self
-		if self.firstName is not None:
-			if self.lastName is not None:
+		if self.first_name is not None:
+			if self.last_name is not None:
 				if self.age is not None and self.age !='0':
 					if self.phone is not None and self.phone !='0':
 						if self.gender == 'male' or self.gender == 'female':
-							self.isComplete = True
+							self.is_complete = True
 							db.session.commit()
 							return True
-		self.isComplete = False
+		self.is_complete = False
 		db.session.commit()
 		return False
 
@@ -97,11 +97,10 @@ class Doctor(db.Model):
 	id = db.Column(db.Integer, primary_key = True)	
 
 	# Profile information
-	firstName = db.Column(db.String(120), index = True, unique = False)
-	lastName = db.Column(db.String(120), index = True, unique = False)
+	first_name = db.Column(db.String(120), index = True, unique = False, default="")
+	last_name = db.Column('lastName', db.String(120), index = True, unique = False, default="")
 	gender = db.Column(db.String(12), index = True, unique = False)
 	age = db.Column(db.Integer, index = True, unique = False)
-	isComplete = db.Column(db.Boolean()) # is profile complete
 	# Home Address fields
 	city = db.Column(db.String(120), index = True, unique = False)
 	state = db.Column(db.String(120), index = True, unique = False)
@@ -109,20 +108,20 @@ class Doctor(db.Model):
 	country = db.Column(db.String(120), index = True, unique = False)
 	phone = db.Column(db.Integer, index=True, unique = False)
 	# Medical Certification information
-	medicalDegree = db.Column(db.String(120), index = True, unique = False)
-	medicalSchool = db.Column(db.String(120), index = True, unique = False)
-	degreeYear = db.Column(db.Integer, index = True, unique = False)
-	isCertified = db.Column(db.Boolean, index = True, unique=False, default=0)
+	medical_degree = db.Column(db.String(120), index = True, unique = False)
+	medical_school = db.Column(db.String(120), index = True, unique = False)
+	degree_year = db.Column(db.Integer, index = True, unique = False)
+	is_certified = db.Column(db.Boolean, index = True, unique=False, default=0)
 	# Hospital Address fields
-	hospital = db.Column(db.String(120), index = True, unique = False) # which hospital does the doctor practice?
-	city2 = db.Column(db.String(120), index = True, unique = False)
-	state2 = db.Column(db.String(120), index = True, unique = False) # or Province
-	country2 = db.Column(db.String(120), index = True, unique = False)
+	hospital_name = db.Column(db.String(120), index = True, unique = False) # which hospital does the doctor practice?
+	hospital_city = db.Column(db.String(120), index = True, unique = False)
+	hospital_state = db.Column(db.String(120), index = True, unique = False) # or Province
+	hospital_country = db.Column(db.String(120), index = True, unique = False)
 	# DermaLink stuff
 	# maxNumIssues = db.Column(db.Integer, index = True, unique = False, default=1) # Max Number of Issues at a time which doctor can handle
-	issueLimit = db.Column(db.Integer(), index=True, unique=False, default=0) # Number of issues they are willing to have at a time
-	isComplete = db.Column(db.Boolean(), index = True, unique=False, default=0) # is profile complete
-	isAvailable = db.Column(db.Boolean, index = True, unique=False, default=1)
+	issue_limit = db.Column(db.Integer(), index=True, unique=False, default=0) # Number of issues they are willing to have at a time
+	is_complete = db.Column(db.Boolean(), index = True, unique=False, default=0) # is profile complete
+	is_available = db.Column(db.Boolean, index = True, unique=False, default=1)
 	rating = db.Column(db.Float, index=True, unique=False)
 	# Relationships
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
@@ -130,43 +129,42 @@ class Doctor(db.Model):
 	diagnoses = db.relationship('Diagnosis', backref='doctor', lazy='dynamic')
 
 	def isAvailable(self):
-		currentIssues = self.currentNumIssues()
-		if (currentIssues >= self.maxNumIssues):
-			self.isAvailable = 0
+		current_issues = self.currentIssues()
+		if (current_issues >= self.issue_limit):
+			self.is_available = 0
 			db.session.commit()
 			return False
-		elif (currentIssues <= self.maxNumIssues):
-			self.isAvailable = 1
+		elif (current_issues <= self.issue_limit):
+			self.is_available = 1
 			db.session.commit()
 			return True
 		else:
-			self.isAvailable = 0
+			self.is_available = 0
 			db.session.commit()
 			return False
+
 	# Returns the number of unsolved issues currently assigned to the doctor		
-	def currentNumIssues(self):
-		assignedIssues = Issue.query.filter(Issue.doctors.any(id=self.id)).count()
-		return assignedIssues
+	def currentIssues(self):
+		return Issue.query.filter(Issue.doctors.any(id=self.id)).count()
 
 	def owns_issue(self, id):
-		authenticate = False
 		doctor_id = self.id
-		assignedIssues = Issue.query.filter(Issue.doctors.any(id=doctor_id)).all()
-		for issue in assignedIssues:
+		assigned_issues = Issue.query.filter(Issue.doctors.any(id=doctor_id)).all()
+		for issue in assigned_issues:
 			if int(issue.id) is int(id):
-				authenticate = True
-		return authenticate
+				return True
+		return False
 
 	def isComplete(self):
-		if self.firstName is not None and self.lastName is not None:
-			if self.hospital is not None:
+		if self.first_name is not None and self.last_name is not None:
+			if self.hospital_name is not None:
 				if self.city is not None and self.state is not None and self.country is not None:
 					if self.phone is not None and self.phone !='0':
-						if self.issueLimit != '0':
-							self.isComplete = True
+						if self.issue_limit != '0':
+							self.is_complete = True
 							db.session.commit()
 							return True
-		self.isComplete = False
+		self.is_complete = False
 		db.session.commit()
 		return False
 
@@ -179,19 +177,19 @@ class Issue(db.Model):
 	# # Need to keep more information about the issue
 	timestamp = db.Column(db.DateTime, index = False, unique = False, default=datetime.utcnow()) # when was the issue created online
 	# howOld = db.Column(db.Integer(2), index = False, unique = False) # how many weeks old is the 'issue'
-	isClosed = db.Column(db.Boolean, index = False, unique = False, default=False) # has the 'issue' been resolved?
-	isComplete = db.Column(db.Boolean, index = False, unique = False, default = False) 
+	is_closed = db.Column(db.Boolean, index = False, unique = False, default=False) # has the 'issue' been resolved?
+	is_complete = db.Column(db.Boolean, index = False, unique = False, default = False) 
 	# Relationships
 	patient_id = db.Column(db.Integer, db.ForeignKey('patient.id'))
 	images = db.relationship('Image', backref='issue', lazy='dynamic')
 	diagnoses = db.relationship('Diagnosis', backref='issue', lazy='dynamic')
 
-	def isIssueComplete(self):
+	def isComplete(self):
 		for col in self.columns:
 			if self.col:
-				self.isComplete = False
+				self.is_complete = False
 				return False
-		self.isComplete = True
+		self.is_complete = True
 		return True
 
 	def columns(self):

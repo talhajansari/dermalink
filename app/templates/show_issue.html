@@ -3,7 +3,7 @@
 
 <h3> Issue: {{issue.summary}}</h3>
 Issue ID: {{issue.id}} <br>
-Patient: {{issue.patient.firstName}} {{issue.patient.lastName}} <br>
+Patient: {{issue.patient.first_name}} {{issue.patient.last_name}} <br>
 Date Created: {{issue.timestamp}} <br>
 {% if (issue.isClosed) %}
 Resolved: Yes
@@ -28,7 +28,7 @@ Resolved: No
 	{% set allD = issue.diagnoses %}
 	<ul>
 	{% for diagnosis in issue.diagnoses %}
-		<li>Dr. {{diagnosis.doctor.lastName}} said "{{ diagnosis.diagnosis }}" - {{ diagnosis.timestamp.ctime()}}</li>
+		<li>Dr. {{diagnosis.doctor.last_name}} said "{{ diagnosis.diagnosis }}" - {{ diagnosis.timestamp.ctime()}}</li>
 	{% endfor %}
 	</ul>
 	<br>
