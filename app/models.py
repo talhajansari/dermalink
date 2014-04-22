@@ -213,6 +213,7 @@ class Diagnosis(db.Model):
 	diagnosis = db.Column(db.String(512), unique=False)
 	timestamp = db.Column(db.DateTime, index = False, unique = False)
 
-
-
-
+class TokenUser(db.Model):
+	id = db.Column(db.Integer, primary_key = True)
+	token = db.Column(db.String(64), index=True)	
+	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))

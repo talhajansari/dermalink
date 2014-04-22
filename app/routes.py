@@ -2,19 +2,20 @@ from app import app, db, lm, bcrypt, mail
 from flask import render_template, flash, redirect, session, url_for, request, g, jsonify
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from flaskext.uploads import UploadSet, configure_uploads, IMAGES
-from models import User, Image, Issue, Patient, Doctor, Diagnosis
+from models import User, Image, Issue, Patient, Doctor, Diagnosis, TokenUser
 from datetime import datetime
 from werkzeug import secure_filename
 from twilio.rest import TwilioRestClient
 # Forms
-from forms import LoginForm, SignupForm, CreateIssueForm, DermSignupForm, EditProfileForm, DiagnosisForm
+from forms import LoginForm, SignupForm, ForgotPasswordForm, ChangePasswordForm, CreateIssueForm, DermSignupForm, EditProfileForm, DiagnosisForm
 from flask.ext.wtf import Form
-from wtforms import TextField, BooleanField, PasswordField, FileField, TextAreaField, SelectField, HiddenField, RadioField, validators
-from wtforms.validators import *
+from wtforms import SelectField
+#from wtforms.validators import *
 from wtforms.ext.sqlalchemy.orm import model_form
-
-#from flask.ext.sendmail import Message
 from flask.ext.mail import Message
+
+import string
+import random
 
  
 # Twilio Account Information
@@ -32,40 +33,24 @@ def SendSMS(number, body):
 	return 1
 	# client.sms.messages.create(to='+14403343014', from_=MY_TWILIO_NUMBER,
  #                                     body=body)
-
-def sendEmail(body):
-	msg = Message('Test',
-                  sender='talhajansari@gmail.com',
-                  recipients=["talhajansari+test@gmail.com"])
-	msg.body = "Test: Body of message"
+def sendEmail(subject, body, recipients, sender='talhajansari@gmail.com'):
+	msg = Message(subject=subject,
+                  sender=sender,
+                  recipients=recipients)
+	msg.body = body
 	mail.send(msg)
+
+def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
+	return ''.join(random.choice(chars) for _ in range(size))
 
 @lm.user_loader
 def load_user(id):
 	return User.query.get(int(id))
 
-
 @app.before_request   
 def before_request():
 	g.user = current_user
 
-# def isPatientComplete(patient):
-# 	if patient.firstName is not None:
-# 		if patient.lastName is not None:
-# 			if patient.age !='0':
-# 				if patient.phone !='0':
-# 					if patient.gender == 'male' or patient.gender == 'female':
-# 						patient.isComplete = 1
-# 						db.session.commit()
-# 						return 1
-# 	return 0
-
-# def isDoctorComplete(doctor):
-# 	if doctor.firstName is not None and doctor.lastName is not None and doctor.hospital is not None and doctor.city is not None and doctor.state is not None and doctor.country is not None and doctor.issueLimit != '0' and doctor.phone !='0':
-# 		doctor.isComplete = 1
-# 		db.session.commit()
-# 		return 1
-# 	return 0
 
 @app.route('/')
 @app.route('/index')
@@ -77,33 +62,6 @@ def index():
 		signupForm = SignupForm()
 		derm_signupForm = DermSignupForm()
 		return render_template("index.html", title = 'Log in', form1=loginForm, form2=signupForm, form3=derm_signupForm)
-
-
-@app.route("/login", methods=["POST"])
-def login():
-	if g.user is not None and g.user.is_authenticated():
-		return redirect(url_for('home'))
-	loginForm = LoginForm()
-	signupForm = SignupForm()
-	derm_signupForm = DermSignupForm()
-	if loginForm.validate_on_submit():
-		email = loginForm.email.data
-		password = loginForm.password.data
-		if email is None or password is None:
-			flash('Invalid login. Please try again.')
-			return redirect(url_for('index'))
-		user = User.query.filter_by(email = email).first()
-		if user is None:
-			flash('This email does not exist. Please try again.')
-			return redirect(url_for('index'))
-		if user is not None:
-			if bcrypt.check_password_hash(user.password, password) is False:
-				flash('Invalid password. Please try again.')
-				return redirect(url_for('index'))
-			login_user(user, remember=True)
-			flash('Succesfully logged in.')	
-			return redirect(url_for("home"))
-	return render_template("index.html", title = 'Sign In', form1=loginForm, form2=signupForm, form3=derm_signupForm)
 
 
 @app.route("/signup", methods=["POST"])
@@ -134,7 +92,7 @@ def signup():
 			db.session.flush()
 			db.session.commit()
 		login_user(user, remember=True)
-		sendEmail('You have signed up!')
+		#sendEmail('You have signed up!')
 		#return redirect(request.args.get("next") or url_for("editProfile", username=user.username, user=user))
 		return redirect(url_for("editProfile", id=user.id))
 	return render_template("index.html", title = 'Sign Up', form1=loginForm, form2=signupForm, form3=derm_signupForm)
@@ -170,6 +128,74 @@ def derm_signup():
 		#return redirect(request.args.get("next") or url_for("editProfile", username=user.username, user=user))
 		return redirect(url_for("editProfile", id=user.id))
 	return render_template("index.html", title = 'Sign Up', form1=loginForm, form2=signupForm, form3=derm_signupForm)
+
+@app.route("/forgot_password", methods=["GET","POST"])
+def forgot_password():
+	form = ForgotPasswordForm()
+	if form.validate_on_submit():
+		email = form.email.data
+		user = User.query.filter_by(email = email).first()
+		if user is None:
+			flash('This email does not exist. Please try again.')
+			return redirect(url_for('forgot_password'))
+		token = id_generator(size=8)
+		token_user = TokenUser(token=token, user_id = user.id)
+		db.session.add(token_user)
+		#return token
+		# Write an email
+		subject = "DerMango | Forgot your password"
+		body = 'Please click on the following link to reset your password: http://127.0.0.1:5000/forgot_password/'+str(token)
+		sendEmail(subject, body, recipients=[email], sender='talhajansari@gmail.com')
+		db.session.commit()
+		flash('An email has been sent to your address with a password reset link.')
+		return render_template("forgot_password.html", form=form)	
+	return render_template("forgot_password.html", form=form)
+
+@app.route("/forgot_password/<token>", methods=["GET", "POST"])
+def change_password(token):
+	form = ChangePasswordForm()
+	token_user = TokenUser.query.filter_by(token = token).first()
+	if token_user is None:
+		flash('Incorrect URL. Send yourself a new URL, or try the old one again.')
+		return redirect(url_for('forgot_password'))
+	if request.method=="POST" and form.validate_on_submit():
+		user = User.query.get(token_user.user_id)
+		password = form.password.data
+		password_hash = bcrypt.generate_password_hash(password)
+		user.password = password_hash
+		db.session.commit()
+		db.session.delete(token_user)
+		db.session.commit()
+		return redirect(url_for('index'))
+	return render_template("change_password.html", form=form, token=token)
+
+
+
+@app.route("/login", methods=["POST"])
+def login():
+	if g.user is not None and g.user.is_authenticated():
+		return redirect(url_for('home'))
+	loginForm = LoginForm()
+	signupForm = SignupForm()
+	derm_signupForm = DermSignupForm()
+	if loginForm.validate_on_submit():
+		email = loginForm.email.data
+		password = loginForm.password.data
+		if email is None or password is None:
+			flash('Invalid login. Please try again.')
+			return redirect(url_for('index'))
+		user = User.query.filter_by(email = email).first()
+		if user is None:
+			flash('This email does not exist. Please try again.')
+			return redirect(url_for('index'))
+		if user is not None:
+			if bcrypt.check_password_hash(user.password, password) is False:
+				flash('Invalid password. Please try again.')
+				return redirect(url_for('index'))
+			login_user(user, remember=True)
+			flash('Succesfully logged in.')	
+			return redirect(url_for("home"))
+	return render_template("index.html", title = 'Sign In', form1=loginForm, form2=signupForm, form3=derm_signupForm)
 
 
 @app.route('/home')
@@ -208,7 +234,7 @@ def editProfile(id):
 		form = MyForm(request.form, doctor)
 		
 	if request.method == 'POST':
-		if g.user.isPatient() and form.validate_on_submit(): #is not doctor
+		if g.user.isPatient(): #is not doctor
 			form.populate_obj(patient)
 			# if form.firstName.data:
 			# 	patient.firstName = form.firstName.data
