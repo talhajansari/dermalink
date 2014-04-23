@@ -368,8 +368,8 @@ input {
   height: 680px;
   width: 100%;
   position: fixed;
-  background: url('http://www.southvalleydermatology.com/files/bigpicture1.jpg') center center no-repeat;
-  background-size: cover;
+/*  background: url('http://www.southvalleydermatology.com/files/bigpicture1.jpg') center center no-repeat;
+*/  background-size: cover;
   z-index: -100;
 }
 
@@ -613,8 +613,12 @@ img.header_logo {
 .topDescriptionMargins{
 	margin-right:40em;
 }
-
-
+#header.navbar.navbar-inverse.navbar-fixed-top{
+	background-color: #6ecff6;
+}
+#hero.section.active-section{
+	background-color: #6ecff6;
+}
 
 
 
