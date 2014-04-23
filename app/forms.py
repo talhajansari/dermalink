@@ -1,28 +1,31 @@
 from flask.ext.wtf import Form
-from wtforms import TextField, BooleanField, PasswordField, FileField, TextAreaField, SelectField, HiddenField, RadioField
+from wtforms import TextField, BooleanField, PasswordField, FileField, TextAreaField, SelectField, HiddenField, RadioField, validators
 from flask_wtf.file import FileField, FileAllowed, FileRequired
-from wtforms.validators import Required
+from wtforms.validators import Required, Email
 from flask.ext.uploads import UploadSet, IMAGES
-from routes import *
-#from wtforms.ext.appengine.db import model_form
-#from models import User, Image, Issue, Patient, Doctor, Diagnosis
 
 images = UploadSet('images', IMAGES)
 
 
 class LoginForm(Form):
-    email = TextField('email', validators = [Required()])
+    email = TextField('email', validators = [Required(), Email()])
     password = PasswordField('password', validators = [Required()])
     remember_me = BooleanField('remember_me', default = False)
 
 class SignupForm(Form):
-    email = TextField('email', validators = [Required()])
+    email = TextField('email', validators = [Required(), Email()])
     password = PasswordField('password', validators = [Required()])
-    #usertype = RadioField('usertype', validators = Required(), choices = ['Patient', 'Dermatologist']
 
 class DermSignupForm(Form):
-    email = TextField('email', validators = [Required()])
+    email = TextField('email', validators = [Required(), Email()])
     password = PasswordField('password', validators = [Required()])
+
+class ForgotPasswordForm(Form):
+    email = TextField('email', validators = [Required(), Email()])
+
+class ChangePasswordForm(Form):
+    password = PasswordField('New Password', validators = [validators.Required(), validators.EqualTo('confirm', message='Passwords must match')])
+    confirm = PasswordField('Repeat Password', validators = [Required()])
 
 class EditProfileForm(Form):
     password = PasswordField('password')
