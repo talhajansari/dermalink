@@ -1,21 +1,4 @@
-from app import app, db, lm, bcrypt, mail
-from flask import render_template, flash, redirect, session, url_for, request, g, jsonify
-from flask.ext.login import login_user, logout_user, current_user, login_required
-from flaskext.uploads import UploadSet, configure_uploads, IMAGES
-from models import User, Image, Issue, Patient, Doctor, Diagnosis, TokenUser
-from datetime import datetime
-from werkzeug import secure_filename
-from twilio.rest import TwilioRestClient
-# Forms
-from forms import LoginForm, SignupForm, ForgotPasswordForm, ChangePasswordForm, CreateIssueForm, DermSignupForm, EditProfileForm, DiagnosisForm
-from flask.ext.wtf import Form
-from wtforms import SelectField
-#from wtforms.validators import *
-from wtforms.ext.sqlalchemy.orm import model_form
-from flask.ext.mail import Message
-
-import string
-import random
+from imports_for_routes import *
 
  
 # Twilio Account Information
@@ -170,7 +153,6 @@ def change_password(token):
 	return render_template("change_password.html", form=form, token=token)
 
 
-
 @app.route("/login", methods=["POST"])
 def login():
 	if g.user is not None and g.user.is_authenticated():
@@ -236,58 +218,15 @@ def editProfile(id):
 	if request.method == 'POST':
 		if g.user.isPatient(): #is not doctor
 			form.populate_obj(patient)
-			# if form.firstName.data:
-			# 	patient.firstName = form.firstName.data
-			# if form.lastName.data:
-			# 	patient.lastName = form.lastName.data
-			# if form.gender.data:
-			# 	patient.gender = form.gender.data
-			# if form.phone.data:
-			# 	patient.phone = form.phone.data
-			# if form.age.data:
-			# 	patient.age = int(form.age.data)
-			# if form.ethnicity.data:
-			# 	patient.ethnicity = form.ethnicity.data
-			# if form.password.data:
-			# 	if form.confirmPassword.data is None:
-			# 		flash('Please confirm your password.')
-			# 		return redirect(url_for("editProfile", id=user.id))
-			# 	if form.password.data != form.confirmPassword.data:
-			# 		flash('Confirmation does not match.')
-			# 		return redirect(url_for("editProfile", id=user.id))
-			# 	password_hash = bcrypt.generate_password_hash(form.password.data)
-			# 	user.password = password_hash
 			db.session.commit()
 			return redirect(url_for('home'))
 		elif g.user.isDoctor():
 			#form = model_form(Doctor, exclude=['issues', 'diagnoses', 'user', 'is_complete', 'is_available','is_certified', 'rating'])(request.form)
 			form.populate_obj(doctor)
-			# if form.lastName.data:
-			# 	doctor.lastName = form.lastName.data
-			# if form.hospital.data:
-			# 	doctor.hospital = form.hospital.data
-			# if form.city.data:
-			# 	doctor.city = form.city.data
-			# if form.state.data:
-			# 	doctor.state = form.state.data
-			# if form.country.data:
-			# 	doctor.country = form.country.data
-			# if form.phone.data:
-			# 	doctor.phone = form.phone.data
-			# if form.password.data:
-			# 	if form.confirmPassword.data is None:
-			# 		flash('Please confirm your password.')
-			# 		return redirect(url_for("editProfile", id=user.id))
-			# 	if form.password.data != form.confirmPassword.data:
-			# 		flash('Confirmation does not match.')
-			# 		return redirect(url_for("editProfile", id=user.id))
-			# 	password_hash = bcrypt.generate_password_hash(form.password.data)
-			# 	user.password = password_hash
 			db.session.commit()
 			doctor.isComplete()
 			return redirect(url_for('home'))
 	# elif request.method == 'GET':
-	#form = EditProfileForm(obj=user)
 	return render_template("test.html", form=form)
 	return render_template("edit_profile.html", form=myForm)
 
