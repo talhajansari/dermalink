@@ -431,7 +431,7 @@ img.header_logo {
 /*	Features
 	==================================================*/ 
 #features {
-	background-color: #FFF;
+	background-color: #ecf0f1;
 }
 .overview, .service-block {
 	text-align: center;
@@ -614,10 +614,10 @@ img.header_logo {
 	margin-right:40em;
 }
 #header.navbar.navbar-inverse.navbar-fixed-top{
-	background-color: #6ecff6;
+	background-color: #3498db;
 }
 #hero.section.active-section{
-	background-color: #6ecff6;
+	background-color: #3498db;
 }
 
 

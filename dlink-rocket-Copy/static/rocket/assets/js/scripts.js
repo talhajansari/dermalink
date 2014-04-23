@@ -7,10 +7,11 @@ $(document).ready(function() {
 
 	/*	Parallax Background
 	================================================== */
-
+/*
 	$(window).on('scroll', function(e) {
 		parallax();
 	});
+*/
 	
 	/*	Local Scroll
 	================================================== */
