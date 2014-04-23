@@ -417,7 +417,7 @@ img.header_logo {
 #hero {
 	background: rgba(0, 0, 0, 0);
 	margin-top: 80px;
-	padding: 150px 0;
+	padding: 200px 0;
 	color: #000;
 }
 #hero h1 {
@@ -431,7 +431,7 @@ img.header_logo {
 /*	Features
 	==================================================*/ 
 #features {
-	background-color: #ecf0f1;
+	background-color: #FFF;
 }
 .overview, .service-block {
 	text-align: center;
@@ -614,23 +614,8 @@ img.header_logo {
 	margin-right:40em;
 }
 #header.navbar.navbar-inverse.navbar-fixed-top{
-	background-color: #3498db;
+	background-color: #0058A8;
 }
 #hero.section.active-section{
-	background-color: #3498db;
+	background-color: #0058A8;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	
