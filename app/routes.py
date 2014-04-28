@@ -316,6 +316,31 @@ def logout():
 	return redirect("/")
 
 
+@app.route("/incoming", methods=['GET', 'POST'])
+def incoming():
+
+	from_number = request.values.get('From', None)
+	patient = Patient.query.filter_by(phone=from_number).first()
+	if patient is None: # No patient has the phone number that texted us
+		return 0
+
+	image_url = request.values.get('MediaUrl', None)
+	file = urllib.urlretrieve(image_url) # returns a tuple
+	filename = images.save(file[0])
+	patient_id = patient.id
+	issue = Issue(timestamp= datetime.utcnow(), patient_id=patient_id, isClosed=0)
+	db.session.add(issue)
+	db.session.flush()
+	image = Image(filename=filename, issue_id=issue_id)
+	db.session.add(image)
+	db.session.commit()
+	db.session.flush()
+	assignIssueToDoctor(issue)
+	db.session.commit()
+	return 1
+	
+
+
 ## Other functions
 
 # For now, it only assigns the issues to the first dermatologist
@@ -335,6 +360,9 @@ def assignIssueToDoctor(issue):
 				# Send SMS notification
 				SendSMS(doc.phone, "SkinCheck: You have been assigned a new issue to diagnose")
 				return doc
+
+
+
 
 
 
