@@ -1,102 +1,16 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h1>Edit Profile</h1>
+<h1> Testing Template </h1>
 
-{% if g.user.isDoctor() %}
-{% if not g.user.doctor.isComplete %}
-    You need to complete your profile before you can be assigned patient cases
-{% endif %}
-<br>
+{% from "_formhelpers.html" import render_field %}
 <form action="{{ url_for('editProfile', id=g.user.id) }}" method="post" name="editProfile">
-
-    {{form.hidden_tag()}}
-    <p>
-        Please enter your Password:<br>
-        {{form.password(size=80)}}<br>
-    </p>
-    <p>
-        Please confirm your password:<br>
-        {{form.confirmPassword(size=80)}}<br>
-    </p>
-    <p>
-        Please enter your First Name:<br>
-        {{form.firstName(size=80)}}<br>
-    </p>
-    <p>
-        Please enter your Last Name:<br>
-        {{form.lastName(size=80)}}<br>
-    </p>
-    <p>
-        Please enter your Phone Number:<br>
-        {{form.phone(size=80)}}<br>
-    </p>
-    <p>
-        Please enter your Hospital:<br>
-        {{form.hospital(size=80)}}<br>
-    </p>
-    <p>
-        Please enter your City:<br>
-        {{form.city(size=80)}}<br>
-    </p>
-    <p>
-        Please enter your State:<br>
-        {{form.state(size=80)}}<br>
-    </p>
-    <p>
-        Please enter your Country:<br>
-        {{form.country(size=80)}}<br>
-    </p>
-     <p>
-        Number of cases willing to take at a time:<br>
-        {{form.issueLimit()}}
-    </p>
-    <p><input type="submit" value="Submit"></p>
+  <dl>
+  	{% for field in form %}
+    	{{ render_field(field) }}
+    {% endfor %}
+  </dl>
+  <p><input type="submit" value="Submit"></p>
 </form>
-<br><br>
-{% elif g.user.isPatient() %}
-{% set user = g.user.patient %}
-{% if not g.user.patient.isComplete %}
-    You need to complete your profile before you can create a case for doctors to look at
-{% endif %}
-<br>
-<form action="{{ url_for('editProfile', id=g.user.id) }}" method="post" name="editProfile">
-    {{form.hidden_tag()}}
-    <p>
-        Please enter your Password:<br>
-        {{form.password(size=80)}}<br>
-    </p>
-    <p>
-        Please confirm your password:<br>
-        {{form.confirmPassword(size=80)}}<br>
-    </p>
-    <p>
-        Please enter your First Name:<br>
-        {{form.firstName(size=80, value=user.firstName)}}<br>
-    </p>
-    <p>
-        Please enter your Last Name:<br>
-        {{form.lastName(size=80, value=user.lastName)}}<br>
-    </p>
-    <p>
-        Please enter your Phone Number:<br>
-        {{form.phone(size=80, value=user.phone)}}<br>
-    </p>
-    <p>
-        Select your gender:<br>
-        {% for subfield in form.gender %} {{ subfield }}{{ subfield.label }} {% endfor %}
-    </p>
-    <p>
-        Please enter your Age:<br>
-        {{form.age(size=80, value=user.age)}}<br>
-    </p>
-    <p>
-        Please enter your Ethnicity:<br>
-        {{form.ethnicity(size=80, value=user.ethnicity) }}<br>
-    </p>
-    <p><input type="submit" value="Submit"></p>
-</form>
-{% endif %}
 
 {% endblock %}
-

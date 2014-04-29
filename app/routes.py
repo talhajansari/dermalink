@@ -1,39 +1,8 @@
-from imports_for_routes import *
+# All non-route stuff is included in the file routes_helper
+from routes_helper import *
 
  
-# Twilio Account Information
-# account = 'AC6056ccab9b128c038c932d4bbf81b662'
-# token = 'd6a72dff4e0f118e2e52d15ef51f4548'
-# client = TwilioRestClient(account, token)
-# MY_TWILIO_NUMBER = '+14408478798'
-
-reserved_usernames = 'home signup login logout post'
-
-images = UploadSet('images', IMAGES)
-configure_uploads(app, images)
-
-def SendSMS(number, body):
-	return 1
-	# client.sms.messages.create(to='+14403343014', from_=MY_TWILIO_NUMBER,
- #                                     body=body)
-def sendEmail(subject, body, recipients, sender='talhajansari@gmail.com'):
-	msg = Message(subject=subject,
-                  sender=sender,
-                  recipients=recipients)
-	msg.body = body
-	mail.send(msg)
-
-def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
-	return ''.join(random.choice(chars) for _ in range(size))
-
-@lm.user_loader
-def load_user(id):
-	return User.query.get(int(id))
-
-@app.before_request   
-def before_request():
-	g.user = current_user
-
+# Routes...
 
 @app.route('/')
 @app.route('/index')
@@ -227,8 +196,7 @@ def editProfile(id):
 			doctor.isComplete()
 			return redirect(url_for('home'))
 	# elif request.method == 'GET':
-	return render_template("test.html", form=form)
-	return render_template("edit_profile.html", form=myForm)
+	return render_template("edit_profile.html", form=form)
 
 
 @app.route('/create', methods=['GET', 'POST'])
@@ -303,7 +271,6 @@ def upload(issue_id):
 		db.session.commit()
 		return redirect(url_for("show_issue", id=issue_id))
 	issue = Issue.query.get(issue_id)
-	#return str(issue.summary)
 	return render_template('upload.html', issue=issue)
 
 
@@ -315,26 +282,6 @@ def logout():
 	form = LoginForm()
 	return redirect("/")
 
-
-## Other functions
-
-# For now, it only assigns the issues to the first dermatologist
-def assignIssueToDoctor(issue):
-	doctors = Doctor.query.filter_by(isAvailable=1, isComplete=1).all()
-	if len(doctors) is 0: # No available doctors
-		doc = Doctor.query.first()
-		doc.issues.append(issue)
-		db.session.commit()
-		return doc
-	else: # At least one doctor available
-		for doc in doctors:
-			if doc.isAvailableMethod():
-				doc.issues.append(issue)
-				doc.isAvailableMethod()
-				db.session.commit()
-				# Send SMS notification
-				SendSMS(doc.phone, "SkinCheck: You have been assigned a new issue to diagnose")
-				return doc
 
 
 
