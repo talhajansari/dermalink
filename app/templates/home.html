@@ -1,52 +1,123 @@
-{% extends "base.html" %}
+{% extends "flathood_base.html" %}
 {% block content %}
 
-{% if g.user.isPatient() %}
-<h3>Patient: {{g.user.patient.first_name}} {{g.user.patient.last_name}}</h3>
-{% elif g.user.isDoctor() %}
-<h3>Doctor: {{g.user.doctor.first_name}} {{g.user.doctor.last_name}}</h3>
-{% endif %}
+<header class="masthead">
+  <div class="container">
+    <div class="row">
+      <div class="col col-sm-6">
+        <h1><a href="#">SkinCheck</a>
+          <p class="lead">Some type of motto</p></h1>
+     </div>
+     <!-- <div class="col col-sm-6">
+        <div class="well pull-right">
+          <img src="//placehold.it/280x100/E7E7E7">        
+        </div>
+      </div> -->
+    </div>
+  </div>
+ 
+ <!--
+  <div class="container">
+	<div class="row">
+      <div class="col col-sm-12">
+        
+        <div class="panel">
+        <div class="panel-body">
+          You may want to put some news here 
+        </div>
+        </div>
+        
+      </div>
+  	</div>
+   </div>
+  -->
 
-{% set open_issues = [] %}
-{% set closed_issues = [] %}
-{% for issue in issues %}
-{% if not issue.isClosed %} {% if open_issues.append(issue) %} {% endif %}
-{% else %} {% if closed_issues.append(issue) %} {% endif %}
-{% endif %}
-{% endfor %}
+</header>
 
-<h5>Unresolved Issues</h5>
-{% if open_issues|length ==0 %} <ul><li>None available</li></ul> {% else %}
-<ol>
-{% for issue in open_issues %}
-{% set issue_id = issue.id %}
-<li> <a href= "{{ url_for('show_issue', id=issue.id) }}" > {{issue.summary}} </a> 
-	{% if g.user.isPatient() %}  - Assigned to
-	{% for doc in issue.doctors %} Dr. {{ doc.first_name }} {{ doc.last_name}}{% endfor %}.
-	{% endif %}
-</li>
-{% endfor %}
-</ol>
-{% endif %}
+<!-- Begin Body -->
+<div class="container">
+	<div class="row">
+  			
+			<!-- Column with cases listed -->
+  			<div class="col col-sm-3">
+              	<div id="sidebar">
+      			<ul class="nav nav-stacked">
+                    <li><h3 class="highlight">Cases <i class="fa fa-medkit pull-right"></i></h3></li>
+				
+				{% set open_issues = [] %}
+				{% set closed_issues = [] %}
+				{% for issue in issues %}
+				{% if not issue.isClosed %} {% if open_issues.append(issue) %} {% endif %}
+				{% else %} {% if closed_issues.append(issue) %} {% endif %}
+				{% endif %}
+				{% endfor %}
+				
+				{% if open_issues|length ==0 %}
+				</ul>
+				<ul><li>None available</li></ul>
+				
+				{% else %}
+				</ul>
+                
+                {% for issue in open_issues %}
+				{% set issue_id = issue.id %}
+                <div class="accordion" id="accordion2">
+                
+                    <div class="accordion-group">
+                    
+                        <div class="accordion-heading">
+                            <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#{{ issue_id }}">
+                                {{issue.summary}}  
+                            </a>
+                        </div>
+                        <div id="{{issue_id}}" class="accordion-body collapse">
+                            <div class="accordion-inner">
+                                {% if g.user.isPatient() %}  - Assigned to
+								{% for doc in issue.doctors %} Dr. {{ doc.first_name }} {{ doc.last_name}}{% endfor %}.
+								{% endif %}
+                            </div>
+                        </div>
+                    
+                    </div> <!-- end accordian group -->
+               	</div>
+               	{% endfor %}
 
-<h5>Closed Issues</h5>
-{% if closed_issues|length ==0 %} <ul><li>None available</li></ul> {% else %}
-<ol>
-{% for issue in closed_issues %}
-{% set issue_id = issue.id %}
-<li> <a href= "{{ url_for('show_issue', id=issue.id) }}" > {{issue.summary}} </a> 
-	{% if g.user.isPatient() %}  - Assigned to
-	{% for doc in issue.doctors %} Dr. {{ doc.first_name }} {{ doc.last_name}}{% endfor %}.
-	{% endif %}
-</li>
-{% endfor %}
-</ol>
-{% endif %}
+               </div> <!-- sidebar -->
+      		</div> <!-- column -->
+      		{% endif %}
 
-{% if g.user.isPatient() %}
-<br>
-<a href="{{url_for('create_issue')}}"> Click to create a new issue </a> 
-<br> <br>
-{% endif %}
+
+      		<!-- Default column for when no accordions are open -->
+      		{% if g.user.isPatient() %}
+      		<div class="col col-sm-9">
+              <div class="panel">
+              <h1>Open a new case</h1>
+              	<form action="{{ url_for('create_issue') }}" method="post" name="create_issue", enctype="multipart/form-data">
+
+				    {{form1.hidden_tag()}}
+				    <p>
+				        Please describe your problem:<br>
+				        {{form1.summary(size=250)}}<br>
+				    </p>
+				    <p>
+				        Upload a picture:<br>
+				        {{form1.image(size=80)}}<br>
+				    </p>
+				    <p><input type="submit" value="Submit"></p>
+				</form>
+        
+              
+              
+              	
+             	</div>
+      		</div> 
+
+      		{% endif %}
+
+
+ 	</div>
+ </div> <!-- main container -->
+
+
 {% endblock %}
 
