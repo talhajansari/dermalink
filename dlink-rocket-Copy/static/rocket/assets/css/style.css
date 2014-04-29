@@ -610,17 +610,52 @@ img.header_logo {
 	}
 }
 
+.overview{
+	margin-bottom: 6em;
+}
 .topDescriptionMargins{
 	margin-right:45em;
+	margin-top: 2em;
 	color: #fff;
 }
+
+.blox-element{
+	margin-top:3em;
+	width: 25em;
+	float: left;
+}
+.macbookimg{
+	width:48em;
+	height: auto;
+	float: right;
+}
 #header.navbar.navbar-inverse.navbar-fixed-top{
-	background-color: #2980b9;
+	background-color: #005DC6;
 }
 #hero.section.active-section{
-	background-color: #2980b9;
+	background-color: #005DC6;
 	height: 40em;
 }
 ul.nav.navbar-nav{
+	font-size: 2em;
 	color:#fff;
+}
+.clear{
+	clear: both;
+}
+.myWrap{
+	width: 100%;
+  	overflow: hidden;
+}
+.topSectionLeft{
+  float: left;
+  margin: 0 5%;
+}
+.topSectionRight{
+  width: 30em;
+  margin-bottom: 10%;
+  margin-left: 43em;
+}
+.wrapThisIsh{
+	background-color: #DADFE1;
 }
