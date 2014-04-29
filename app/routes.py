@@ -278,6 +278,7 @@ def show_issue(id):
 	# else if request.method = GET:
 	issue = Issue.query.get(id)
 	if g.user.isPatient():
+		issues = Issue.query.filter_by(patient_id=g.user.patient.id)
 		authenticate = g.user.patient.owns_issue(id)
 	elif g.user.isDoctor():
 		authenticate = g.user.doctor.owns_issue(id)
@@ -290,7 +291,7 @@ def show_issue(id):
 	for image in pics:
 		url = images.url(image.filename)
 		URLs.append(url)
-	return render_template('show_issue.html', issue=issue, URLs=URLs, images=images, form=form)
+	return render_template('show_issue.html', issue=issue, issues=issues, URLs=URLs, images=images, form=form)
 
 
 @app.route('/home/<issue_id>/upload', methods=['GET', 'POST'])

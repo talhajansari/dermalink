@@ -1,0 +1,148 @@
+{% extends "flathood_base.html" %}
+
+{% block content %}
+
+<h3> Issue: {{issue.summary}}</h3>
+Issue ID: {{issue.id}} <br>
+Patient: {{issue.patient.first_name}} {{issue.patient.last_name}} <br>
+Date Created: {{issue.timestamp}} <br>
+{% if (issue.isClosed) %}
+Resolved: Yes
+{% else %}
+Resolved: No
+{% endif %}
+
+
+
+<div class="container">
+    <h1>Already uploaded pictures</h1>
+    <div class="row">
+    {% for url in URLs%}
+      <div class="col-lg-3 col-sm-4 col-xs-6"><a href="#"><img class="thumbnail img-responsive" src="{{url}}"></a></div>
+    {% endfor %}
+    </div>
+</div>
+
+<div class="modal" id="myModal" role="dialog">
+  <div class="modal-dialog">
+  <div class="modal-content">
+	<div class="modal-header">
+		<button class="close" type="button" data-dismiss="modal">×</button>
+		<h3 class="modal-title"></h3>
+	</div>
+	<div class="modal-body">
+		<div id="modalCarousel" class="carousel">
+ 
+          <div class="carousel-inner">
+           
+          </div>
+          
+          <a class="carousel-control left" href="#modaCarousel" data-slide="prev"><i class="glyphicon glyphicon-chevron-left"></i></a>
+          <a class="carousel-control right" href="#modalCarousel" data-slide="next"><i class="glyphicon glyphicon-chevron-right"></i></a>
+          
+    </div>
+	</div>
+	<div class="modal-footer">
+		<button class="btn btn-default" data-dismiss="modal">Close</button>
+	</div>
+   </div>
+  </div>
+</div>
+
+ <script type='text/javascript' src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+
+
+        <script type='text/javascript' src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+
+
+
+
+
+        
+        <!-- JavaScript jQuery code from Bootply.com editor -->
+        
+ <script type='text/javascript'>
+        
+        $(document).ready(function() {
+        
+            /* copy loaded thumbnails into carousel */
+$('.row .thumbnail').on('load', function() {
+  
+}).each(function(i) {
+  if(this.complete) {
+  	var item = $('<div class="item"></div>');
+    var itemDiv = $(this).parents('div');
+    var title = $(this).parent('a').attr("title");
+    
+    item.attr("title",title);
+  	$(itemDiv.html()).appendTo(item);
+  	item.appendTo('.carousel-inner'); 
+    if (i==0){ // set first item active
+     item.addClass('active');
+    }
+  }
+});
+
+/* activate the carousel */
+$('#modalCarousel').carousel({interval:false});
+
+/* change modal title when slide changes */
+$('#modalCarousel').on('slid.bs.carousel', function () {
+  $('.modal-title').html($(this).find('.active').attr("title"));
+})
+
+/* when clicking a thumbnail */
+$('.row .thumbnail').click(function(){
+    var idx = $(this).parents('div').index();
+  	var id = parseInt(idx);
+  	$('#myModal').modal('show'); // show the modal
+    $('#modalCarousel').carousel(id); // slide carousel to selected
+  	
+});
+
+        
+        });
+        
+</script>
+
+<br>
+<h5> Diagnoses Information: </h5>
+	{% set allD = issue.diagnoses %}
+	<ul>
+	{% for diagnosis in issue.diagnoses %}
+		<li>Dr. {{diagnosis.doctor.last_name}} said "{{ diagnosis.diagnosis }}" - {{ diagnosis.timestamp.ctime()}}</li>
+	{% endfor %}
+	</ul>
+	<br>
+	{% if g.user.isDoctor() %}
+	<h5> Submit response: </h5>
+	<form action="{{url_for('show_issue', id=issue.id)}}" method="post" name="showIssue">
+	    {{form.hidden_tag()}}
+	    <p>
+	        Resolved:   {{form.resolved}} <br>
+	        Please enter your diagnosis:<br>
+	        {{form.diagnosis(size=80)}}<br>
+	        {% for error in form.errors.diagnosis %}
+			<span style="color: red;">[{{error}}]</span>
+			{% endfor %}
+			
+	    </p>
+	    <p><input type="submit" value="Submit"></p>
+	</form>
+
+{% elif g.user.isPatient() %}
+{% if not issue.isClosed %}
+<h4> Upload a new picture: </h4> <br>
+<form method=POST enctype=multipart/form-data action="{{ url_for('upload', issue_id=issue.id) }}">
+	<input type="file" name="image" id="image"></input>
+	<input type="submit"></input>
+<form>
+{% endif %}
+<br>
+{% endif %}
+
+
+
+
+
+{% endblock %}
