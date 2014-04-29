@@ -242,7 +242,7 @@ def create_issue():
 		filename = secure_filename(createIssueForm.image.data.filename)
 		user_id = g.user.id
 		patient_id = g.user.patient.id
-		issue = Issue(summary=summary, timestamp= datetime.utcnow(), patient_id=patient_id, isClosed=0)
+		issue = Issue(summary=summary, timestamp= datetime.utcnow(), patient_id=patient_id, is_closed=0)
 		db.session.add(issue)
 		db.session.flush()
 		image = Image(filename=filename, timestamp= datetime.utcnow(), issue_id=issue.id)
@@ -316,17 +316,24 @@ def logout():
 	return redirect("/")
 
 
+# Apparently we need a shortcode to receive picture messages, which is like $500...
+# From Twilio:
+# At this time sending/receiving picture messages over Twilio US long codes is not supported. 
+# However, we do support sending picture messages between Twilio US short codes and US mobile numbers.
 @app.route("/incoming", methods=['GET', 'POST'])
 def incoming():
 
 	from_number = request.values.get('From', None)
-	patient = Patient.query.filter_by(phone=from_number).first()
+	from_number = from_number[1:] # Strip off initial '+' in phone number
+
+	patient = Patient.query.filter_by(phone=int(from_number)).first()
 	if patient is None: # No patient has the phone number that texted us
 		return 0
 
 	image_url = request.values.get('MediaUrl', None)
 	file = urllib.urlretrieve(image_url) # returns a tuple
 	filename = images.save(file[0])
+
 	patient_id = patient.id
 	issue = Issue(timestamp= datetime.utcnow(), patient_id=patient_id, isClosed=0)
 	db.session.add(issue)
@@ -337,7 +344,10 @@ def incoming():
 	db.session.flush()
 	assignIssueToDoctor(issue)
 	db.session.commit()
-	return 1
+
+	resp = Response()
+	resp.message("Done")
+	return str(resp)
 	
 
 
@@ -345,7 +355,7 @@ def incoming():
 
 # For now, it only assigns the issues to the first dermatologist
 def assignIssueToDoctor(issue):
-	doctors = Doctor.query.filter_by(isAvailable=1, isComplete=1).all()
+	doctors = Doctor.query.filter_by(is_available=1, is_complete=1).all()
 	if len(doctors) is 0: # No available doctors
 		doc = Doctor.query.first()
 		doc.issues.append(issue)
@@ -353,9 +363,9 @@ def assignIssueToDoctor(issue):
 		return doc
 	else: # At least one doctor available
 		for doc in doctors:
-			if doc.isAvailableMethod():
+			if doc.isAvailable():
 				doc.issues.append(issue)
-				doc.isAvailableMethod()
+				doc.isAvailable()
 				db.session.commit()
 				# Send SMS notification
 				SendSMS(doc.phone, "SkinCheck: You have been assigned a new issue to diagnose")
