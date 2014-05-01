@@ -1,147 +1,160 @@
-{% extends "gallery_base.html" %}
+{% extends "flathood_base.html" %}
 {% block content %}
 
-<h3> Issue: {{issue.summary}}</h3>
-Issue ID: {{issue.id}} <br>
-Patient: {{issue.patient.first_name}} {{issue.patient.last_name}} <br>
-Date Created: {{issue.timestamp}} <br>
-{% if (issue.is_closed) %}
-Resolved: Yes
-{% else %}
-Resolved: No
-{% endif %}
-
-
-
-<div class="container">
-    <h1>Already uploaded pictures</h1>
+<header class="masthead">
+  <div class="container">
     <div class="row">
-    {% for url in URLs%}
-      <div class="col-lg-3 col-sm-4 col-xs-6"><a href="#"><img class="thumbnail img-responsive" src="{{url}}"></a></div>
-    {% endfor %}
+      <div class="col col-sm-6">
+        <h1><a href="#">SkinCheck</a>
+     </div>
+     <!-- <div class="col col-sm-6">
+        <div class="well pull-right">
+          <img src="//placehold.it/280x100/E7E7E7">        
+        </div>
+      </div> -->
     </div>
-</div>
-
-<div class="modal" id="myModal" role="dialog">
-  <div class="modal-dialog">
-  <div class="modal-content">
-	<div class="modal-header">
-		<button class="close" type="button" data-dismiss="modal">×</button>
-		<h3 class="modal-title"></h3>
-	</div>
-	<div class="modal-body">
-		<div id="modalCarousel" class="carousel">
- 
-          <div class="carousel-inner">
-           
-          </div>
-          
-          <a class="carousel-control left" href="#modaCarousel" data-slide="prev"><i class="glyphicon glyphicon-chevron-left"></i></a>
-          <a class="carousel-control right" href="#modalCarousel" data-slide="next"><i class="glyphicon glyphicon-chevron-right"></i></a>
-          
-    </div>
-	</div>
-	<div class="modal-footer">
-		<button class="btn btn-default" data-dismiss="modal">Close</button>
-	</div>
-   </div>
   </div>
-</div>
-
- <script type='text/javascript' src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-
-
-        <script type='text/javascript' src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
-
-
-
-
-
+ 
+ <!--
+  <div class="container">
+  <div class="row">
+      <div class="col col-sm-12">
         
-        <!-- JavaScript jQuery code from Bootply.com editor -->
+        <div class="panel">
+        <div class="panel-body">
+          You may want to put some news here 
+        </div>
+        </div>
         
- <script type='text/javascript'>
+      </div>
+    </div>
+   </div>
+  -->
+
+</header>
+
+<!-- Begin Body -->
+<div class="container">
+  <div class="row">
         
-        $(document).ready(function() {
+      <!-- Column with cases listed -->
+        <div class="col col-sm-3">
+                <div id="sidebar">
+            <ul class="nav nav-stacked">
+                    <li><h3 class="highlight">Cases <i class="fa fa-medkit pull-right"></i></h3></li>
         
-            /* copy loaded thumbnails into carousel */
-$('.row .thumbnail').on('load', function() {
-  
-}).each(function(i) {
-  if(this.complete) {
-  	var item = $('<div class="item"></div>');
-    var itemDiv = $(this).parents('div');
-    var title = $(this).parent('a').attr("title");
-    
-    item.attr("title",title);
-  	$(itemDiv.html()).appendTo(item);
-  	item.appendTo('.carousel-inner'); 
-    if (i==0){ // set first item active
-     item.addClass('active');
-    }
-  }
-});
-
-/* activate the carousel */
-$('#modalCarousel').carousel({interval:false});
-
-/* change modal title when slide changes */
-$('#modalCarousel').on('slid.bs.carousel', function () {
-  $('.modal-title').html($(this).find('.active').attr("title"));
-})
-
-/* when clicking a thumbnail */
-$('.row .thumbnail').click(function(){
-    var idx = $(this).parents('div').index();
-  	var id = parseInt(idx);
-  	$('#myModal').modal('show'); // show the modal
-    $('#modalCarousel').carousel(id); // slide carousel to selected
-  	
-});
-
+        {% set open_issues = [] %}
+        {% set closed_issues = [] %}
+        {% for issue in issues %}
+        {% if not issue.isClosed %} {% if open_issues.append(issue) %} {% endif %}
+        {% else %} {% if closed_issues.append(issue) %} {% endif %}
+        {% endif %}
+        {% endfor %}
+        </ul>
+        {% if open_issues|length ==0 %}
         
-        });
+        <ul><li>None available</li></ul>
         
-</script>
+        {% else %}
+                
+                  {% for issue in open_issues %}
+          {% set issue_id = issue.id %}
+                   
+          <li> <a href= "{{ url_for('show_issue', id=issue.id) }}" > {{issue.summary}} </a>
+                   
+                  {% endfor %}
+               
+                
 
-<br>
-<h5> Diagnoses Information: </h5>
-	{% set allD = issue.diagnoses %}
-	<ul>
-	{% for diagnosis in issue.diagnoses %}
-		<li>Dr. {{diagnosis.doctor.last_name}} said "{{ diagnosis.diagnosis }}" - {{ diagnosis.timestamp.ctime()}}</li>
-	{% endfor %}
-	</ul>
-	<br>
-	{% if g.user.isDoctor() %}
-	<h5> Submit response: </h5>
-	<form action="{{url_for('show_issue', id=issue.id)}}" method="post" name="showIssue">
-	    {{form.hidden_tag()}}
-	    <p>
-	        Resolved:   {{form.resolved}} <br>
-	        Please enter your diagnosis:<br>
-	        {{form.diagnosis(size=80)}}<br>
-	        {% for error in form.errors.diagnosis %}
-			<span style="color: red;">[{{error}}]</span>
-			{% endfor %}
-			
-	    </p>
-	    <p><input type="submit" value="Submit"></p>
-	</form>
+               </div> <!-- sidebar -->
+          </div> <!-- column -->
+          {% endif %}
 
-{% elif g.user.isPatient() %}
-{% if not issue.isClosed %}
-<h4> Upload a new picture: </h4> <br>
-<form method=POST enctype=multipart/form-data action="{{ url_for('upload', issue_id=issue.id) }}">
-	<input type="file" name="image" id="image"></input>
-	<input type="submit"></input>
-<form>
-{% endif %}
-<br>
-{% endif %}
 
+          <!-- main column -->
+          {% if g.user.isPatient() %}
+          <div class="col col-sm-9">
+              <div class="panel">
+              <h1>Issue: {{issue.summary}}</h1>
+                <h1>Already uploaded pictures</h1>
+                
+                <div class="row">
+                <div class='list-group gallery'>
+                {% for url in URLs%}
+                 
+                <div class='col-sm-4 col-xs-6 col-md-3 col-lg-3'>
+                <a class="thumbnail fancybox" rel="ligthbox" href="{{url}}">
+                    <img class="img-responsive" alt="" src="{{url}}" />
+                </a>
+              </div> <!-- col-6 / end -->
+                {% endfor %}
+                </div> <!-- list-group / end -->
+                </div>
+ 
+                {% if issue.isClosed %}
+                <h5> Diagnoses Information: </h5>
+                    {% set allD = issue.diagnoses %}
+                    <ul>
+                    {% for diagnosis in issue.diagnoses %}
+                      <li>Dr. {{diagnosis.doctor.last_name}} said "{{ diagnosis.diagnosis }}" - {{ diagnosis.timestamp.ctime()}}</li>
+                    {% endfor %}
+                    </ul>
+                    <br>
+                {% else %}
+                <h4> Upload a new picture: </h4> <br>
+                <form method=POST enctype=multipart/form-data action="{{ url_for('upload', issue_id=issue.id) }}">
+                  <input type="file" name="image" id="image"></input>
+                  <input type="submit"></input>
+                <form>
+
+                {% endif %}
+                
+              </div>
+          </div> 
+
+          {% elif g.user.isDoctor() %}
+          <div class="col col-sm-9">
+          <div class="panel">
+          <h1>Issue: {{issue.summary}}</h1>
+          <div class="row">
+                <div class='list-group gallery'>
+                {% for url in URLs%}
+                 
+                <div class='col-sm-4 col-xs-6 col-md-3 col-lg-3'>
+                <a class="thumbnail fancybox" rel="ligthbox" href="{{url}}">
+                    <img class="img-responsive" alt="" src="{{url}}" />
+                </a>
+              </div> <!-- col-6 / end -->
+                {% endfor %}
+                </div> <!-- list-group / end -->
+                </div>
+              <br>
+          <h5> Submit response: </h5>
+          <form action="{{url_for('show_issue', id=issue.id)}}" method="post" name="showIssue">
+              {{form.hidden_tag()}}
+              <p>
+                  Resolved:   {{form.resolved}} <br>
+                  Please enter your diagnosis:<br>
+                  {{form.diagnosis(size=80)}}<br>
+                  {% for error in form.errors.diagnosis %}
+              <span style="color: red;">[{{error}}]</span>
+              {% endfor %}
+              
+              </p>
+              <p><input type="submit" value="Submit"></p>
+          </form>
+
+            </div>
+          </div> 
+
+          {% endif %}
+
+
+  </div>
+ </div> <!-- main container -->
 
 
 
 
 {% endblock %}
+

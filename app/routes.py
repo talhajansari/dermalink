@@ -159,7 +159,7 @@ def home():
 		return render_template('home.html', issues=issues, isDoctor=0, isComplete=complete, form1=createIssueForm)
 	elif g.user.isDoctor():
 		doctor_id = g.user.doctor.id
-		is_complete = g.user.doctor.isComplete()
+		#is_complete = g.user.doctor.isComplete()
 		issues = Issue.query.filter(Issue.doctors.any(id=doctor_id)).all()
 		return render_template('home.html', issues=issues, isDoctor=1)
 
@@ -208,7 +208,7 @@ def create_issue():
 	if createIssueForm.validate_on_submit():
 		summary = createIssueForm.summary.data
 		filename = secure_filename(createIssueForm.image.data.filename)
-		user_id = g.user.id
+		#user_id = g.user.id
 		patient_id = g.user.patient.id
 		issue = Issue(summary=summary, timestamp= datetime.utcnow(), patient_id=patient_id, is_closed=0)
 		db.session.add(issue)
@@ -238,16 +238,18 @@ def show_issue(id):
 		#return form.resolved.data
 		db.session.commit()
 		#send a message
-		SendSMS(issue.patient.phone, "SkinCheck: Your complaint, \'" + str(issue.summary) + "\', has been diagnosed by Dr. " + str(diagnosis.doctor.last_name) + ".")
+		#SendSMS(issue.patient.phone, "SkinCheck: Your complaint, \'" + str(issue.summary) + "\', has been diagnosed by Dr. " + str(diagnosis.doctor.last_name) + ".")
 		#msg = Message("Your complaint, \'" + str(issue.summary) + "\', has been diagnosed by Dr. " + str(diagnosis.doctor.lastName) + ".",
         #          sender="talhajansari+dermalink_sender@gmail.com",
         #          recipients=["talhajansari+dermalink_receiver@gmail.com"])
-		return redirect(url_for("show_issue", id=id))
+		return redirect(url_for('home'))
 	# else if request.method = GET:
 	issue = Issue.query.get(id)
 	if g.user.isPatient():
+		issues = Issue.query.filter_by(patient_id=g.user.patient.id)
 		authenticate = g.user.patient.owns_issue(id)
 	elif g.user.isDoctor():
+		issues = Issue.query.filter(Issue.doctors.any(id=g.user.doctor.id)).all()
 		authenticate = g.user.doctor.owns_issue(id)
 	if authenticate is False:
 		return redirect(url_for("home"))
@@ -258,7 +260,7 @@ def show_issue(id):
 	for image in pics:
 		url = images.url(image.filename)
 		URLs.append(url)
-	return render_template('show_issue.html', issue=issue, URLs=URLs, images=images, form=form)
+	return render_template('show_issue.html', issue=issue, issues=issues, URLs=URLs, images=images, form=form)
 
 
 @app.route('/home/<issue_id>/upload', methods=['GET', 'POST'])
@@ -279,7 +281,7 @@ def upload(issue_id):
 def logout():
 	logout_user()
 	flash('Succesfully logged out.')
-	form = LoginForm()
+	#form = LoginForm()
 	return redirect("/")
 
 
