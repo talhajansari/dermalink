@@ -5,7 +5,7 @@
 Issue ID: {{issue.id}} <br>
 Patient: {{issue.patient.first_name}} {{issue.patient.last_name}} <br>
 Date Created: {{issue.timestamp}} <br>
-{% if (issue.isClosed) %}
+{% if (issue.is_closed) %}
 Resolved: Yes
 {% else %}
 Resolved: No

@@ -234,11 +234,11 @@ def show_issue(id):
 		db.session.add(diagnosis)
 		issue.diagnoses.append(diagnosis)
 		g.user.doctor.diagnoses.append(diagnosis)
-		issue.isClosed = int(form.resolved.data)
+		issue.is_closed = int(form.resolved.data)
 		#return form.resolved.data
 		db.session.commit()
 		#send a message
-		SendSMS(issue.patient.phone, "SkinCheck: Your complaint, \'" + str(issue.summary) + "\', has been diagnosed by Dr. " + str(diagnosis.doctor.lastName) + ".")
+		SendSMS(issue.patient.phone, "SkinCheck: Your complaint, \'" + str(issue.summary) + "\', has been diagnosed by Dr. " + str(diagnosis.doctor.last_name) + ".")
 		#msg = Message("Your complaint, \'" + str(issue.summary) + "\', has been diagnosed by Dr. " + str(diagnosis.doctor.lastName) + ".",
         #          sender="talhajansari+dermalink_sender@gmail.com",
         #          recipients=["talhajansari+dermalink_receiver@gmail.com"])
