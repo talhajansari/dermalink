@@ -270,17 +270,18 @@ def show_issue(id):
 		#return form.resolved.data
 		db.session.commit()
 		#send a message
-		SendSMS(issue.patient.phone, "SkinCheck: Your complaint, \'" + str(issue.summary) + "\', has been diagnosed by Dr. " + str(diagnosis.doctor.lastName) + ".")
+		#SendSMS(issue.patient.phone, "SkinCheck: Your complaint, \'" + str(issue.summary) + "\', has been diagnosed by Dr. " + str(diagnosis.doctor.last_name) + ".")
 		#msg = Message("Your complaint, \'" + str(issue.summary) + "\', has been diagnosed by Dr. " + str(diagnosis.doctor.lastName) + ".",
         #          sender="talhajansari+dermalink_sender@gmail.com",
         #          recipients=["talhajansari+dermalink_receiver@gmail.com"])
-		return redirect(url_for("show_issue", id=id))
+		return redirect(url_for('home'))
 	# else if request.method = GET:
 	issue = Issue.query.get(id)
 	if g.user.isPatient():
 		issues = Issue.query.filter_by(patient_id=g.user.patient.id)
 		authenticate = g.user.patient.owns_issue(id)
 	elif g.user.isDoctor():
+		issues = Issue.query.filter(Issue.doctors.any(id=g.user.doctor.id)).all()
 		authenticate = g.user.doctor.owns_issue(id)
 	if authenticate is False:
 		return redirect(url_for("home"))
