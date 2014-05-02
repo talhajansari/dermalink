@@ -45,7 +45,7 @@
         {% set open_issues = [] %}
         {% set closed_issues = [] %}
         {% for issue in issues %}
-        {% if not issue.isClosed %} {% if open_issues.append(issue) %} {% endif %}
+        {% if not issue.is_closed %} {% if open_issues.append(issue) %} {% endif %}
         {% else %} {% if closed_issues.append(issue) %} {% endif %}
         {% endif %}
         {% endfor %}
@@ -53,6 +53,8 @@
         {% if open_issues|length ==0 %}
         
         <ul><li>None available</li></ul>
+        </div> <!-- sidebar -->
+        </div> <!-- column -->
         
         {% else %}
                 
@@ -90,7 +92,7 @@
                 </div> <!-- list-group / end -->
                 </div>
  
-                {% if issue.isClosed %}
+                {% if issue.is_closed %}
                 <h5> Diagnoses Information: </h5>
                     {% set allD = issue.diagnoses %}
                     <ul>

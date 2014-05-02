@@ -266,7 +266,7 @@ def show_issue(id):
 		db.session.add(diagnosis)
 		issue.diagnoses.append(diagnosis)
 		g.user.doctor.diagnoses.append(diagnosis)
-		issue.isClosed = int(form.resolved.data)
+		issue.is_closed = int(form.resolved.data)
 		#return form.resolved.data
 		db.session.commit()
 		#send a message
@@ -318,39 +318,6 @@ def logout():
 	return redirect("/")
 
 
-# Apparently we need a shortcode to receive picture messages, which is like $500...
-# From Twilio:
-# At this time sending/receiving picture messages over Twilio US long codes is not supported. 
-# However, we do support sending picture messages between Twilio US short codes and US mobile numbers.
-@app.route("/incoming", methods=['GET', 'POST'])
-def incoming():
-
-	from_number = request.values.get('From', None)
-	from_number = from_number[1:] # Strip off initial '+' in phone number
-
-	patient = Patient.query.filter_by(phone=int(from_number)).first()
-	if patient is None: # No patient has the phone number that texted us
-		return 0
-
-	image_url = request.values.get('MediaUrl', None)
-	file = urllib.urlretrieve(image_url) # returns a tuple
-	filename = images.save(file[0])
-
-	patient_id = patient.id
-	issue = Issue(timestamp= datetime.utcnow(), patient_id=patient_id, isClosed=0)
-	db.session.add(issue)
-	db.session.flush()
-	image = Image(filename=filename, issue_id=issue_id)
-	db.session.add(image)
-	db.session.commit()
-	db.session.flush()
-	assignIssueToDoctor(issue)
-	db.session.commit()
-
-	resp = Response()
-	resp.message("Done")
-	return str(resp)
-	
 
 
 ## Other functions
