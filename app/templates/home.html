@@ -37,62 +37,40 @@
 <!-- Begin Body -->
 <div class="container">
 	<div class="row">
-	<!-- Column with cases listed -->
-		<div class="col col-sm-3">
-			<div id="sidebar">
-				<ul class="nav nav-stacked">
-					<li><h3 class="highlight">Cases <i class="fa fa-medkit pull-right"></i></h3></li>
-					{% set open_issues = [] %}
-					{% set closed_issues = [] %}
-					{% for issue in issues %}
-						{% if not issue.isClosed %} 
-							{% if open_issues.append(issue) %} {% endif %}
-						{% else %} 
-							{% if closed_issues.append(issue) %} {% endif %}
-						{% endif %}
-					{% endfor %}
-				</ul>	
-			
-				<div class="accordion" id="accordion2">
-					<div class="accordion-group">
-						<div class="accordion-heading">
-							{% if open_issues|length ==0 %}	
-								<ul> <li>None available</li> </ul>
-							{% else %}				
-								{% for issue in open_issues %}
-								{% set issue_id = issue.id %}
-							<a class="accordion-toggle" data-parent="#accordion2" href="{{ url_for('show_issue', id=issue_id) }}"> {{issue.summary}} </a> {% if g.user.isPatient() %} - {% for doc in issue.doctors %} Dr. {{ doc.first_name }} {{ doc.last_name }}. {% endfor %} {% endif %}
-						</div>
-						<div id="{{issue_id}}" class="accordion-body collapse">
-							<div class="accordion-inner">
-								
-							</div>
-						</div>
-					</div> <!-- end accordian group -->
-				</div>
-				{% endfor %}
-
-				</ul>
-				{% if open_issues|length ==0 %}
-				
-				<ul><li>None available</li></ul>
-				</div> <!-- sidebar -->
-        		</div> <!-- column -->
-				
-				{% else %}
+	 <!-- Column with cases listed -->
+        <div class="col col-sm-3">
+                <div id="sidebar">
+            <ul class="nav nav-stacked">
+                    <li><h3 class="highlight">Cases <i class="fa fa-medkit pull-right"></i></h3></li>
+        
+        {% set open_issues = [] %}
+        {% set closed_issues = [] %}
+        {% for issue in issues %}
+        {% if not issue.is_closed %} {% if open_issues.append(issue) %} {% endif %}
+        {% else %} {% if closed_issues.append(issue) %} {% endif %}
+        {% endif %}
+        {% endfor %}
+        </ul>
+        {% if open_issues|length ==0 %}
+        
+        <li><a>None available</a>
+        </div> <!-- sidebar -->
+        </div> <!-- column -->
+        
+        {% else %}
                 
-	                {% for issue in open_issues %}
-					{% set issue_id = issue.id %}
+                  {% for issue in open_issues %}
+          {% set issue_id = issue.id %}
                    
-					<li> <a href= "{{ url_for('show_issue', id=issue.id) }}" > {{issue.summary}} </a>
+          <li> <a href= "{{ url_for('show_issue', id=issue.id) }}" > {{issue.summary}} </a>
                    
-                	{% endfor %}
+                  {% endfor %}
                
-               	
+                
 
                </div> <!-- sidebar -->
-      		</div> <!-- column -->
-      		{% endif %}
+          </div> <!-- column -->
+          {% endif %}
 
 
 		<!-- Default column for when no accordions are open -->

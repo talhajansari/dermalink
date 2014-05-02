@@ -37,7 +37,7 @@ def signup():
 			user = User(password=password_hash, email=email, role='PATIENT')
 			db.session.add(user)
 			db.session.flush()
-			patient = Patient(user_id=user.id, isComplete = 0)
+			patient = Patient(user_id=user.id, is_complete = 0)
 			db.session.add(patient)
 			db.session.flush()
 			user.patient = patient
@@ -70,7 +70,7 @@ def derm_signup():
 			user = User(password=password_hash, email=email, role='DOCTOR')
 			db.session.add(user)
 			db.session.flush()
-			doctor = Doctor(user_id=user.id, isComplete = 0)
+			doctor = Doctor(user_id=user.id, is_complete = 0)
 			db.session.add(doctor)
 			db.session.flush()
 			user.doctor = doctor
