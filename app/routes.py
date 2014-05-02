@@ -227,7 +227,7 @@ def editProfile(id):
 			doctor.isComplete()
 			return redirect(url_for('home'))
 	# elif request.method == 'GET':
-	return render_template("test.html", form=form)
+	return render_template("edit_profile.html", form=form)
 	return render_template("edit_profile.html", form=myForm)
 
 
