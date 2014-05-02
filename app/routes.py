@@ -13,7 +13,7 @@ def index():
 		loginForm = LoginForm()
 		signupForm = SignupForm()
 		derm_signupForm = DermSignupForm()
-		return render_template("index.html", title = 'Log in', form1=loginForm, form2=signupForm, form3=derm_signupForm)
+		return render_template("index_dlink.html", title = 'SkinCheck', form1=loginForm, form2=signupForm, form3=derm_signupForm)
 
 
 @app.route("/signup", methods=["POST"])
@@ -207,7 +207,8 @@ def create_issue():
 		return render_template('create_issue.html', form=createIssueForm)	
 	if createIssueForm.validate_on_submit():
 		summary = createIssueForm.summary.data
-		filename = secure_filename(createIssueForm.image.data.filename)
+		#filename = secure_filename(createIssueForm.image.data.filename)
+		filename = images.save(request.files['image'])
 		#user_id = g.user.id
 		patient_id = g.user.patient.id
 		issue = Issue(summary=summary, timestamp= datetime.utcnow(), patient_id=patient_id, is_closed=0)
@@ -276,13 +277,6 @@ def upload(issue_id):
 	return render_template('upload.html', issue=issue)
 
 
-@app.route("/logout")
-@login_required
-def logout():
-	logout_user()
-	flash('Succesfully logged out.')
-	#form = LoginForm()
-	return redirect("/")
 
 
 # Apparently we need a shortcode to receive picture messages, which is like $500...
@@ -318,28 +312,6 @@ def incoming():
 	resp.message("Done")
 	return str(resp)
 	
-
-
-## Other functions
-
-# For now, it only assigns the issues to the first dermatologist
-def assignIssueToDoctor(issue):
-	doctors = Doctor.query.filter_by(is_available=1, is_complete=1).all()
-	if len(doctors) is 0: # No available doctors
-		doc = Doctor.query.first()
-		doc.issues.append(issue)
-		db.session.commit()
-		return doc
-	else: # At least one doctor available
-		for doc in doctors:
-			if doc.isAvailable():
-				doc.issues.append(issue)
-				doc.isAvailable()
-				db.session.commit()
-				# Send SMS notification
-				SendSMS(doc.phone, "SkinCheck: You have been assigned a new issue to diagnose")
-				return doc
-
 
 
 

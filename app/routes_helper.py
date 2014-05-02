@@ -82,3 +82,11 @@ def load_user(id):
 @app.before_request   
 def before_request():
 	g.user = current_user
+
+@app.route("/logout")
+@login_required
+def logout():
+	logout_user()
+	flash('Succesfully logged out.')
+	#form = LoginForm()
+	return redirect("/")
