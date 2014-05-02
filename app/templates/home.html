@@ -6,15 +6,14 @@
 		<div class="row">
 			<div class="col col-sm-6">
 				<h1><a href="#">SkinCheck</a>
-
-				</div>
+			</div>
      <!-- <div class="col col-sm-6">
         <div class="well pull-right">
           <img src="//placehold.it/280x100/E7E7E7">        
         </div>
     </div> -->
-</div>
-</div>
+		</div>
+	</div>
 
  <!--
 	<div class="container">
@@ -37,40 +36,40 @@
 <!-- Begin Body -->
 <div class="container">
 	<div class="row">
-	 <!-- Column with cases listed -->
-        <div class="col col-sm-3">
-                <div id="sidebar">
-            <ul class="nav nav-stacked">
-                    <li><h3 class="highlight">Cases <i class="fa fa-medkit pull-right"></i></h3></li>
-        
-        {% set open_issues = [] %}
-        {% set closed_issues = [] %}
-        {% for issue in issues %}
-        {% if not issue.is_closed %} {% if open_issues.append(issue) %} {% endif %}
-        {% else %} {% if closed_issues.append(issue) %} {% endif %}
-        {% endif %}
-        {% endfor %}
-        </ul>
-        {% if open_issues|length ==0 %}
-        
-        <li><a>None available</a>
-        </div> <!-- sidebar -->
-        </div> <!-- column -->
-        
-        {% else %}
-                
-                  {% for issue in open_issues %}
-          {% set issue_id = issue.id %}
-                   
-          <li> <a href= "{{ url_for('show_issue', id=issue.id) }}" > {{issue.summary}} </a>
-                   
-                  {% endfor %}
-               
-                
+		<!-- Column with cases listed -->
+		<div class="col col-sm-3">
+			<div id="sidebar">
+				<ul class="nav nav-stacked">
+					<li><h3 class="highlight">Cases <i class="fa fa-medkit pull-right"></i></h3></li>
 
-               </div> <!-- sidebar -->
-          </div> <!-- column -->
-          {% endif %}
+					{% set open_issues = [] %}
+					{% set closed_issues = [] %}
+					{% for issue in issues %}
+					{% if not issue.is_closed %} {% if open_issues.append(issue) %} {% endif %}
+					{% else %} {% if closed_issues.append(issue) %} {% endif %}
+					{% endif %}
+					{% endfor %}
+				</ul>
+				{% if open_issues|length ==0 %}
+
+				<li><a>None available</a>
+				</div> <!-- sidebar -->
+			</div> <!-- column -->
+
+			{% else %}
+
+			{% for issue in open_issues %}
+			{% set issue_id = issue.id %}
+
+			<li> <a href= "{{ url_for('show_issue', id=issue.id) }}" > {{issue.summary}} </a>
+
+				{% endfor %}
+
+
+
+			</div> <!-- sidebar -->
+		</div> <!-- column -->
+		{% endif %}
 
 
 		<!-- Default column for when no accordions are open -->
@@ -80,14 +79,14 @@
 				<h3>Open a new case</h3>
 				<form action="{{ url_for('create_issue') }}" method="post" name="create_issue", enctype="multipart/form-data">
 					{{form1.hidden_tag()}}
-					<p>
-						Please describe your problem:<br>
-						{{form1.summary(size=250)}}<br>
-					</p>
-					<p>
-						Upload a picture:<br>
+					<dl>
+						Describe your problem<br>
+						{{form1.summary(size=250)}}
+						<br>
+						<br>
+						Upload a picture
 						{{form1.image(size=80)}}<br>
-					</p>
+					</dl>
 					<p><input type="submit" value="Submit"></p>
 				</form>
 			</div>
@@ -95,7 +94,6 @@
 		{% endif %}
 	</div>
 </div> 
-{% endif %}
 </div>
 </div> <!-- main container -->
 
