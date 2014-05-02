@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<!-- <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='bootstrap/css/bootstrap.css') }}" /> -->
+	<link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.css') }}" />
 
-	<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
+	<!-- <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet"> -->
 	<link href="/static/css/bootstrap-responsive.css" rel="stylesheet">
 	<script src="http://code.jquery.com/jquery-latest.js"></script>
 	<script src="/static/js/bootstrap.min.js"></script>
@@ -18,49 +18,68 @@
 	<!-- so there is some padding between nav bar and content -->
 	<style>
 	body {
-  		padding-top: 50px;
+		padding-top: 50px;
 	}
 	</style>
 
 </head>
 
 <body class='container'>
-	<div class="navbar navbar-inverse navbar-fixed-top">
-  <div class="container">
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <a class="navbar-brand" href="{{url_for('index') }}">Skin Check</a>
-    </div>
-    <div class="collapse navbar-collapse">
-      <ul class="nav navbar-nav">
-      {% set user_id = g.user.id %}
-      {% if g.user.is_authenticated() %}
-        <li><a href="{{ url_for('home') }}">Home</a></li>
-        <li><a href="{{ url_for('editProfile', id=user_id) }}">Edit Profile</a></li>
-        <li><a href="{{ url_for('logout') }}">Logout</a></li>
-        <li class="active"><a href=""> You are logged in as a {{g.user.role}} </a></li>
-        {% else %}
-        <li class="active"><a href=""> Sign up or login to use the service</a></li>
-        {% endif %}
-      </ul>
-    </div><!--/.nav-collapse -->
-  </div>
-</div>
+	<div class="navbar navbar-default navbar-fixed-top">
+		<div class="container">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand" href="{{url_for('index') }}">Skin Check</a>
+			</div>
+			<div class="collapse navbar-collapse">
+				<ul class="nav navbar-nav">
+					{% set user_id = g.user.id %}
+					{% if g.user.is_authenticated() %}
+					<li><a href="{{ url_for('home') }}">Home</a></li>
+					<li><a href="{{ url_for('editProfile', id=user_id) }}">Edit Profile</a></li>
+					<li><a href="{{ url_for('logout') }}">Logout</a></li>
+					<li class="active"><a href=""> You are logged in as a {{g.user.role}} </a></li>
+					{% else %}
+					<li class="active"><a href=""> Sign up or login to use the service</a></li>
+					{% endif %}
+				</ul>
+			</div><!--/.nav-collapse -->
+		</div>
+	</div>
+
 
 	{% with messages = get_flashed_messages() %}
-		{% if messages %}
-			<ul class=flashes style="color:red">
-				{% for message in messages %}
-					<li>{{ message }}</li>
-				{% endfor %}
-			</ul>
-		{% endif %}
+	{% if messages %}
+	<ul class=flashes style="color:red">
+		{% for message in messages %}
+		<li>
+			<div class="flashes alert alert-dismissable alert-info">
+				<button type="button" class="close" data-dismiss="alert">×</button>
+				{{ message }}
+			</div>
+		</li>
+		{% endfor %}
+	</ul>
+	{% endif %}
 	{% endwith %}
 
-	{% block content %}{% endblock %}
+	{% with messages = get_flashed_messages() %}
+	{% if messages %}
+	<ul class=flashes style="color:red">
+		{% for message in messages %}
+		<li>{{ message }}</li>
+		{% endfor %}
+	</ul>
+	{% endif %}
+	{% endwith %}
+	<br>
+	<br>
+	<div>
+		{% block content %}{% endblock %}
+	</div>
 </body>
 </html>

@@ -17,40 +17,61 @@
   </div>
  
  <!--
-  <div class="container">
+	<div class="container">
 	<div class="row">
-      <div class="col col-sm-12">
-        
-        <div class="panel">
-        <div class="panel-body">
-          You may want to put some news here 
-        </div>
-        </div>
-        
-      </div>
-  	</div>
-   </div>
-  -->
+			<div class="col col-sm-12">
+				
+				<div class="panel">
+				<div class="panel-body">
+					You may want to put some news here 
+				</div>
+				</div>
+				
+			</div>
+		</div>
+	 </div>
+	-->
 
 </header>
 
 <!-- Begin Body -->
 <div class="container">
 	<div class="row">
-  			
-			<!-- Column with cases listed -->
-  			<div class="col col-sm-3">
-              	<div id="sidebar">
-      			<ul class="nav nav-stacked">
-                    <li><h3 class="highlight">Cases <i class="fa fa-medkit pull-right"></i></h3></li>
-				
-				{% set open_issues = [] %}
-				{% set closed_issues = [] %}
-				{% for issue in issues %}
-				{% if not issue.isClosed %} {% if open_issues.append(issue) %} {% endif %}
-				{% else %} {% if closed_issues.append(issue) %} {% endif %}
-				{% endif %}
+	<!-- Column with cases listed -->
+		<div class="col col-sm-3">
+			<div id="sidebar">
+				<ul class="nav nav-stacked">
+					<li><h3 class="highlight">Cases <i class="fa fa-medkit pull-right"></i></h3></li>
+					{% set open_issues = [] %}
+					{% set closed_issues = [] %}
+					{% for issue in issues %}
+						{% if not issue.isClosed %} 
+							{% if open_issues.append(issue) %} {% endif %}
+						{% else %} 
+							{% if closed_issues.append(issue) %} {% endif %}
+						{% endif %}
+					{% endfor %}
+				</ul>	
+			
+				<div class="accordion" id="accordion2">
+					<div class="accordion-group">
+						<div class="accordion-heading">
+							{% if open_issues|length ==0 %}	
+								<ul> <li>None available</li> </ul>
+							{% else %}				
+								{% for issue in open_issues %}
+								{% set issue_id = issue.id %}
+							<a class="accordion-toggle" data-parent="#accordion2" href="{{ url_for('show_issue', id=issue_id) }}"> {{issue.summary}} </a> {% if g.user.isPatient() %} - {% for doc in issue.doctors %} Dr. {{ doc.first_name }} {{ doc.last_name }}. {% endfor %} {% endif %}
+						</div>
+						<div id="{{issue_id}}" class="accordion-body collapse">
+							<div class="accordion-inner">
+								
+							</div>
+						</div>
+					</div> <!-- end accordian group -->
+				</div>
 				{% endfor %}
+
 				</ul>
 				{% if open_issues|length ==0 %}
 				
@@ -74,35 +95,28 @@
       		{% endif %}
 
 
-      		<!-- Default column  -->
-      		{% if g.user.isPatient() %}
-      		<div class="col col-sm-9">
-              <div class="panel">
-              <h1>Open a new case</h1>
-              	<form action="{{ url_for('create_issue') }}" method="post" name="create_issue", enctype="multipart/form-data">
-
-				    {{form1.hidden_tag()}}
-				    <p>
-				        Please describe your problem:<br>
-				        {{form1.summary(size=250)}}<br>
-				    </p>
-				    <p>
-				        Upload a picture:<br>
-				        {{form1.image(size=80)}}<br>
-				    </p>
-				    <p><input type="submit" value="Submit"></p>
+		<!-- Default column for when no accordions are open -->
+		{% if g.user.isPatient() %}
+		<div class="col col-sm-9">
+			<div class="panel">
+				<h3>Open a new case</h3>
+				<form action="{{ url_for('create_issue') }}" method="post" name="create_issue", enctype="multipart/form-data">
+					{{form1.hidden_tag()}}
+					<p>
+						Please describe your problem:<br>
+						{{form1.summary(size=250)}}<br>
+					</p>
+					<p>
+						Upload a picture:<br>
+						{{form1.image(size=80)}}<br>
+					</p>
+					<p><input type="submit" value="Submit"></p>
 				</form>
-             	</div>
-      		</div> 
-
-      		{% endif %}
-
-
- 	</div>
+			</div>
+		</div> 
+		{% endif %}
+	</div>
  </div> <!-- main container -->
-
-
-
 
 {% endblock %}
 

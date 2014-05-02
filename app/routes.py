@@ -1,39 +1,8 @@
-from imports_for_routes import *
+# All non-route stuff is included in the file routes_helper
+from routes_helper import *
 
  
-# Twilio Account Information
-# account = 'AC6056ccab9b128c038c932d4bbf81b662'
-# token = 'd6a72dff4e0f118e2e52d15ef51f4548'
-# client = TwilioRestClient(account, token)
-# MY_TWILIO_NUMBER = '+14408478798'
-
-reserved_usernames = 'home signup login logout post'
-
-images = UploadSet('images', IMAGES)
-configure_uploads(app, images)
-
-def SendSMS(number, body):
-	return 1
-	# client.sms.messages.create(to='+14403343014', from_=MY_TWILIO_NUMBER,
- #                                     body=body)
-def sendEmail(subject, body, recipients, sender='talhajansari@gmail.com'):
-	msg = Message(subject=subject,
-                  sender=sender,
-                  recipients=recipients)
-	msg.body = body
-	mail.send(msg)
-
-def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
-	return ''.join(random.choice(chars) for _ in range(size))
-
-@lm.user_loader
-def load_user(id):
-	return User.query.get(int(id))
-
-@app.before_request   
-def before_request():
-	g.user = current_user
-
+# Routes...
 
 @app.route('/')
 @app.route('/index')
@@ -44,7 +13,7 @@ def index():
 		loginForm = LoginForm()
 		signupForm = SignupForm()
 		derm_signupForm = DermSignupForm()
-		return render_template("index.html", title = 'Log in', form1=loginForm, form2=signupForm, form3=derm_signupForm)
+		return render_template("index_dlink.html", title = 'SkinCheck', form1=loginForm, form2=signupForm, form3=derm_signupForm)
 
 
 @app.route("/signup", methods=["POST"])
@@ -190,7 +159,7 @@ def home():
 		return render_template('home.html', issues=issues, isDoctor=0, isComplete=complete, form1=createIssueForm)
 	elif g.user.isDoctor():
 		doctor_id = g.user.doctor.id
-		is_complete = g.user.doctor.isComplete()
+		#is_complete = g.user.doctor.isComplete()
 		issues = Issue.query.filter(Issue.doctors.any(id=doctor_id)).all()
 		return render_template('home.html', issues=issues, isDoctor=1)
 
@@ -228,7 +197,6 @@ def editProfile(id):
 			return redirect(url_for('home'))
 	# elif request.method == 'GET':
 	return render_template("edit_profile.html", form=form)
-	return render_template("edit_profile.html", form=myForm)
 
 
 @app.route('/create', methods=['GET', 'POST'])
@@ -239,8 +207,9 @@ def create_issue():
 		return render_template('create_issue.html', form=createIssueForm)	
 	if createIssueForm.validate_on_submit():
 		summary = createIssueForm.summary.data
-		filename = secure_filename(createIssueForm.image.data.filename)
-		user_id = g.user.id
+		#filename = secure_filename(createIssueForm.image.data.filename)
+		filename = images.save(request.files['image'])
+		#user_id = g.user.id
 		patient_id = g.user.patient.id
 		issue = Issue(summary=summary, timestamp= datetime.utcnow(), patient_id=patient_id, is_closed=0)
 		db.session.add(issue)
@@ -305,40 +274,9 @@ def upload(issue_id):
 		db.session.commit()
 		return redirect(url_for("show_issue", id=issue_id))
 	issue = Issue.query.get(issue_id)
-	#return str(issue.summary)
 	return render_template('upload.html', issue=issue)
 
 
-@app.route("/logout")
-@login_required
-def logout():
-	logout_user()
-	flash('Succesfully logged out.')
-	form = LoginForm()
-	return redirect("/")
-
-
-
-
-## Other functions
-
-# For now, it only assigns the issues to the first dermatologist
-def assignIssueToDoctor(issue):
-	doctors = Doctor.query.filter_by(is_available=1, is_complete=1).all()
-	if len(doctors) is 0: # No available doctors
-		doc = Doctor.query.first()
-		doc.issues.append(issue)
-		db.session.commit()
-		return doc
-	else: # At least one doctor available
-		for doc in doctors:
-			if doc.isAvailable():
-				doc.issues.append(issue)
-				doc.isAvailable()
-				db.session.commit()
-				# Send SMS notification
-				SendSMS(doc.phone, "SkinCheck: You have been assigned a new issue to diagnose")
-				return doc
 
 
 

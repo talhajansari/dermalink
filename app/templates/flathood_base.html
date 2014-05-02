@@ -1,249 +1,251 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
+<head>
 
-       <!-- Gallery stuff -->
-       <script type='text/javascript' src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-        <link href="/static/fancybox/fancybox.css" rel="stylesheet">
-        <script src="/static/fancybox/fancybox.pack.js"></script>
-
-
-        <meta http-equiv="content-type" content="text/html; charset=UTF-8"> 
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-        <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet">
-        <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" type="text/css" rel="stylesheet">
-        <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+ <!-- Gallery stuff -->
+ <script type='text/javascript' src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+ <link href="/static/fancybox/fancybox.css" rel="stylesheet">
+ <script src="/static/fancybox/fancybox.pack.js"></script>
 
 
-       
+ <meta http-equiv="content-type" content="text/html; charset=UTF-8"> 
+ <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+ <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet">
+ <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" type="text/css" rel="stylesheet">
+ <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
 
-       <!-- <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet"> -->
-        <!--[if lt IE 9]>
-          <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
-        <![endif]-->
-
-
-
-
-
-
+ <!-- <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet"> -->
+				<!--[if lt IE 9]>
+					<script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+					<![endif]-->
 
 
+					<!-- CSS code from Bootply.com editor -->
+
+					<style type="text/css">
+
+					.gallery
+					{
+						display: inline-block;
+						margin-top: 20px;
+					}
 
 
-        <!-- CSS code from Bootply.com editor -->
-        
-        <style type="text/css">
+					/* bootstrap 3 helpers */
 
-          .gallery
-          {
-              display: inline-block;
-              margin-top: 20px;
-          }
+					.navbar-form input, .form-inline input {
+					 width:auto;
+				 }
 
+				 /* end */
 
-            /* bootstrap 3 helpers */
+				 /* custom theme */
 
-.navbar-form input, .form-inline input {
-	width:auto;
-}
+				 header {
+					 min-height:130px;
+					 margin-bottom:5px;
+				 }
 
-/* end */
+				 @media (min-width: 979px) {
+					#sidebar.affix-top {
+						position: static;
+					}
 
-/* custom theme */
+					#sidebar.affix {
+						position: fixed;
+						top: 0;
+						width:21.2%;
+					}
+				}
 
-header {
-	min-height:130px;
-  	margin-bottom:5px;
-}
+				.affix,.affix-top {
+				 position:static;
+			 }
 
-@media (min-width: 979px) {
-  #sidebar.affix-top {
-      position: static;
-  }
-  
-  #sidebar.affix {
-      position: fixed;
-      top: 0;
-      width:21.2%;
-  }
-}
+			 /* theme */
 
-.affix,.affix-top {
-   position:static;
-}
+			 body {
+				color:#005DC6; /* this is text color that is originally grey 828282 */
+				background-color:#005DC6;
+			}
 
-/* theme */
+			a,a:hover {
+			 color:#ecf0f1;
+			 text-decoration:none;
+		 }
 
-body {
-  color:#005DC6; /* this is text color that is originally grey 828282 */
-  background-color:#005DC6;
-}
+		 .highlight-bk {
+			 background-color:#ff3333;
+			 padding:1px;
+			 width:100%;
+		 }
 
-a,a:hover {
-	color:#ecf0f1;
-  	text-decoration:none;
-}
+		 .highlight {
+			 color:#ecf0f1;
+		 }
 
-.highlight-bk {
-	background-color:#ff3333;
-    padding:1px;
-    width:100%;
-}
+		 h3.highlight  {
+			 padding-top:13px;
+			 padding-bottom:14px;
+			 border-bottom:2px solid #ecf0f1;
+		 }
 
-.highlight {
-	color:#ecf0f1;
-}
-  
-h3.highlight  {
-	padding-top:13px;
-    padding-bottom:14px;
-  	border-bottom:2px solid #ecf0f1;
-}
+		 .navbar {
+			 background-color:#ecf0f1;
+			 color:#ffffff;
+			 border:0;
+			 border-radius:0;
+		 }
+		 .navbar-nav > li > a {
+			 color:#005DC6;
+			 padding-left:20px;
+			 padding-right:20px;
+			 border-left:1px solid #e8e8e8;
+		 }
+		 .navbar-nav > li:last-child > a {
+			 border-right:1px solid #e8e8e8;
+		 }
+		 .navbar-nav > .active > a, .navbar-nav > .active > a:hover, .navbar-nav > .active > a:focus {
+			color: #005DC6;
+			background-color:transparent;
+		}
+		.navbar-nav > .open > a, .navbar-nav > .open > a:hover, .navbar-nav > .open > a:focus {
+		 color: #555555;
+		 background-color:transparent;
+		 opacity:.9;
+	 }
 
-.navbar {
-	background-color:#ecf0f1;
-  	color:#ffffff;
-    border:0;
-  	border-radius:0;
-}
-.navbar-nav > li > a {
-  	color:#005DC6;
-  	padding-left:20px;
-  	padding-right:20px;
-  	border-left:1px solid #e8e8e8;
-}
-.navbar-nav > li:last-child > a {
-  	border-right:1px solid #e8e8e8;
-}
-.navbar-nav > .active > a, .navbar-nav > .active > a:hover, .navbar-nav > .active > a:focus {
-    color: #005DC6;
-	background-color:transparent;
-}
-.navbar-nav > .open > a, .navbar-nav > .open > a:hover, .navbar-nav > .open > a:focus {
-	color: #555555;
-	background-color:transparent;
-  	opacity:.9;
-}
+	 .nav .open > a {
+		border-color:#777777;
+		border-width:0;
+	}
 
-.nav .open > a {
-    border-color:#777777;
-    border-width:0;
-}
+	.accordion-group {
+	 border-width:0;
+ }
 
-.accordion-group {
-	border-width:0;
-}
+ .dropdown-menu {
+	 min-width: 250px;
+ }
 
-.dropdown-menu {
-	min-width: 250px;
-}
+ .accordion-heading .accordion-toggle, .accordion-inner, .nav-stacked li > a {
+	 padding-left:1px;
+ }
 
-.accordion-heading .accordion-toggle, .accordion-inner, .nav-stacked li > a {
-	padding-left:1px;
-}
+ .caret {
+	 color:#fff;
+ }
 
-.caret {
-	color:#fff;
-}
+ .navbar-toggle {
+	 color:#fff;
+	 border-width:0;
+ }
 
-.navbar-toggle {
-	color:#fff;
-    border-width:0;
-}
-  
-.navbar-toggle:hover {
-	 background-color:#fff; 
+ .navbar-toggle:hover {
+	background-color:#fff; 
 }
 
 .panel {
 	padding-left:27px;
-    padding-right:27px;
-  background-color: #ecf0f1;
+	padding-right:27px;
+	background-color: #ecf0f1;
 }
 
 /* end theme */
-        </style>
-    </head>
+</style>
+</head>
 
 <body  >
 
-<!-- Begin Navbar -->
-<div class="navbar navbar-static">
-    <div class="container">
-      <a class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
-        <span class="glyphicon glyphicon-chevron-down"></span>
-      </a>
-      <div class="nav-collapse collase">
-        <ul class="nav navbar-nav">  
-          {% set user_id = g.user.id %}
-            {% if g.user.is_authenticated() %}
-              <li><a href="{{ url_for('home') }}">Home</a></li>
-              <li><a href="{{ url_for('editProfile', id=user_id) }}">Edit Profile</a></li>
-              <li class="active"><a href=""> You are logged in as a {{g.user.role}} </a></li>
-              {% else %}
-              <li class="active"><a href=""> Sign up or login to use the service</a></li>
-              {% endif %}
-        </ul>
-        <ul class="nav pull-right navbar-nav">
-          <li class="dropdown">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="glyphicon glyphicon-search"></i></a>
-            <ul class="dropdown-menu" style="padding:12px;">
-                <form class="form-inline">
-            <button type="submit" class="btn btn-default pull-right"><i class="glyphicon glyphicon-search"></i></button><input type="text" class="form-control pull-left" placeholder="Search">
-                </form>
-              </ul>
-          </li>
-           {% if g.user.is_authenticated() %}
-          <li class="dropdown">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="glyphicon glyphicon-user"></i> <i class="glyphicon glyphicon-chevron-down"></i></a>
-            <ul class="dropdown-menu">
-              <li><a href="{{ url_for('logout') }}">Logout</a></li>
-              <li><a href="#">Profile</a></li>
-              <li class="divider"></li>
-              <li><a href="#">About</a></li>
-             </ul>
-          </li>  
-          {% endif %}
-        </ul>
-      </div>    
-    </div>
-</div><!-- /.navbar -->
+	<!-- Begin Navbar -->
+	<div class="navbar navbar-static">
+		<div class="container">
+			<a class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+				<span class="glyphicon glyphicon-chevron-down"></span>
+			</a>
+			<div class="nav-collapse collase">
+				<ul class="nav navbar-nav">  
+					{% set user_id = g.user.id %}
+					{% if g.user.is_authenticated() %}
+					<li><a href="{{ url_for('home') }}">Home</a></li>
+					<li><a href="{{ url_for('editProfile', id=user_id) }}">Profile</a></li>
+				</ul>
+				<ul class="nav pull-right navbar-nav">
+			<!-- 		<li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="glyphicon glyphicon-search"></i></a>
+						<ul class="dropdown-menu" style="padding:12px;">
+							<form class="form-inline">
+								<button type="submit" class="btn btn-default pull-right"><i class="glyphicon glyphicon-search"></i></button><input type="text" class="form-control pull-left" placeholder="Search">
+							</form>
+						</ul>
+					</li> -->
+					<li class="active"><a href=""> Logged in as: {{g.user.role}} </a></li>
+					{% else %}
+					<li class="active"><a href=""> Sign up or login to use the service</a></li>
+					{% endif %}
+					{% if g.user.is_authenticated() %}
+					<li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="glyphicon glyphicon-user"></i> <i class="glyphicon glyphicon-chevron-down"></i></a>
+						<ul class="dropdown-menu">
+							<li><a href="{{ url_for('logout') }}">Logout</a></li>
+<!-- 							<li><a href="#">Profile</a></li>
+							<li class="divider"></li>
+							<li><a href="#">About</a></li> -->
+						</ul>
+					</li>  
+					{% endif %}
+				</ul>
+			</div>    
+		</div>
+	</div><!-- /.navbar -->
 
-{% block content %}{% endblock %}
+	<div>
+		{% with messages = get_flashed_messages() %}
+		{% if messages %}
+			{% for message in messages %}
+				<div class="flashes alert alert-dismissable alert-info">
+					<button type="button" class="close" data-dismiss="alert">×</button>
+					{{ message }}
+				</div>
+			{% endfor %}
+		{% endif %}
+		{% endwith %}
+	</div>
 
- 
-
-
-  <script type='text/javascript' src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
-
-
-
-
-
-        
-        <!-- JavaScript jQuery code from Bootply.com editor -->
-        
-        <script type='text/javascript'>
-        
-        $(document).ready(function() {
-        
-                  $('#sidebar').affix({
-                    offset: {
-                      top: 240
-                    }
-                  }); 
+	{% block content %}{% endblock %}
 
 
-                  //FANCYBOX
-                  //https://github.com/fancyapps/fancyBox
-                  $(".fancybox").fancybox({
-                      openEffect: "none",
-                      closeEffect: "none"
-                  });
-        
-        });
-        
-        </script>
+
+
+	<script type='text/javascript' src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+
+
+
+
+
+
+	<!-- JavaScript jQuery code from Bootply.com editor -->
+
+	<script type='text/javascript'>
+
+	$(document).ready(function() {
+
+		$('#sidebar').affix({
+			offset: {
+				top: 240
+			}
+		}); 
+
+
+									//FANCYBOX
+									//https://github.com/fancyapps/fancyBox
+									$(".fancybox").fancybox({
+										openEffect: "none",
+										closeEffect: "none"
+									});
+
+								});
+
+	</script>
 </body>
 </html>
