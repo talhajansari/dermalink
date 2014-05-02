@@ -32,6 +32,7 @@ def signup():
 			#if dermatologist is not None or user is not None:
 			if user is not None:
 				flash('That email is already in use')
+				return 'abc'
 				return redirect(url_for('index'))			
 			# Create the user
 			user = User(password=password_hash, email=email, role='PATIENT')
@@ -47,6 +48,7 @@ def signup():
 		#sendEmail('You have signed up!')
 		#return redirect(request.args.get("next") or url_for("editProfile", username=user.username, user=user))
 		return redirect(url_for("editProfile", id=user.id))
+	return 'abc'
 	return render_template("index.html", title = 'Sign Up', form1=loginForm, form2=signupForm, form3=derm_signupForm)
 
 
