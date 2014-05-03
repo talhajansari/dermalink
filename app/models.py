@@ -86,7 +86,7 @@ class Patient(db.Model):
 			if self.last_name is not None:
 				if self.age is not None and self.age !='0':
 					if self.phone is not None and self.phone !='0':
-						if self.gender == 'male' or self.gender == 'female':
+						if self.gender in ['male', 'Male', 'female', 'Female', 'other', 'Other']:
 							self.is_complete = True
 							db.session.commit()
 							return True
@@ -161,7 +161,7 @@ class Doctor(db.Model):
 			if self.hospital_name is not None:
 				if self.city is not None and self.state is not None and self.country is not None:
 					if self.phone is not None and self.phone !='0':
-						if self.issue_limit != '0':
+						if self.gender in ['male', 'Male', 'female', 'Female', 'other', 'Other']:
 							self.is_complete = True
 							db.session.commit()
 							return True

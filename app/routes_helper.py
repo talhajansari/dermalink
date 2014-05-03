@@ -41,7 +41,7 @@ configure_uploads(app, images)
 
 # Assign issue to dermatologists
 def assignIssueToDoctor(issue):
-	doctors = Doctor.query.filter_by(isAvailable=1, isComplete=1).all()
+	doctors = Doctor.query.filter_by(is_available=1, is_complete=1).all()
 	if len(doctors) is 0: # No available doctors
 		doc = Doctor.query.first()
 		doc.issues.append(issue)
@@ -49,20 +49,23 @@ def assignIssueToDoctor(issue):
 		return doc
 	else: # At least one doctor available
 		for doc in doctors:
-			if doc.isAvailableMethod():
+			if doc.isAvailable():
 				doc.issues.append(issue)
-				doc.isAvailableMethod()
+				doc.isAvailable()
 				db.session.commit()
 				# Send SMS notification
 				SendSMS(doc.phone, "SkinCheck: You have been assigned a new issue to diagnose")
+				# Write an email
+				email = doc.user.email
+				subject = "SkinCheck | New Case"
+				body = 'You have been assigned a new case. Please log on to SkinCheck to offer your diagnosis.'
+				sendEmail(subject, body, recipients=[email], sender='dermaplus.skincheck@gmail.com')
 				return doc
 
 
 # Routes Functions 
 def SendSMS(number, body):
-	return 1
-	# client.sms.messages.create(to='+14403343014', from_=MY_TWILIO_NUMBER,
- #                                     body=body)
+	client.sms.messages.create(to=number, from_=MY_TWILIO_NUMBER, body=body)
 
 def sendEmail(subject, body, recipients, sender='derMangoPlus@gmail.com'):
 	msg = Message(subject=subject,

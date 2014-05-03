@@ -154,14 +154,20 @@ def login():
 @login_required
 def home():
 	createIssueForm = CreateIssueForm()
-	if g.user.isPatient(): #is not doctor
-		issues = Issue.query.filter_by(patient_id=g.user.patient.id) 
+	if g.user.isPatient():
 		complete = g.user.patient.isComplete()
+		if not complete:
+			flash('You need to complete your profile in order to use SkinCheck')
+			return redirect(url_for("editProfile", id=g.user.id))
+		issues = Issue.query.filter_by(patient_id=g.user.patient.id) 
 		return render_template('home.html', issues=issues, isDoctor=0, isComplete=complete, form1=createIssueForm)
 	elif g.user.isDoctor():
 		doctor_id = g.user.doctor.id
-		#is_complete = g.user.doctor.isComplete()
-		issues = Issue.query.filter(Issue.doctors.any(id=doctor_id)).all()
+		complete = g.user.doctor.isComplete()
+		if not complete:
+			flash('You need to complete your profile in order to use SkinCheck')
+			return redirect(url_for("editProfile", id=g.user.id))
+		issues = Issue.query.filter(Issue.doctors.any(id=doctor_id)).all()	
 		return render_template('home.html', issues=issues, isDoctor=1)
 
 
@@ -186,12 +192,12 @@ def editProfile(id):
 		form = MyForm(request.form, doctor)
 		
 	if request.method == 'POST':
-		if g.user.isPatient(): #is not doctor
+		if g.user.isPatient():
 			form.populate_obj(patient)
 			db.session.commit()
+			patient.isComplete()
 			return redirect(url_for('home'))
 		elif g.user.isDoctor():
-			#form = model_form(Doctor, exclude=['issues', 'diagnoses', 'user', 'is_complete', 'is_available','is_certified', 'rating'])(request.form)
 			form.populate_obj(doctor)
 			db.session.commit()
 			doctor.isComplete()
@@ -208,7 +214,7 @@ def create_issue():
 		return render_template('create_issue.html', form=createIssueForm)	
 	if createIssueForm.validate_on_submit():
 		summary = createIssueForm.summary.data
-		#filename = secure_filename(createIssueForm.image.data.filename)
+		#filename = secure_filename(createIssueForm.image.data.filename) #old way to name the files - doesnt do unique filenames
 		filename = images.save(request.files['image'])
 		#user_id = g.user.id
 		patient_id = g.user.patient.id
@@ -227,7 +233,7 @@ def create_issue():
 
 @app.route('/home/<id>', methods=['GET', 'POST'])
 @login_required
-def show_issue(id):
+def show_issue(id): # and diagnose
 	form = DiagnosisForm()
 	if request.method == 'POST': # Diagnose
 		issue = Issue.query.get(id)
@@ -237,13 +243,14 @@ def show_issue(id):
 		issue.diagnoses.append(diagnosis)
 		g.user.doctor.diagnoses.append(diagnosis)
 		issue.is_closed = int(form.resolved.data)
-		#return form.resolved.data
 		db.session.commit()
-		#send a message
+		## Send a message
 		#SendSMS(issue.patient.phone, "SkinCheck: Your complaint, \'" + str(issue.summary) + "\', has been diagnosed by Dr. " + str(diagnosis.doctor.last_name) + ".")
-		#msg = Message("Your complaint, \'" + str(issue.summary) + "\', has been diagnosed by Dr. " + str(diagnosis.doctor.lastName) + ".",
-        #          sender="talhajansari+dermalink_sender@gmail.com",
-        #          recipients=["talhajansari+dermalink_receiver@gmail.com"])
+		# Write an email
+		email = issue.patient.user.email
+		subject = "SkinCheck | Diagnosis Results"
+		body = 'Your complaint, \'" + str(issue.summary) + "\', has been diagnosed by Dr. " + str(diagnosis.doctor.last_name) + "."'
+		sendEmail(subject, body, recipients=[email], sender='dermaplus.skincheck@gmail.com')
 		return redirect(url_for('home'))
 	# else if request.method = GET:
 	issue = Issue.query.get(id)
