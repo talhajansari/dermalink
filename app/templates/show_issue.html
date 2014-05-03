@@ -1,162 +1,62 @@
 {% extends "flathood_base.html" %}
 {% block content %}
 
-<header class="masthead">
-  <div class="container">
-    <div class="row">
-      <div class="col col-sm-6">
-        <h1><a href="#">SkinCheck</a>
-     </div>
-     <!-- <div class="col col-sm-6">
-        <div class="well pull-right">
-          <img src="//placehold.it/280x100/E7E7E7">        
-        </div>
-      </div> -->
-    </div>
-  </div>
- 
- <!--
-  <div class="container">
-  <div class="row">
-      <div class="col col-sm-12">
-        
-        <div class="panel">
-        <div class="panel-body">
-          You may want to put some news here 
-        </div>
-        </div>
-        
-      </div>
-    </div>
-   </div>
-  -->
-
-</header>
-
-<!-- Begin Body -->
-<div class="container">
-  <div class="row">
-        
-      <!-- Column with cases listed -->
-        <div class="col col-sm-3">
-                <div id="sidebar">
-            <ul class="nav nav-stacked">
-                    <li><h3 class="highlight">Cases <i class="fa fa-medkit pull-right"></i></h3></li>
-        
-        {% set open_issues = [] %}
-        {% set closed_issues = [] %}
-        {% for issue in issues %}
-        {% if not issue.is_closed %} {% if open_issues.append(issue) %} {% endif %}
-        {% else %} {% if closed_issues.append(issue) %} {% endif %}
-        {% endif %}
-        {% endfor %}
-        </ul>
-        {% if open_issues|length ==0 %}
-        
-        <ul><li>None available</li></ul>
-        </div> <!-- sidebar -->
-        </div> <!-- column -->
-        
-        {% else %}
-                
-                  {% for issue in open_issues %}
-          {% set issue_id = issue.id %}
-                   
-          <li> <a href= "{{ url_for('show_issue', id=issue.id) }}" > {{issue.summary}} </a>
-                   
-                  {% endfor %}
-               
-                
-
-               </div> <!-- sidebar -->
-          </div> <!-- column -->
-          {% endif %}
 
 
-          <!-- main column -->
-          {% if g.user.isPatient() %}
-          <div class="col col-sm-9">
-              <div class="panel">
-              <h3>{{issue.summary}}</h3>
-                <h5>Already uploaded pictures</h5>
-                
-                <div class="row">
-                <div class='list-group gallery'>
-                {% for url in URLs%}
-                 
-                <div class='col-sm-4 col-xs-6 col-md-3 col-lg-3'>
-                <a class="thumbnail fancybox" rel="ligthbox" href="{{url}}">
-                    <img class="img-responsive" alt="" src="{{url}}" />
-                </a>
-              </div> <!-- col-6 / end -->
-                {% endfor %}
-                </div> <!-- list-group / end -->
-                </div>
- 
-                {% if issue.is_closed %}
-                <h5> Diagnoses Information: </h5>
-                    {% set allD = issue.diagnoses %}
-                    <ul>
-                    {% for diagnosis in issue.diagnoses %}
-                      <li>Dr. {{diagnosis.doctor.last_name}} said "{{ diagnosis.diagnosis }}" - {{ diagnosis.timestamp.ctime()}}</li>
-                    {% endfor %}
-                    </ul>
-                    <br>
-                {% else %}
-                <h4> Upload a new picture: </h4> <br>
-                <form method=POST enctype=multipart/form-data action="{{ url_for('upload', issue_id=issue.id) }}">
-                  <input type="file" name="image" id="image"></input>
-                  <input type="submit"></input>
-                <form>
 
-                {% endif %}
-                
-              </div>
-          </div> 
-
-          {% elif g.user.isDoctor() %}
-          <div class="col col-sm-9">
-          <div class="panel">
-          <h1>Issue: {{issue.summary}}</h1>
+<!-- main column -->
+  <div class="col col-sm-9">
+      <div class="panel">
+      <h3>{{issue.summary}}</h3>
+        <h5>Uploaded pictures</h5>
           <div class="row">
-                <div class='list-group gallery'>
-                {% for url in URLs%}
-                 
-                <div class='col-sm-4 col-xs-6 col-md-3 col-lg-3'>
+            <div class='list-group gallery'>
+            {% for url in URLs%}
+              <div class='col-sm-4 col-xs-6 col-md-3 col-lg-3'>
                 <a class="thumbnail fancybox" rel="ligthbox" href="{{url}}">
-                    <img class="img-responsive" alt="" src="{{url}}" />
+                  <img class="img-responsive" alt="" src="{{url}}" />
                 </a>
               </div> <!-- col-6 / end -->
-                {% endfor %}
-                </div> <!-- list-group / end -->
-                </div>
-              <br>
-          <h5> Submit response: </h5>
-          <form action="{{url_for('show_issue', id=issue.id)}}" method="post" name="showIssue">
-              {{form.hidden_tag()}}
-              <p>
-                  Resolved:   {{form.resolved}} <br>
-                  Please enter your diagnosis:<br>
-                  {{form.diagnosis(size=80)}}<br>
-                  {% for error in form.errors.diagnosis %}
-              <span style="color: red;">[{{error}}]</span>
-              {% endfor %}
-              
-              </p>
-              <p><input type="submit" value="Submit"></p>
-          </form>
+            {% endfor %}
+          </div> <!-- list-group / end -->
+        </div>
 
-            </div>
-          </div> 
+        {% if issue.is_closed %}
+        <h5> Diagnoses Information: </h5>
+            {% set allD = issue.diagnoses %}
+            <ul>
+            {% for diagnosis in issue.diagnoses %}
+              <li>Dr. {{diagnosis.doctor.last_name}} said "{{ diagnosis.diagnosis }}" - {{ diagnosis.timestamp.strftime("%A, %d. %B %Y %I:%M%p")}}</li>
+            {% endfor %}
+            </ul>
+            <br>
+        {% else %}
+          {% if g.user.isPatient() %}
+        <h5> Upload a new picture: </h5> <br>
+        <form method=POST enctype=multipart/form-data action="{{ url_for('upload', issue_id=issue.id) }}">
+          <input type="file" name="image" id="image"></input> <br>
+          <input type="submit"></input>
+        </form>
+        {% elif g.user.isDoctor() %}
+        <h5> Submit response: </h5>
+        <form action="{{url_for('show_issue', id=issue.id)}}" method="post" name="showIssue">
+          {{form.hidden_tag()}}
+          <p>
+            Resolved:   {{form.resolved}} <br>
+            Please enter your diagnosis:<br>
+            {{form.diagnosis(size=80)}}<br>
+            {% for error in form.errors.diagnosis %}
+            <span style="color: red;">[{{error}}]</span>
+            {% endfor %}
+          </p>
+          <p><input type="submit" value="Submit"></p>
+        </form>
+        {% endif %}
 
-          {% endif %}
-
-
-  </div>
- </div> <!-- main container -->
-
-
-
+      {% endif %}
+      
+    </div>
+</div> 
 
 {% endblock %}
 

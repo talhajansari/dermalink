@@ -212,18 +212,92 @@
 		{% endwith %}
 	</div>
 
+<header class="masthead">
+	<div class="container">
+		<div class="row">
+			<div class="col col-sm-6">
+				<h1><a href="#">SkinCheck</a>
+			</div>
+     	<!-- <div class="col col-sm-6">
+        		<div class="well pull-right">
+          			<img src="//placehold.it/280x100/E7E7E7">        
+        		</div>
+    		</div> -->
+		</div>
+	</div>
+
+ <!--
+	<div class="container">
+	<div class="row">
+			<div class="col col-sm-12">
+				
+				<div class="panel">
+				<div class="panel-body">
+					You may want to put some news here 
+				</div>
+				</div>
+				
+			</div>
+		</div>
+	 </div>
+	-->
+</header>
+{% set issues = g.user.patient.issues %}
+
+{% set open_issues = [] %}
+{% set closed_issues = [] %}
+{% for issue in issues %}
+	{% if not issue.is_closed %} 
+		{% if open_issues.append(issue) %} {% endif %}
+	{% else %} 
+		{% if closed_issues.append(issue) %} {% endif %}
+	{% endif %}
+{% endfor %}
+
+<!-- Begin Body -->
+<div class="container">
+	<div class="row">
+		<!-- Column with cases listed -->
+		<div class="col col-sm-3">
+			<div id="sidebar">
+				<ul class="nav nav-stacked">
+					<li><h3 class="highlight">Cases <i class="fa fa-medkit pull-right"></i></h3></li>
+					<!-- Now to OPEN ISSUES -->
+					<li> <h5 class="highlight">Open</h5> </li>
+					<ul>
+					{% if open_issues|length ==0 %}
+						<li><a>None available</a></li>
+					{% else %}
+						{% for issue in open_issues %}
+						{% set issue_id = issue.id %}
+						<li> <a href= "{{ url_for('show_issue', id=issue.id) }}" > {{issue.summary}} - Dr. {{ issue.doctors.first().last_name}}  </a> </li>
+						{% endfor %}
+					{% endif %}
+					<br>
+					<!-- Now to CLOSED ISSUES -->
+					<br>
+					</ul>
+					<li> <h5 class="highlight">Closed</h5> </li>
+					<ul>
+					{% if closed_issues|length ==0 %}
+						<li><a>None available</a></li>
+					{% else %}
+					{% for issue in closed_issues %}
+						{% set issue_id = issue.id %}
+						<li> <a href= "{{ url_for('show_issue', id=issue.id) }}" > {{issue.summary}} - Dr. {{ issue.doctors.first().last_name}}  </a> </li>
+					{% endfor %}
+					{% endif %}
+					</ul>
+				</ul>
+			</div> <!-- sidebar -->
+		</div> <!-- column -->
+
+
 	{% block content %}{% endblock %}
 
 
 
-
 	<script type='text/javascript' src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
-
-
-
-
-
-
 	<!-- JavaScript jQuery code from Bootply.com editor -->
 
 	<script type='text/javascript'>

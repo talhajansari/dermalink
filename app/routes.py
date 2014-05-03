@@ -13,7 +13,7 @@ def index():
 		loginForm = LoginForm()
 		signupForm = SignupForm()
 		derm_signupForm = DermSignupForm()
-		return render_template("index_dlink.html", title = 'SkinCheck', form1=loginForm, form2=signupForm, form3=derm_signupForm)
+		return render_template("index.html", title = 'SkinCheck', form1=loginForm, form2=signupForm, form3=derm_signupForm)
 
 
 @app.route("/signup", methods=["POST"])
@@ -32,7 +32,6 @@ def signup():
 			#if dermatologist is not None or user is not None:
 			if user is not None:
 				flash('That email is already in use')
-				return 'abc'
 				return redirect(url_for('index'))			
 			# Create the user
 			user = User(password=password_hash, email=email, role='PATIENT')
@@ -45,10 +44,9 @@ def signup():
 			db.session.flush()
 			db.session.commit()
 		login_user(user, remember=True)
-		#sendEmail('You have signed up!')
 		#return redirect(request.args.get("next") or url_for("editProfile", username=user.username, user=user))
 		return redirect(url_for("editProfile", id=user.id))
-	return render_template("index.html", title = 'Sign Up', form1=loginForm, form2=signupForm, form3=derm_signupForm)
+	return render_template("index.html", title = 'Sign Up', form1=loginForm, form2=signupForm, form3=derm_signupForm, submitted_form=signupForm)
 
 
 @app.route("/derm_signup", methods=["POST"])
@@ -80,7 +78,7 @@ def derm_signup():
 		login_user(user, remember=True)
 		#return redirect(request.args.get("next") or url_for("editProfile", username=user.username, user=user))
 		return redirect(url_for("editProfile", id=user.id))
-	return render_template("index.html", title = 'Sign Up', form1=loginForm, form2=signupForm, form3=derm_signupForm)
+	return render_template("index.html", title = 'Sign Up', form1=loginForm, form2=signupForm, form3=derm_signupForm, submitted_form=derm_signupForm)
 
 @app.route("/forgot_password", methods=["GET","POST"])
 def forgot_password():
@@ -147,7 +145,7 @@ def login():
 			login_user(user, remember=True)
 			flash('Succesfully logged in.')	
 			return redirect(url_for("home"))
-	return render_template("index.html", title = 'Sign In', form1=loginForm, form2=signupForm, form3=derm_signupForm)
+	return render_template("index.html", title = 'Sign In', form1=loginForm, form2=signupForm, form3=derm_signupForm, submitted_form=loginForm)
 
 
 @app.route('/home')
@@ -160,7 +158,7 @@ def home():
 			flash('You need to complete your profile in order to use SkinCheck')
 			return redirect(url_for("editProfile", id=g.user.id))
 		issues = Issue.query.filter_by(patient_id=g.user.patient.id) 
-		return render_template('home.html', issues=issues, isDoctor=0, isComplete=complete, form1=createIssueForm)
+		return render_template('home.html', form1=createIssueForm)
 	elif g.user.isDoctor():
 		doctor_id = g.user.doctor.id
 		complete = g.user.doctor.isComplete()
@@ -168,7 +166,7 @@ def home():
 			flash('You need to complete your profile in order to use SkinCheck')
 			return redirect(url_for("editProfile", id=g.user.id))
 		issues = Issue.query.filter(Issue.doctors.any(id=doctor_id)).all()	
-		return render_template('home.html', issues=issues, isDoctor=1)
+		return render_template('home.html')
 
 
 
@@ -215,14 +213,13 @@ def create_issue():
 	if createIssueForm.validate_on_submit():
 		summary = createIssueForm.summary.data
 		#filename = secure_filename(createIssueForm.image.data.filename) #old way to name the files - doesnt do unique filenames
-		filename = images.save(request.files['image'])
-		#user_id = g.user.id
+		filename = images.save(request.files[createIssueForm.image.name])
 		patient_id = g.user.patient.id
 		issue = Issue(summary=summary, timestamp= datetime.utcnow(), patient_id=patient_id, is_closed=0)
 		db.session.add(issue)
 		db.session.flush()
 		image = Image(filename=filename, timestamp= datetime.utcnow(), issue_id=issue.id)
-		createIssueForm.image.file.save('uploads/'+str(filename))
+		#createIssueForm.image.file.save('uploads/'+str(filename))
 		db.session.add(image)
 		db.session.flush()
 		assignIssueToDoctor(issue)
@@ -277,6 +274,7 @@ def show_issue(id): # and diagnose
 def upload(issue_id):
 	if request.method == 'POST' and 'image' in request.files:
 		filename = images.save(request.files['image'])
+		return filename
 		image = Image(filename=filename, issue_id=issue_id)
 		db.session.add(image)
 		db.session.commit()
