@@ -17,7 +17,7 @@ from wtforms.ext.sqlalchemy.orm import model_form
 
 # Communication
 from flask.ext.mail import Message
-#from twilio.rest import TwilioRestClient
+from twilio.rest import TwilioRestClient
 
 # Python
 import string
