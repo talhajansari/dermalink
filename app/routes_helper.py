@@ -17,7 +17,7 @@ from wtforms.ext.sqlalchemy.orm import model_form
 
 # Communication
 from flask.ext.mail import Message
-from twilio.rest import TwilioRestClient
+#from twilio.rest import TwilioRestClient
 
 # Python
 import string
@@ -65,7 +65,8 @@ def assignIssueToDoctor(issue):
 
 # Routes Functions 
 def SendSMS(number, body):
-	client.sms.messages.create(to=number, from_=MY_TWILIO_NUMBER, body=body)
+	return 1
+	#client.sms.messages.create(to=number, from_=MY_TWILIO_NUMBER, body=body)
 
 def sendEmail(subject, body, recipients, sender='derMangoPlus@gmail.com'):
 	msg = Message(subject=subject,
