@@ -13,7 +13,7 @@ def index():
 		loginForm = LoginForm()
 		signupForm = SignupForm()
 		derm_signupForm = DermSignupForm()
-		return render_template("index.html", title = 'Log in', form1=loginForm, form2=signupForm, form3=derm_signupForm)
+		return render_template("index.html", title = 'SkinCheck', form1=loginForm, form2=signupForm, form3=derm_signupForm)
 
 
 @app.route("/signup", methods=["POST"])
@@ -37,17 +37,16 @@ def signup():
 			user = User(password=password_hash, email=email, role='PATIENT')
 			db.session.add(user)
 			db.session.flush()
-			patient = Patient(user_id=user.id, isComplete = 0)
+			patient = Patient(user_id=user.id, is_complete = 0)
 			db.session.add(patient)
 			db.session.flush()
 			user.patient = patient
 			db.session.flush()
 			db.session.commit()
 		login_user(user, remember=True)
-		#sendEmail('You have signed up!')
 		#return redirect(request.args.get("next") or url_for("editProfile", username=user.username, user=user))
 		return redirect(url_for("editProfile", id=user.id))
-	return render_template("index.html", title = 'Sign Up', form1=loginForm, form2=signupForm, form3=derm_signupForm)
+	return render_template("index.html", title = 'Sign Up', form1=loginForm, form2=signupForm, form3=derm_signupForm, submitted_form=signupForm)
 
 
 @app.route("/derm_signup", methods=["POST"])
@@ -70,7 +69,7 @@ def derm_signup():
 			user = User(password=password_hash, email=email, role='DOCTOR')
 			db.session.add(user)
 			db.session.flush()
-			doctor = Doctor(user_id=user.id, isComplete = 0)
+			doctor = Doctor(user_id=user.id, is_complete = 0)
 			db.session.add(doctor)
 			db.session.flush()
 			user.doctor = doctor
@@ -79,7 +78,7 @@ def derm_signup():
 		login_user(user, remember=True)
 		#return redirect(request.args.get("next") or url_for("editProfile", username=user.username, user=user))
 		return redirect(url_for("editProfile", id=user.id))
-	return render_template("index.html", title = 'Sign Up', form1=loginForm, form2=signupForm, form3=derm_signupForm)
+	return render_template("index.html", title = 'Sign Up', form1=loginForm, form2=signupForm, form3=derm_signupForm, submitted_form=derm_signupForm)
 
 @app.route("/forgot_password", methods=["GET","POST"])
 def forgot_password():
@@ -146,22 +145,28 @@ def login():
 			login_user(user, remember=True)
 			flash('Succesfully logged in.')	
 			return redirect(url_for("home"))
-	return render_template("index.html", title = 'Sign In', form1=loginForm, form2=signupForm, form3=derm_signupForm)
+	return render_template("index.html", title = 'Sign In', form1=loginForm, form2=signupForm, form3=derm_signupForm, submitted_form=loginForm)
 
 
 @app.route('/home')
 @login_required
 def home():
 	createIssueForm = CreateIssueForm()
-	if g.user.isPatient(): #is not doctor
-		issues = Issue.query.filter_by(patient_id=g.user.patient.id) 
+	if g.user.isPatient():
 		complete = g.user.patient.isComplete()
-		return render_template('home.html', issues=issues, isDoctor=0, isComplete=complete, form1=createIssueForm)
+		if not complete:
+			flash('You need to complete your profile in order to use SkinCheck')
+			return redirect(url_for("editProfile", id=g.user.id))
+		issues = Issue.query.filter_by(patient_id=g.user.patient.id) 
+		return render_template('home.html', form1=createIssueForm)
 	elif g.user.isDoctor():
 		doctor_id = g.user.doctor.id
-		is_complete = g.user.doctor.isComplete()
-		issues = Issue.query.filter(Issue.doctors.any(id=doctor_id)).all()
-		return render_template('home.html', issues=issues, isDoctor=1)
+		complete = g.user.doctor.isComplete()
+		if not complete:
+			flash('You need to complete your profile in order to use SkinCheck')
+			return redirect(url_for("editProfile", id=g.user.id))
+		issues = Issue.query.filter(Issue.doctors.any(id=doctor_id)).all()	
+		return render_template('home.html')
 
 
 
@@ -185,12 +190,12 @@ def editProfile(id):
 		form = MyForm(request.form, doctor)
 		
 	if request.method == 'POST':
-		if g.user.isPatient(): #is not doctor
+		if g.user.isPatient():
 			form.populate_obj(patient)
 			db.session.commit()
+			patient.isComplete()
 			return redirect(url_for('home'))
 		elif g.user.isDoctor():
-			#form = model_form(Doctor, exclude=['issues', 'diagnoses', 'user', 'is_complete', 'is_available','is_certified', 'rating'])(request.form)
 			form.populate_obj(doctor)
 			db.session.commit()
 			doctor.isComplete()
@@ -207,14 +212,14 @@ def create_issue():
 		return render_template('create_issue.html', form=createIssueForm)	
 	if createIssueForm.validate_on_submit():
 		summary = createIssueForm.summary.data
-		filename = secure_filename(createIssueForm.image.data.filename)
-		user_id = g.user.id
+		#filename = secure_filename(createIssueForm.image.data.filename) #old way to name the files - doesnt do unique filenames
+		filename = images.save(request.files[createIssueForm.image.name])
 		patient_id = g.user.patient.id
 		issue = Issue(summary=summary, timestamp= datetime.utcnow(), patient_id=patient_id, is_closed=0)
 		db.session.add(issue)
 		db.session.flush()
 		image = Image(filename=filename, timestamp= datetime.utcnow(), issue_id=issue.id)
-		createIssueForm.image.file.save('uploads/'+str(filename))
+		#createIssueForm.image.file.save('uploads/'+str(filename))
 		db.session.add(image)
 		db.session.flush()
 		assignIssueToDoctor(issue)
@@ -225,7 +230,7 @@ def create_issue():
 
 @app.route('/home/<id>', methods=['GET', 'POST'])
 @login_required
-def show_issue(id):
+def show_issue(id): # and diagnose
 	form = DiagnosisForm()
 	if request.method == 'POST': # Diagnose
 		issue = Issue.query.get(id)
@@ -235,19 +240,22 @@ def show_issue(id):
 		issue.diagnoses.append(diagnosis)
 		g.user.doctor.diagnoses.append(diagnosis)
 		issue.is_closed = int(form.resolved.data)
-		#return form.resolved.data
 		db.session.commit()
-		#send a message
-		SendSMS(issue.patient.phone, "SkinCheck: Your complaint, \'" + str(issue.summary) + "\', has been diagnosed by Dr. " + str(diagnosis.doctor.last_name) + ".")
-		#msg = Message("Your complaint, \'" + str(issue.summary) + "\', has been diagnosed by Dr. " + str(diagnosis.doctor.lastName) + ".",
-        #          sender="talhajansari+dermalink_sender@gmail.com",
-        #          recipients=["talhajansari+dermalink_receiver@gmail.com"])
-		return redirect(url_for("show_issue", id=id))
+		## Send a message
+		#SendSMS(issue.patient.phone, "SkinCheck: Your complaint, \'" + str(issue.summary) + "\', has been diagnosed by Dr. " + str(diagnosis.doctor.last_name) + ".")
+		# Write an email
+		email = issue.patient.user.email
+		subject = "SkinCheck | Diagnosis Results"
+		body = "Your complaint, \'" + str(issue.summary) + "\', has been diagnosed by Dr. " + str(diagnosis.doctor.last_name) + "."
+		sendEmail(subject, body, recipients=[email], sender='dermaplus.skincheck@gmail.com')
+		return redirect(url_for('show_issue', id=id))
 	# else if request.method = GET:
 	issue = Issue.query.get(id)
 	if g.user.isPatient():
+		issues = Issue.query.filter_by(patient_id=g.user.patient.id)
 		authenticate = g.user.patient.owns_issue(id)
 	elif g.user.isDoctor():
+		issues = Issue.query.filter(Issue.doctors.any(id=g.user.doctor.id)).all()
 		authenticate = g.user.doctor.owns_issue(id)
 	if authenticate is False:
 		return redirect(url_for("home"))
@@ -258,7 +266,7 @@ def show_issue(id):
 	for image in pics:
 		url = images.url(image.filename)
 		URLs.append(url)
-	return render_template('show_issue.html', issue=issue, URLs=URLs, images=images, form=form)
+	return render_template('show_issue.html', issue=issue, issues=issues, URLs=URLs, images=images, form=form)
 
 
 @app.route('/home/<issue_id>/upload', methods=['GET', 'POST'])
@@ -266,6 +274,7 @@ def show_issue(id):
 def upload(issue_id):
 	if request.method == 'POST' and 'image' in request.files:
 		filename = images.save(request.files['image'])
+		return filename
 		image = Image(filename=filename, issue_id=issue_id)
 		db.session.add(image)
 		db.session.commit()
@@ -274,69 +283,7 @@ def upload(issue_id):
 	return render_template('upload.html', issue=issue)
 
 
-@app.route("/logout")
-@login_required
-def logout():
-	logout_user()
-	flash('Succesfully logged out.')
-	form = LoginForm()
-	return redirect("/")
 
-
-# Apparently we need a shortcode to receive picture messages, which is like $500...
-# From Twilio:
-# At this time sending/receiving picture messages over Twilio US long codes is not supported. 
-# However, we do support sending picture messages between Twilio US short codes and US mobile numbers.
-@app.route("/incoming", methods=['GET', 'POST'])
-def incoming():
-
-	from_number = request.values.get('From', None)
-	from_number = from_number[1:] # Strip off initial '+' in phone number
-
-	patient = Patient.query.filter_by(phone=int(from_number)).first()
-	if patient is None: # No patient has the phone number that texted us
-		return 0
-
-	image_url = request.values.get('MediaUrl', None)
-	file = urllib.urlretrieve(image_url) # returns a tuple
-	filename = images.save(file[0])
-
-	patient_id = patient.id
-	issue = Issue(timestamp= datetime.utcnow(), patient_id=patient_id, isClosed=0)
-	db.session.add(issue)
-	db.session.flush()
-	image = Image(filename=filename, issue_id=issue_id)
-	db.session.add(image)
-	db.session.commit()
-	db.session.flush()
-	assignIssueToDoctor(issue)
-	db.session.commit()
-
-	resp = Response()
-	resp.message("Done")
-	return str(resp)
-	
-
-
-## Other functions
-
-# For now, it only assigns the issues to the first dermatologist
-def assignIssueToDoctor(issue):
-	doctors = Doctor.query.filter_by(is_available=1, is_complete=1).all()
-	if len(doctors) is 0: # No available doctors
-		doc = Doctor.query.first()
-		doc.issues.append(issue)
-		db.session.commit()
-		return doc
-	else: # At least one doctor available
-		for doc in doctors:
-			if doc.isAvailable():
-				doc.issues.append(issue)
-				doc.isAvailable()
-				db.session.commit()
-				# Send SMS notification
-				SendSMS(doc.phone, "SkinCheck: You have been assigned a new issue to diagnose")
-				return doc
 
 
 

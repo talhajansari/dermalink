@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+<form class="form-horizontal" action="login" method="post" name="login">
+  <fieldset>
+	<legend>Login</legend>
+	<div class="form-group">
+		{{form1.hidden_tag()}}
+	  <label for="inputEmail" class="col-lg-2 control-label">Email</label>
+	  <div class="col-lg-10">
+		{{form1.email(size=80)}}
+	  </div>
+	</div>
+	<div class="form-group">
+	  <label for="inputPassword" class="col-lg-2 control-label">Password</label>
+	  <div class="col-lg-10">
+		{{form1.password(size=80)}}<br>
+		<div class="checkbox">
+		  <label>
+			{{form1.remember_me}} Remember Me
+		  </label>
+		  <a href="{{ url_for('forgot_password') }}">        Forgot your password</a>
+		</div>
+	  </div>
+	</div>
+	<div class="form-group">
+	  <div class="col-lg-10 col-lg-offset-2">
+		<!-- <button class="btn btn-default">Cancel</button> -->
+		<button type="submit" class="btn btn-primary">Login</button> 
+	  </div>
+	</div>
+  </fieldset>
+</form>
+
+<br><br>
+
+<form class="form-horizontal" action="signup" method="post" name="signup">
+  <fieldset>
+	<legend>User Signup</legend>
+	<div class="form-group">
+		{{form2.hidden_tag()}}
+	  <label for="inputEmail" class="col-lg-2 control-label">Email</label>
+	  <div class="col-lg-10">
+		{{form2.email(size=80)}}
+	  </div>
+	</div>
+	<div class="form-group">
+	  <label for="inputPassword" class="col-lg-2 control-label">Password</label>
+	  <div class="col-lg-10">
+		{{form2.password(size=80)}}<br>
+	  </div>
+	</div>
+	<div class="form-group">
+	  <div class="col-lg-10 col-lg-offset-2">
+		<!-- <button class="btn btn-default">Cancel</button> -->
+		<button type="submit" class="btn btn-primary">Signup</button> 
+	  </div>
+	</div>
+  </fieldset>
+</form>
+
+
+<br><br>
+
+
+<form class="form-horizontal" action="derm_signup" method="post" name="derm_signup">
+  <fieldset>
+	<legend>Dermatologits Signup</legend>
+	<div class="form-group">
+		{{form3.hidden_tag()}}
+	  <label for="inputEmail" class="col-lg-2 control-label">Email</label>
+	  <div class="col-lg-10">
+		{{form3.email(size=80)}}
+	  </div>
+	</div>
+	<div class="form-group">
+	  <label for="inputPassword" class="col-lg-2 control-label">Password</label>
+	  <div class="col-lg-10">
+		{{form3.password(size=80)}}<br>
+	  </div>
+	</div>
+	<div class="form-group">
+	  <div class="col-lg-10 col-lg-offset-2">
+		<!-- <button class="btn btn-default">Cancel</button> -->
+		<button type="submit" class="btn btn-primary">Signup</button> 
+	  </div>
+	</div>
+  </fieldset>
+</form>
+
+{% endblock %}
+

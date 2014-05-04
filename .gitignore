@@ -1,7 +1,6 @@
 flask
 flask/*
 virtualenv.*
-uploads
 uploads/*
 app.db
 *.pyc

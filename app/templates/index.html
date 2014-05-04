@@ -1,67 +1,564 @@
-{% extends "base.html" %}
-{% block content %}
-<h1>Log In</h1>
-<form action="login" method="post" name="login">
-    {{form1.hidden_tag()}}
-    <p>
-        Please enter your Email:<br>
-        {{form1.email(size=80)}}<br>
-        {% for error in form1.errors.email %}
-        <span style="color: red;">[{{error}}]</span>
-        {% endfor %}<br>
-    </p>
-    <p>
-        Please enter your password:<br>
-        {{form1.password(size=80)}}<br>
-        {% for error in form1.errors.password %}
-        <span style="color: red;">[{{error}}]</span>
-        {% endfor %}<br>
-    </p>
-    <p>{{form1.remember_me}} Remember Me</p> 
-    <p> <a href="{{ url_for('forgot_password') }}">Forgot your password</a></p>
-    <p><input type="submit" value="Log In"></p>
-</form>
-<br><br>
-<h1>Sign Up</h1>
-<form action="signup" method="post" name="signup">
-    {{form2.hidden_tag()}}
-    <p>
-        Please enter your email:<br>
-        {{form2.email(size=80)}}<br>
-        {% for error in form2.errors.email %}
-        <span style="color: red;">[{{error}}]</span>
-        {% endfor %}<br>
-    </p>
-    <p>
-        Please enter your password:<br>
-        {{form2.password(size=80)}}<br>
-        {% for error in form2.errors.password %}
-        <span style="color: red;">[{{error}}]</span>
-        {% endfor %}<br>
-    </p>
-    <p><input type="submit" value="Sign Up"></p>
-</form>
-<br><br>
-<h1>Dermatologist Sign Up</h1>
-<form action="derm_signup" method="post" name="derm_signup">
-    {{form3.hidden_tag()}}
-    <p>
-        Please enter your email:<br>
-        {{form3.email(size=80)}}<br>
-        {% for error in form3.errors.email %}
-        <span style="color: red;">[{{error}}]</span>
-        {% endfor %}<br>
-    </p>
-    <p>
-        Please enter your password:<br>
-        {{form3.password(size=80)}}<br>
-        {% for error in form3.errors.password %}
-        <span style="color: red;">[{{error}}]</span>
-        {% endfor %}<br>
-    </p>
-    <p><input type="submit" value="Sign Up"></p>
-</form>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<!-- Meta, title, CSS, favicons, etc. -->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="description" content="Skin Check">
+	<meta name="author" content="Skin Check">
+	
+	<title>
+		
+		SkinCheck
+		
+	</title>
+	
+	<!-- Bootstrap core CSS -->
+	<link href="../static/rocket/assets/css/bootstrap.min.css" rel="stylesheet">
+	
+	<!-- Fonts -->
+	<link href='http://fonts.googleapis.com/css?family=Roboto:400,100,300,700,400italic,700italic' rel='stylesheet' type='text/css'>
+	
+	<!-- Rocket extras -->
+	<link href="../static/rocket/assets/css/animate.css" rel="stylesheet">
+	<link href="../static/rocket/assets/css/prettyPhoto.css" rel="stylesheet">
+	<link href="../static/rocket/assets/css/style.css" rel="stylesheet">
+	<!--[if lt IE 9]><script src="assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+	
+	<!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+		<!--[if lt IE 9]>
+		  <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+		  <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+		  <![endif]-->
+		  
+		  <!-- Favicons -->
+		  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="../docs-assets/ico/apple-touch-icon-144-precomposed.png">
+		  <link rel="shortcut icon" href="../docs-assets/ico/favicon.png">
+		</head>
+		<body>
+			
+			<!-- Start Rocket -->
+			<!-- ********************* -->
+			
+	<!-- Parallax Background
+	================================================== -->
+	<!-- image is set in the CSS as a background image -->
+	<div id="parallax"></div>
+	<!-- End Parallax Background
+	================================================== -->
+	
+	<!-- Start Header
+	================================================== -->
+	<header id="header" class="navbar navbar-inverse navbar-fixed-top" role="banner">
+		<div class="container">
+			<div class="navbar-header">
+				<button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".bs-navbar-collapse">
+					<span class="sr-only">Toggle navigation</span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+				<!-- Your Logo -->
+				<a href="#hero" class="navbar-brand"><img class="header_logo" src="../static/rocket/demo/D_logo.png" alt="" /></a>
+			</div>
+			<!-- Start Navigation -->
+			<nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
+				<ul class="nav navbar-nav">
+					<li>
+						<a href="#hero">Home</a>
+					</li>
+					<li>
+			 			<a href="#overview">Overview</a>
+					</li>
+					<li>
+						<a href="#features">Features</a>
+					</li>
+					<li>
+						<a href="#text">About</a>
+					</li>
+					<li>
+						<a href="#testimonials">Our Doctors</a>
+					</li>
+					<!-- <li>
+					  <a href="#newsletter">Subscribe</a>
+					</li> -->
+				</ul>
+				<ul class="nav navbar-nav navbar-right hidden-sm">
+					<li style="">
+						<a style=" padding-top: 25px; " href="#login_container">
+							<button type="button" class="btn btn-primary" style="margin-top:0">Login</button>
+						</a>
+		 			</li>
+		 			<li style="">
+						<a style=" padding-top: 25px; " href="#signup_container">
+							<button type="button" class="btn btn-primary" style="margin-top:0">Signup</button>
+						</a>
+		 			</li>
+<!-- 		 			<li style="">
+						<a style=" padding-top: 25px; " href="#signup_container">
+							<button type="button" class="btn btn-primary" style="margin-top:0" onclick="#derm_signup_container">Dermatologist?</button>
+						</a>
+		 			</li>
+ -->
+		 		<!-- 	<li>
+		 				<button type="button" class="btn btn-primary" onclick="#login_container">Log in</button>
+		 			<button type="button" class="btn btn-primary" onclick="flask-dermalink.herokuapp.com">Log in</button> 
+					</li> -->
+					<!-- <li>
+						<button type="button" class="btn btn-primary" id="btn-signup" onclick="location.href='#signup'">Sign up</button> 
+						<button type="button" class="btn btn-primary" id="btn-signup" onclick="flask-dermalink.herokuapp.com">Sign up</button> 
+					</li> -->
+				</ul>
+			</nav>
+		</div>
+	</header>
+	<!-- ==================================================
+	End Header -->
+	
+	{% with messages = get_flashed_messages() %}
+	{% if messages or (submitted_form and submitted_form.errors) %}
+	<section id="error" class="section">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-5 col-sm-5">
+					<div class="content-block animate" data-animate="fadeInLeft" style="margin-bottom: 50px;">
+						{% if submitted_form %}
+						{% for error in submitted_form.errors.email %}
+						<li> <p class="lead">{{ error }}</p></li>
+						{% endfor %}
+						{% for error in submitted_form.errors.password %}
+						<li> <p class="lead">{{ error }}</p></li>
+						{% endfor %}
+						{% endif %}
+						{% for message in messages %}
+						<li> <p class="lead">{{ message }}</p></li>
+						{% endfor %}
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+	{% endif %}
+	{% endwith %}
 
-{% endblock %}
+	
+	<!-- Start Hero Section
+	================================================== -->
+	<section id="hero" class="section" role="banner">
+		<div class="container">
+			<div class = "myWrap">
+				<div class = "topDescriptionMargins">
+				<div class="row">
+	<!-- 				<div class="col-md-6"></div>
+					<div class="col-md-6"> -->
+						<div class = "topSectionLeft">
+							<div class="blox-element animate" data-animate="fadeInDown"  role="navigation">
+								<h1><strong>SkinCheck</strong></h1>
+								<p class="lead">SkinCheck is an easy-to-use platform designed to provide user access to a network of top dermatologists.</p>
+								<p>
+									<!-- <a class="btn btn-primary btn-md btn-rocket btn-primary" href="#signup_container">Sign Up</a>
+									<a class="btn btn-primary btn-md btn-rocket btn-primary" href="#text">Explore</a></p> -->
+							</div>
+						</div>
+						<div class = "topSectionRight">
+							<div class = "macbookImage">
+								<img src = "../static/rocket/demo/macbook_2.png" class="macbookimg">
+							</div>
+						</div>
+				</div>
+				</div>
+		</div>
+	</section>
+	<!-- ================================================== 
+	End Hero -->
+	
+	<!-- Start Features
+	================================================== -->
+	<section id="overview" class="section">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12">
+					<!-- Title -->
+					<div class="overview">
+						<h1><strong>Overview</strog></h1>
+						<p>
+					</div>
+				</div>
+				<center>
+				<div class="col-md-3 col-sm-6">
+					<div class="service-block animate" data-animate="fadeInRight">
+						<span class="glyphicon glyphicon-globe"></span>
+						<h3><strong>Quality</strong></h3>
+						<p>Verified qualified doctors based around the world</p>
+					</div>
+				</div>
+				<div class="col-md-3 col-sm-6">
+					<div class="service-block animate" data-animate="flipInY">
+						<span class="glyphicon glyphicon-cloud-upload"></span>
+						<h3><strong>Convenient</strong></h3>
+						<p>Upload from home, office, or even while on holiday on the beach</p>
+					</div>
+				</div>
+				<div class="col-md-3 col-sm-6">
+					<div class="service-block animate" data-animate="fadeInLeft">
+						<span class="glyphicon glyphicon-usd"></span>
+						<h3><strong>Cheap</strong></h3>
+						<p>Only $19.99 per diagnosis</p>
+					</div>
+				</div>
+				<div class="col-md-3 col-sm-6">
+					<div class="service-block animate" data-animate="flipInX">
+						<span class="glyphicon glyphicon-time"></span>
+						<h3><strong>Fast</strong></h3>
+						<p>We aim to deliver a doctors’ response within 12 hours</p>
+					</div>
+				</div>
+				</center>
+			</div>
+		</div>
+	</section>
+	<!-- ============================================================= -->
+		<section id="features" class="section">
+		<div class = "WrapThisIsh">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12">
+					<!-- Title -->
+					<div class="overview">
+						<h1><strong>Features</strong></h1>
+						<p class="lead"></p>
+					</div>
+				</div>
+				<center>
+				<div class="col-md-3 col-sm-6">
+					<div class="service-block animate" data-animate="flipInX">
+						<h3><strong>Anonymous</strong></h3>
+						<p>Your identity is always protected, even from dermatologists. All pictures and information you use on SkinCheck is safe and anonymous.</p>
+					</div>
+				</div>
+				<div class="col-md-3 col-sm-6">
+					<div class="service-block animate" data-animate="fadeInRight">
+						<h3><strong>Peace of Mind</strong></h3>
+						<p>We know here at SkinCheck that you can have an irritating rash, a worrying some mole, or even a bad case of acne and a date coming up; all you want is quick and reliable answers which will give you peace of mind or next steps.</p>
+					</div>
+				</div>
+				<div class="col-md-3 col-sm-6">
+					<div class="service-block animate" data-animate="flipInY">
+						<h3><strong>Monitor</strong></h3>
+						<p>Ability to store pictures and monitor any of those skin problems: got a mole you should be monitoring? We will remind you every month to take a picture so that you will be able to monitor any changes and take the appropriate action.</p>
+					</div>
+				</div>
+				<div class="col-md-3 col-sm-6">
+					<div class="service-block animate" data-animate="fadeInLeft">
+						<h3><strong>Relief</strong></h3>
+						<p>Quick answers which allows you to make educated decisions on how to clear that troublesome problem quicker.</p>
+					</div>
+				</div>
+				</center>
+			</div>
+		</div>
+		</div>
+	</section>
+	<!-- ==================================================
+	End Features -->
+	
+	<!-- Start Image Block
+	================================================== -->
+	<!-- <section id="image" class="section" style="background-color:#ecf0f1; padding-bottom: 0;">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-5 col-sm-5">
+					<div class="content-block animate" data-animate="fadeInLeft" style="margin-bottom: 50px;">
+						<h1>Super Animations</h1>
+						<p class="lead">Animate.css is a bunch of cool, fun, and cross-browser animations for you.</p>
+						<p class="hidden-sm">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer lorem quam, adipiscing condimentum tristique vel, eleifend sed turpis. Pellentesque cursus arcu id magna euismod in elementum purus molestie.</p>
+						<button class="btn btn-md btn-primary">Learn More</button>
+						<button class="btn btn-md btn-default">Purchase Now</button>
+					</div>
+				</div>
+				<div class="col-md-7 col-sm-7"><img class="animate img-responsive" data-animate="fadeInRight" src="http://placehold.it/653x491" alt=""/></div>
+			</div>
+		</div>
+	</section> -->
+	
+	<!-- ==================================================
+	End Image Blcok -->
+	
+	<!-- Start Gallery Block
+	================================================== -->
+	<!-- <section id="gallery" class="section">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12">
+					<div class="overview">
+						<h1>Gallery Images</h1>
+						<p class="lead">Collaboratively envisioneer magnetic schemas through synergistic technologies</p>
+					</div>
+				</div>
+				<div class="col-md-3 col-sm-3">
+					<a href="http://placehold.it/263x197" title="This is the description">
+						<img src="http://placehold.it/263x197" alt="Turtle" class="img-rounded image-responsive">
+					</a>
+				</div>
+				<div class="col-md-3 col-sm-3">
+					<a href="http://placehold.it/263x197" title="This is the description">
+						<img src="http://placehold.it/263x197" alt="Turtle" class="img-rounded image-responsive">
+					</a>
+				</div>
+				<div class="col-md-3 col-sm-3">
+					<a href="http://placehold.it/263x197" title="This is the description">
+						<img src="http://placehold.it/263x197" alt="Turtle" class="img-rounded image-responsive">
+					</a>
+				</div>
+				<div class="col-md-3 col-sm-3">
+					<a href="http://placehold.it/263x197" title="This is the description">
+						<img src="http://placehold.it/263x197" alt="Turtle" class="img-rounded image-responsive">
+					</a>
+				</div>
+				<div class="col-md-3 col-sm-3">
+					<a href="http://placehold.it/263x197" title="This is the description">
+						<img src="http://placehold.it/263x197" alt="Turtle" class="img-rounded image-responsive">
+					</a>
+				</div>
+				<div class="col-md-3 col-sm-3">
+					<a href="http://placehold.it/263x197" title="This is the description">
+						<img src="http://placehold.it/263x197" alt="Turtle" class="img-rounded image-responsive">
+					</a>
+				</div>
+				<div class="col-md-3 col-sm-3">
+					<a href="http://placehold.it/263x197" title="This is the description">
+						<img src="http://placehold.it/263x197" alt="Turtle" class="img-rounded image-responsive">
+					</a>
+				</div>
+				<div class="col-md-3 col-sm-3">
+					<a href="http://placehold.it/263x197" title="This is the description">
+						<img src="http://placehold.it/263x197" alt="Turtle" class="img-rounded image-responsive">
+					</a>
+				</div>
+				<div class="col-md-3 col-sm-3">
+					<a href="http://placehold.it/263x197" title="This is the description">
+						<img src="http://placehold.it/263x197" alt="Turtle" class="img-rounded image-responsive">
+					</a>
+				</div>
+				<div class="col-md-3 col-sm-3">
+					<a href="http://placehold.it/263x197" title="This is the description">
+						<img src="http://placehold.it/263x197" alt="Turtle" class="img-rounded image-responsive">
+					</a>
+				</div>
+				<div class="col-md-3 col-sm-3">
+					<a href="http://placehold.it/263x197" title="This is the description">
+						<img src="http://placehold.it/263x197" alt="Turtle" class="img-rounded image-responsive">
+					</a>
+				</div>
+				<div class="col-md-3 col-sm-3">
+					<a href="http://placehold.it/263x197" title="This is the description">
+						<img src="http://placehold.it/263x197" alt="Turtle" class="img-rounded image-responsive">
+					</a>
+				</div>
+				
+			</div>
+		</div>
+	</section> -->
+	
+	<!-- ==================================================
+	End Gallery Block -->
+	
+	<!-- <hr /> -->
+	
+	<!-- Start Text Block
+	================================================== -->
+	<section id="text" class="section">
+		<div class="container">
+			<div class="row">
+				
+				<div class="col-md-7 col-sm-7"><img class="animate img-responsive" data-animate="fadeInRight" src="../static/rocket/demo/about_img1.jpg" alt=""/></div>
+				<div class="col-md-5 col-sm-5">
+					<div class="content-block animate" data-animate="fadeInLeft" style="margin-bottom: 50px;">
+						<h1><strong>About Us</strong></h1>
+						<p class="lead"><strong>The SkinCheck platform was designed to simplify the process of receiving a dermatological opinion.</strong></p>
+						<p class="hidden-sm">In some cities, it can take up to 72 days to see a dermatologist. Through the SkinCheck platform, you are able receive professional opinions instantly. Snap a photo of the area of concern, and it is sent through an encrypted network to top-tier dermatologists. The platform is designed to provide you with possible diagonoses generated by crowd-sourcing to doctors. Your photos and information will never be shared with anyone outside of our network of doctors.</p>
+						<!-- <button class="btn btn-md btn-primary">Learn More</button> -->
+					</div>
+				</div>
+				
+			</div>
+		</div>
+	</section>
+	
+	<!-- ==================================================
+	End Text Block -->
+	
+	<!-- Start Testimonials Block
+	================================================== -->
+	<section id="testimonials" class="section">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12">
+					<div id="Carousel" class="carousel slide">
+						<ol class="carousel-indicators">
+							<li data-target="#Carousel" data-slide-to="0" class="active"></li>
+							<li data-target="#Carousel" data-slide-to="1"></li>
+							<li data-target="#Carousel" data-slide-to="2"></li>
+						</ol>
+						
+						<div class="carousel-inner">
+							<div class="item active animate" data-animate="fadeInRight">
+								<blockquote>
+									<p class="lead"><!-- <img src = "http://jonahberger.com/wp-content/uploads/2013/02/JB-headshot-circle.png"></img> --></p>
+									Doctor Johnathan Smith is a top dermatologist who graduated from Washington University St. Louis, and loves helping people look better.<p>
+									<!-- <small><u>Learn More</u></small> -->
+								</blockquote>					            </div>
+								<div class="item animate" data-animate="fadeInRight">
+									<blockquote>
+										<p class="lead"><!-- <img src = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTRd2Qo96eNpPqBMZjmltdNBZI21_f52yKacWvDKYltXlVF2Rpd1g"> --></p>
+										Doctor Matthew Franco specializes in moles and melanoma. A melanoma free world is a world in which Dr. Franco likes to live in.<p>
+										<!-- <small><u>Learn More</u></small> -->
+									</blockquote>
+								</div>
+								<div class="item animate" data-animate="fadeInRight">
+									<blockquote>
+										<p class="lead"><!-- <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQw572bqYqh4udzbuTH65UaJ0KeW3Z3oWCqgvfRnaODk-jiWl8gA"> --></p>
+										Doctor Susan Dunham has received awards from American Board of Dermatology for her services in fighting skin deseases in under developed communities.<p>
+										<!-- <small><u>Learn More</u></small> -->
+									</blockquote>
+								</div>
+							</div>
+							
+							<a class="left carousel-control" href="#Carousel" data-slide="prev">
+								<span class="glyphicon glyphicon-chevron-left"></span>
+							</a>
+							<a class="right carousel-control" href="#Carousel" data-slide="next">
+								<span class="glyphicon glyphicon-chevron-right"></span>
+							</a>
+						</div>
+					</div>
+					
+				</div>
+			</div>
+		</section>
+	<!-- ==================================================
+	End Slider Blcok -->
+	
+	<!-- Start User Signup Block
+	================================================== -->
+	<section id="signup_container" class="section">
+		<div class="container" style=" text-align:center">
+			<div class="row">
+				<div class="col-md-12">
+					<h1>Start using Skin Check today</h1>
+					<p class="lead">Get access to the best dermatologists, there's only one thing to do. Sign up!</p>
+					<form role="form" action="signup" method="post" name="signup" >
+						<div class="input-group" style="margin-right: auto; margin-left: auto;">
+							{{form2.hidden_tag()}}
+							{{form2.email(size=80, class_="form-control input-lg", placeholder="Email")}}<br>
+							{% for error in form2.errors.email %}
+							<span style="color: red;">[{{error}}]</span>
+							{% endfor %}
+							{{form2.password(size=80, class_="form-control input-lg", placeholder="Password")}}<br>
+							{% for error in form2.errors.password %}
+							<span style="color: red;">[{{error}}]</span>
+							{% endfor %}
+							<div id="checkbox_login" class="checkbox" style="text-align: left;">
+							<span style="float: right">
+		  						<a href="#derm_signup_container"> Are you a dermatologist?</a>
+		  					</span>
+							</div>
+							<span class="input-lg" style="display:block">
+								<input type="submit" value="Signup" class="btn btn-lg btn-default" type="button">
+							</span>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</section>
+	<!-- ==================================================
+	End User Signup Block -->
+
+	<!-- Start Derm Signup Block
+	================================================== -->
+	<section id="derm_signup_container" class="section">
+		<div class="container" style=" text-align:center">
+			<div class="row">
+				<div class="col-md-12">
+					<h1>Are you dermatologist?</h1>
+					<p class="lead">Get access to thousands of patients all at your fingertips, and get paid too. Sign up!</p>
+					<form role="form" action="derm_signup" method="post" name="derm_signup" >
+						<div class="input-group" style="margin-right: auto; margin-left: auto;">
+							{{form3.hidden_tag()}}
+							{{form3.email(size=80, class_="form-control input-lg", placeholder="Email")}}<br>
+							{% for error in form3.errors.email %}
+							<span style="color: red;">[{{error}}]</span>
+							{% endfor %}
+							{{form3.password(size=80, class_="form-control input-lg", placeholder="Password")}}<br>
+							{% for error in form3.errors.password %}
+							<span style="color: red;">[{{error}}]</span>
+							{% endfor %}
+							<span class="input-lg" style="display:block">
+								<input type="submit" value="Signup" class="btn btn-lg btn-default" type="button">
+							</span>
+						</div>
+					</form>
+					</div>
+				</div>
+			</div>
+		</section>
+	<!-- ==================================================
+	End Derm Signup Block -->
+
+	<!-- Start Login_container Block
+	================================================== -->
+	<section id="login_container" class="section">
+		<div class="container" style=" text-align:center;">
+			<div class="row">
+				<div class="col-md-12">
+					<h1>Log in to SkinCheck </h1>
+					<p class="lead">See what dermatologists say about your new pimple</p>
+					<form role="form" action="login" method="post" name="login" >
+						<div class="input-group" style="margin-right: auto; margin-left: auto;">
+							{{form1.hidden_tag()}}
+							{{form1.email(size=80, class_="form-control input-lg", placeholder="Email")}}<br>
+							{% for error in form1.errors.email %}
+							<span style="color: red;">[{{error}}]</span>
+							{% endfor %}
+							{{form1.password(size=80, class_="form-control input-lg", placeholder="Password")}}<br>
+							{% for error in form1.errors.password %}
+							<span style="color: red;">[{{error}}]</span>
+							{% endfor %}
+							<div id="checkbox_login" class="checkbox" style="text-align: left;">
+									{{form1.remember_me}} Remember Me
+		  						<span id="forgot_password" style="float: right">
+		  							<a href="{{ url_for('forgot_password') }}"> Forgot your password</a>
+		  						</span>
+							</div>
+							<span class="input-lg" style="display:block">
+								<input type="submit" value="Login" class="btn btn-lg btn-default" type="button">
+							</span>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</section>
+	<!-- ==================================================
+	End login Block -->
+
+	
+	<!-- Bootstrap core JavaScript
+	================================================== -->
+	<!-- Placed at the end of the document so the pages load faster -->
+	<script src="../static/rocket/assets/js/jquery-1.10.2.min.js"></script>
+	<script src="../static/rocket/assets/js/bootstrap.js"></script>
+	<script src="../static/rocket/assets/js/waypoints.min.js"></script>
+	<script src="../static/rocket/assets/js/jquery.scrollto.min.js"></script>
+	<script src="../static/rocket/assets/js/jquery.localscroll.min.js"></script>
+	<script src="../static/rocket/assets/js/jquery.prettyPhoto.js"></script>
+	<script src="../static/rocket/assets/js/scripts.js"></script>
+	
+	
+	<!-- ********************* -->
+	<!-- Start Rocket -->
+	
+</body>
 </html>
-
