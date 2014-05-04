@@ -22,6 +22,7 @@ from twilio.rest import TwilioRestClient
 # Python
 import string
 import random
+import os
 
 ## VARIABLES ##
 
@@ -92,3 +93,9 @@ def logout():
 	#flash('Succesfully logged out.')
 	#form = LoginForm()
 	return redirect("/")
+
+@app.route("/admin")
+def admin():
+	from config import SQLALCHEMY_DATABASE_URI
+	users = User.query.all()
+	return render_template("admin.html", users=users, db_env_var = os.environ.get('DATABASE_URL'), sqlalchemy_uri=SQLALCHEMY_DATABASE_URI)

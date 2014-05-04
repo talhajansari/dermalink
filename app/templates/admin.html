@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<h4> Admin: Users</h4>
+{% for user in users %}
+<p> {{user.email}}, role={{user.role}} </p>
+{% endfor %}
+<p>os.environ['DATABASE_URL'] = {{db_env_var }}</p>
+<p> {{ sqlalchemy_uri }}</p>
+{% endblock %}
+
