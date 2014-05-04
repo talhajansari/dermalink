@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
 
+<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+
  <!-- Gallery stuff -->
  <script type='text/javascript' src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
  <link href="/static/fancybox/fancybox.css" rel="stylesheet">
@@ -149,6 +151,9 @@
 	padding-left:27px;
 	padding-right:27px;
 	background-color: #ecf0f1;
+}.navbar-logo {
+	width:50px;
+	height: 50px;
 }
 
 /* end theme */
@@ -167,6 +172,7 @@
 				<ul class="nav navbar-nav">  
 					{% set user_id = g.user.id %}
 					{% if g.user.is_authenticated() %}
+					<li><img class="navbar-logo" src="../static/img/splus_whiteonblue_icon.png"> </li>
 					<li><a href="{{ url_for('home') }}">Home</a></li>
 					<li><a href="{{ url_for('editProfile', id=user_id) }}">Profile</a></li>
 				</ul>
@@ -242,6 +248,8 @@
 	 </div>
 	-->
 </header>
+
+
 {% if g.user.role==PATIENT %}
 	{% set issues = g.user.patient.issues %}
 {% else %}
