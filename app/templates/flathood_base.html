@@ -242,7 +242,11 @@
 	 </div>
 	-->
 </header>
-{% set issues = g.user.patient.issues %}
+{% if g.user.role==PATIENT %}
+	{% set issues = g.user.patient.issues %}
+{% else %}
+	{% set issues = g.user.doctor.issues %}
+{% endif %}
 
 {% set open_issues = [] %}
 {% set closed_issues = [] %}

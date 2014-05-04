@@ -44,23 +44,29 @@ def assignIssueToDoctor(issue):
 	doctors = Doctor.query.filter_by(is_available=1, is_complete=1).all()
 	if len(doctors) is 0: # No available doctors
 		doc = Doctor.query.first()
+		if doc is None:
+			return "Error 420: No doctor available on the system"
 		doc.issues.append(issue)
 		db.session.commit()
 		return doc
 	else: # At least one doctor available
+		diff = 0
+		best_doc = None # Chose the best doc, based on availability etc.
 		for doc in doctors:
-			if doc.isAvailable():
-				doc.issues.append(issue)
-				doc.isAvailable()
-				db.session.commit()
-				# Send SMS notification
-				#SendSMS(doc.phone, "SkinCheck: You have been assigned a new issue to diagnose")
-				# Write an email
-				email = doc.user.email
-				subject = "SkinCheck | New Case"
-				body = 'You have been assigned a new case. Please log on to SkinCheck to offer your diagnosis.'
-				sendEmail(subject, body, recipients=[email], sender='dermaplus.skincheck@gmail.com')
-				return doc
+			if doc.isAvailable() and (doc.issue_limit-doc.numOpenIssues())>=diff :
+				best_doc = doc
+		doc = best_doc		
+		doc.issues.append(issue)
+		doc.isAvailable()
+		db.session.commit()
+		# Send SMS notification
+		#SendSMS(doc.phone, "SkinCheck: You have been assigned a new issue to diagnose")
+		# Write an email
+		email = doc.user.email
+		subject = "SkinCheck | New Case"
+		body = 'You have been assigned a new case. Please log on to SkinCheck to offer your diagnosis.'
+		sendEmail(subject, body, recipients=[email], sender='dermaplus.skincheck@gmail.com')
+		return doc
 
 
 # Routes Functions 
@@ -91,6 +97,6 @@ def before_request():
 @login_required
 def logout():
 	logout_user()
-	flash('Succesfully logged out.')
+	#flash('Succesfully logged out.')
 	#form = LoginForm()
 	return redirect("/")

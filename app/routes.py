@@ -246,9 +246,9 @@ def show_issue(id): # and diagnose
 		# Write an email
 		email = issue.patient.user.email
 		subject = "SkinCheck | Diagnosis Results"
-		body = 'Your complaint, \'" + str(issue.summary) + "\', has been diagnosed by Dr. " + str(diagnosis.doctor.last_name) + "."'
+		body = "Your complaint, \'" + str(issue.summary) + "\', has been diagnosed by Dr. " + str(diagnosis.doctor.last_name) + "."
 		sendEmail(subject, body, recipients=[email], sender='dermaplus.skincheck@gmail.com')
-		return redirect(url_for('home'))
+		return redirect(url_for('show_issue', id=id))
 	# else if request.method = GET:
 	issue = Issue.query.get(id)
 	if g.user.isPatient():

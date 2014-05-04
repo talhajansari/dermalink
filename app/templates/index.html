@@ -122,7 +122,6 @@
 			<div class="row">
 				<div class="col-md-5 col-sm-5">
 					<div class="content-block animate" data-animate="fadeInLeft" style="margin-bottom: 50px;">
-						<h2>Error:</h2>
 						{% if submitted_form %}
 						{% for error in submitted_form.errors.email %}
 						<li> <p class="lead">{{ error }}</p></li>
@@ -134,7 +133,6 @@
 						{% for message in messages %}
 						<li> <p class="lead">{{ message }}</p></li>
 						{% endfor %}
-						<button class="btn btn-md btn-primary" onclick="location.href='index'">Try again</button>
 					</div>
 				</div>
 			</div>

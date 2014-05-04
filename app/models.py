@@ -130,7 +130,7 @@ class Doctor(db.Model):
 	diagnoses = db.relationship('Diagnosis', backref='doctor', lazy='dynamic')
 
 	def isAvailable(self):
-		current_issues = self.currentIssues()
+		current_issues = self.numOpenIssues()
 		if (current_issues >= self.issue_limit):
 			self.is_available = 0
 			db.session.commit()
@@ -144,9 +144,15 @@ class Doctor(db.Model):
 			db.session.commit()
 			return False
 
-	# Returns the number of unsolved issues currently assigned to the doctor		
-	def currentIssues(self):
-		return Issue.query.filter(Issue.doctors.any(id=self.id)).count()
+	# Returns the number of open issues currently assigned to the doctor		
+	def numOpenIssues(self):
+		doctor_id = self.id
+		assigned_issues = Issue.query.filter(Issue.doctors.any(id=doctor_id)).all()
+		cnt = 0
+		for issue in assigned_issues:
+			if not issue.is_closed:
+				cnt += 1
+		return cnt
 
 	def owns_issue(self, id):
 		doctor_id = self.id
