@@ -242,7 +242,7 @@ def show_issue(id): # and diagnose
 		issue.is_closed = int(form.resolved.data)
 		db.session.commit()
 		## Send a message
-		#SendSMS(issue.patient.phone, "SkinCheck: Your complaint, \'" + str(issue.summary) + "\', has been diagnosed by Dr. " + str(diagnosis.doctor.last_name) + ".")
+		SendSMS(issue.patient.phone, "SkinCheck: Your complaint, \'" + str(issue.summary) + "\', has been diagnosed by Dr. " + str(diagnosis.doctor.last_name) + ".")
 		# Write an email
 		email = issue.patient.user.email
 		subject = "SkinCheck | Diagnosis Results"

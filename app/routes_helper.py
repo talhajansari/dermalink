@@ -60,7 +60,7 @@ def assignIssueToDoctor(issue):
 		doc.isAvailable()
 		db.session.commit()
 		# Send SMS notification
-		#SendSMS(doc.phone, "SkinCheck: You have been assigned a new issue to diagnose")
+		SendSMS(doc.phone, "SkinCheck: You have been assigned a new issue to diagnose")
 		# Write an email
 		email = doc.user.email
 		subject = "SkinCheck | New Case"
@@ -71,8 +71,7 @@ def assignIssueToDoctor(issue):
 
 # Routes Functions 
 def SendSMS(number, body):
-	return 1
-	#client.sms.messages.create(to=number, from_=MY_TWILIO_NUMBER, body=body)
+	client.sms.messages.create(to=number, from_=MY_TWILIO_NUMBER, body=body)
 
 def sendEmail(subject, body, recipients, sender='derMangoPlus@gmail.com'):
 	msg = Message(subject=subject,
