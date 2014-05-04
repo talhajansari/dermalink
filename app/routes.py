@@ -212,20 +212,25 @@ def create_issue():
 		return render_template('create_issue.html', form=createIssueForm)	
 	if createIssueForm.validate_on_submit():
 		summary = createIssueForm.summary.data
-		#filename = secure_filename(createIssueForm.image.data.filename) #old way to name the files - doesnt do unique filenames
-		filename = images.save(request.files[createIssueForm.image.name])
 		patient_id = g.user.patient.id
 		issue = Issue(summary=summary, timestamp= datetime.utcnow(), patient_id=patient_id, is_closed=0)
-		#db.session.flush()
+		db.session.add(issue)
+		db.session.flush()
+		filename = images.save(request.files[createIssueForm.image.name])
 		image = Image(filename=filename, timestamp= datetime.utcnow(), issue_id=issue.id)
+		db.session.add(image)
+		db.session.flush()
 		#createIssueForm.image.file.save('uploads/'+str(filename))
 		doc = assignIssueToDoctor(issue)
 		if doc is None:
 			return "Error 420: No doctor found in the system"
-		db.session.add(issue)
-		db.session.add(image)
-		db.session.flush()
 		db.session.commit()
+		# Send SMS notification
+		SendSMS(doc.phone, "SkinCheck: You have been assigned a new issue to diagnose")
+		# Write an email
+		subject = "SkinCheck | New Case"
+		body = 'You have been assigned a new case. Please log on to SkinCheck to offer your diagnosis.'
+		sendEmail(subject, body, recipients=[doc.user.email], sender='dermaplus.skincheck@gmail.com')
 		issue_id = issue.id
 		return redirect(url_for('show_issue', id=issue_id))
 

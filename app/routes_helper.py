@@ -32,10 +32,10 @@ images = UploadSet('images', IMAGES)
 configure_uploads(app, images)
 
 # Twilio Account Information
-# account = 'AC6056ccab9b128c038c932d4bbf81b662'
-# token = 'd6a72dff4e0f118e2e52d15ef51f4548'
-# client = TwilioRestClient(account, token)
-# MY_TWILIO_NUMBER = '+14408478798'
+account = 'AC6056ccab9b128c038c932d4bbf81b662'
+token = 'd6a72dff4e0f118e2e52d15ef51f4548'
+client = TwilioRestClient(account, token)
+MY_TWILIO_NUMBER = '+14408478798'
 
 ## FUNCTIONS ##
 
@@ -46,9 +46,8 @@ def assignIssueToDoctor(issue):
 		doc = Doctor.query.first()
 		if doc is None:
 			return None
-
 		doc.issues.append(issue)
-		db.session.commit()
+		db.session.flush()
 		return doc
 	else: # At least one doctor available
 		diff = 0
@@ -59,14 +58,7 @@ def assignIssueToDoctor(issue):
 		doc = best_doc		
 		doc.issues.append(issue)
 		doc.isAvailable()
-		db.session.commit()
-		# Send SMS notification
-		SendSMS(doc.phone, "SkinCheck: You have been assigned a new issue to diagnose")
-		# Write an email
-		email = doc.user.email
-		subject = "SkinCheck | New Case"
-		body = 'You have been assigned a new case. Please log on to SkinCheck to offer your diagnosis.'
-		sendEmail(subject, body, recipients=[email], sender='dermaplus.skincheck@gmail.com')
+		db.session.flush()
 		return doc
 
 
