@@ -45,7 +45,8 @@ def assignIssueToDoctor(issue):
 	if len(doctors) is 0: # No available doctors
 		doc = Doctor.query.first()
 		if doc is None:
-			return "Error 420: No doctor available on the system"
+			return None
+
 		doc.issues.append(issue)
 		db.session.commit()
 		return doc

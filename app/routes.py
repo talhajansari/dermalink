@@ -216,13 +216,15 @@ def create_issue():
 		filename = images.save(request.files[createIssueForm.image.name])
 		patient_id = g.user.patient.id
 		issue = Issue(summary=summary, timestamp= datetime.utcnow(), patient_id=patient_id, is_closed=0)
-		db.session.add(issue)
-		db.session.flush()
+		#db.session.flush()
 		image = Image(filename=filename, timestamp= datetime.utcnow(), issue_id=issue.id)
 		#createIssueForm.image.file.save('uploads/'+str(filename))
+		doc = assignIssueToDoctor(issue)
+		if doc is None:
+			return "Error 420: No doctor found in the system"
+		db.session.add(issue)
 		db.session.add(image)
 		db.session.flush()
-		assignIssueToDoctor(issue)
 		db.session.commit()
 		issue_id = issue.id
 		return redirect(url_for('show_issue', id=issue_id))
