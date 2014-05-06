@@ -65,14 +65,16 @@ def assignIssueToDoctor(issue):
 
 # Routes Functions 
 def SendSMS(number, body):
-	client.sms.messages.create(to=number, from_=MY_TWILIO_NUMBER, body=body)
+	# client.sms.messages.create(to=number, from_=MY_TWILIO_NUMBER, body=body)
+	pass
 
 def sendEmail(subject, body, recipients, sender='derMangoPlus@gmail.com'):
-	msg = Message(subject=subject,
-                  sender=sender,
-                  recipients=recipients)
-	msg.body = body
-	mail.send(msg)
+	# msg = Message(subject=subject,
+ #                  sender=sender,
+ #                  recipients=recipients)
+	# msg.body = body
+	# mail.send(msg)
+	pass
 
 def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
 	return ''.join(random.choice(chars) for _ in range(size))

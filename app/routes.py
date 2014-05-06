@@ -279,9 +279,8 @@ def show_issue(id): # and diagnose
 @app.route('/home/<issue_id>/upload', methods=['GET', 'POST'])
 @login_required
 def upload(issue_id):
-	if request.method == 'POST' and 'image' in request.files:
+	if (request.method == 'POST') and ('image' in request.files):
 		filename = images.save(request.files['image'])
-		return filename
 		image = Image(filename=filename, issue_id=issue_id)
 		db.session.add(image)
 		db.session.commit()
