@@ -176,7 +176,7 @@ def editProfile(id):
 	user = User.query.get(id)
 	if user == None:
 		return redirect(url_for('home'))
-	if g.user.id is not int(id):
+	if int(g.user.id) is not int(id):
 		return redirect(url_for('home'))
 	if g.user.isPatient():
 		MyForm = model_form(Patient, Form, exclude=['issues', 'user', 'is_complete'])
@@ -216,8 +216,18 @@ def create_issue():
 		issue = Issue(summary=summary, timestamp= datetime.utcnow(), patient_id=patient_id, is_closed=0)
 		db.session.add(issue)
 		db.session.flush()
-		filename = images.save(request.files[createIssueForm.image.name])
-		image = Image(filename=filename, timestamp= datetime.utcnow(), issue_id=issue.id)
+		#orig_filename = request.files[createIssueForm.image.name]
+		orig_filename = str(createIssueForm.image.data.filename)
+		cnt = 0
+		for img in issue.images:
+			cnt+=1
+		rev_orig_filename = orig_filename[::-1]
+		filetype = rev_orig_filename[0:rev_orig_filename.index('.')][::-1]
+		filename = str(g.user.id)+'_'+str(issue.id)+'_'+str(cnt)+'.'+filetype
+		#filename = images.save(request.files[createIssueForm.image.name])
+		createIssueForm.image.file.save('uploads/'+str(filename))	
+		image = Image(filename=filename, original_filename=orig_filename, timestamp= datetime.utcnow(), issue_id=issue.id)
+
 		db.session.add(image)
 		db.session.flush()
 		#createIssueForm.image.file.save('uploads/'+str(filename))

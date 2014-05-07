@@ -207,9 +207,10 @@ class Issue(db.Model):
 class Image(db.Model):
 	id = db.Column(db.Integer, primary_key = True)
 	filename = db.Column(db.String(64), index = False, unique = True) # why is the filename unique?
+	original_filename = db.Column(db.String(64), index = False, unique = False) # name through which the file was uploaded
 	label = db.Column(db.String(64), index = False, unique = False)
 	date = db.Column(db.DateTime, index = False, unique = False)
-	timestamp = db.Column(db.DateTime)
+	timestamp = db.Column(db.DateTime, default=datetime.utcnow())
 	issue_id = db.Column(db.Integer, db.ForeignKey('issue.id'))
 
 class Diagnosis(db.Model):
