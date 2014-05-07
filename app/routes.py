@@ -219,19 +219,19 @@ def create_issue():
 		issue = Issue(summary=summary, timestamp= datetime.utcnow(), patient_id=patient_id, is_closed=0)
 		#return '03'
 		db.session.add(issue)
-		db.session.flush()=
+		db.session.flush()
 		#orig_filename = request.files[createIssueForm.image.name]
 		orig_filename = str(createIssueForm.image.data.filename)
-		cnt = 0
-		for img in issue.images:
-			cnt+=1
-		rev_orig_filename = orig_filename[::-1]
-		filetype = rev_orig_filename[0:rev_orig_filename.index('.')][::-1]
+		uploaded_images = issue.getImages()
+		if uploaded_images is None: 
+			cnt = 0
+		else:
+			cnt = len(uploaded_images)
+		filetype = orig_filename[::-1][0:orig_filename[::-1].index('.')][::-1] # get the filetype extension of the image
 		filename = str(g.user.id)+'_'+str(issue.id)+'_'+str(cnt)+'.'+filetype
 		#filename = images.save(request.files[createIssueForm.image.name])
 		createIssueForm.image.file.save('uploads/'+str(filename))	
 		image = Image(filename=filename, original_filename=orig_filename, timestamp= datetime.utcnow(), issue_id=issue.id)
-
 		db.session.add(image)
 		db.session.flush()
 		#createIssueForm.image.file.save('uploads/'+str(filename))

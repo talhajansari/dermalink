@@ -203,6 +203,10 @@ class Issue(db.Model):
 		return [prop.key for prop in class_mapper(self.__class__).iterate_properties
 			if isinstance(prop, ColumnProperty)]
 
+	def getImages(self):
+		issue_id = self.id
+		images = Image.query.filter_by(issue_id=issue_id).all()
+
 # An image within an issue
 class Image(db.Model):
 	id = db.Column(db.Integer, primary_key = True)
@@ -213,12 +217,13 @@ class Image(db.Model):
 	timestamp = db.Column(db.DateTime, default=datetime.utcnow())
 	issue_id = db.Column(db.Integer, db.ForeignKey('issue.id'))
 
+
 class Diagnosis(db.Model):
 	id = db.Column(db.Integer, primary_key = True)
-	doc_id = db.Column(db.Integer, db.ForeignKey('doctor.id'))
-	issue_id = db.Column(db.Integer, db.ForeignKey('issue.id'))
 	diagnosis = db.Column(db.String(512), unique=False)
 	timestamp = db.Column(db.DateTime, index = False, unique = False)
+	doc_id = db.Column(db.Integer, db.ForeignKey('doctor.id'))
+	issue_id = db.Column(db.Integer, db.ForeignKey('issue.id'))
 
 class TokenUser(db.Model):
 	id = db.Column(db.Integer, primary_key = True)
