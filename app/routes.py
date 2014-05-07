@@ -175,8 +175,10 @@ def home():
 def editProfile(id):
 	user = User.query.get(id)
 	if user == None:
+		return 'user==None'
 		return redirect(url_for('home'))
-	if g.user.id is not int(id):
+	if int(g.user.id) is not int(id):
+		return 'user.id'+ str(g.user.id)+' is not that of what is requird, '+ str(id)
 		return redirect(url_for('home'))
 	if g.user.isPatient():
 		MyForm = model_form(Patient, Form, exclude=['issues', 'user', 'is_complete'])
@@ -211,13 +213,19 @@ def create_issue():
 	if request.method=='GET':
 		return render_template('create_issue.html', form=createIssueForm)	
 	if createIssueForm.validate_on_submit():
+		#return '01'
 		summary = createIssueForm.summary.data
 		patient_id = g.user.patient.id
+		#return '02'
 		issue = Issue(summary=summary, timestamp= datetime.utcnow(), patient_id=patient_id, is_closed=0)
+		#return '03'
 		db.session.add(issue)
 		db.session.flush()
+		#return '04'
 		filename = images.save(request.files[createIssueForm.image.name])
+		return '05'
 		image = Image(filename=filename, timestamp= datetime.utcnow(), issue_id=issue.id)
+		return '06'
 		db.session.add(image)
 		db.session.flush()
 		#createIssueForm.image.file.save('uploads/'+str(filename))
