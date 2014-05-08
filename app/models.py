@@ -206,6 +206,7 @@ class Issue(db.Model):
 	def getImages(self):
 		issue_id = self.id
 		images = Image.query.filter_by(issue_id=issue_id).all()
+		return images
 
 # An image within an issue
 class Image(db.Model):

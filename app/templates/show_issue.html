@@ -32,11 +32,13 @@
             <br>
         {% else %}
           {% if g.user.isPatient() %}
-<!--         <h5> Upload a new picture: </h5> <br>
-        <form method=POST enctype=multipart/form-data action="{{ url_for('upload', issue_id=issue.id) }}">
-          <input type="file" name="image" id="image"></input> <br>
-          <input type="submit"></input>
-        </form> -->
+        <form action="{{ url_for('upload', issue_id=issue.id) }}" method="post" name="upload", enctype="multipart/form-data">
+          {{form2.hidden_tag()}}
+          <dl>
+            Upload another picture {{form2.image(size=80)}}
+          </dl>
+          <input type="submit" value-"Submit"></input>
+        </form>
         {% elif g.user.isDoctor() %}
         <h5> Submit response: </h5>
         <form action="{{url_for('show_issue', id=issue.id)}}" method="post" name="showIssue">

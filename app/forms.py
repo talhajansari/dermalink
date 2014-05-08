@@ -46,6 +46,10 @@ class EditProfileForm(Form):
 class CreateIssueForm(Form):
     summary = TextAreaField('summary', validators = [Required()])
     image = FileField('image', validators = [FileRequired(), FileAllowed(images, 'Images Only!')])
+    #image2 = FileField('image2', validators = [FileRequired(), FileAllowed(images, 'Images Only!')])
+
+class UploadImageForm(Form):
+    image = FileField('image', validators = [FileRequired(), FileAllowed(images, 'Images Only!')])
 
 class DiagnosisForm(Form):
     diagnosis = TextAreaField('diagnosis', validators = [Required()])

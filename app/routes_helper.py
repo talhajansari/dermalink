@@ -10,7 +10,7 @@ from datetime import datetime
 from werkzeug import secure_filename
 
 # Forms
-from forms import LoginForm, SignupForm, ForgotPasswordForm, ChangePasswordForm, CreateIssueForm, DermSignupForm, EditProfileForm, DiagnosisForm
+from forms import LoginForm, SignupForm, ForgotPasswordForm, ChangePasswordForm, CreateIssueForm, DermSignupForm, EditProfileForm, DiagnosisForm, UploadImageForm
 from flask.ext.wtf import Form
 from wtforms import SelectField
 from wtforms.ext.sqlalchemy.orm import model_form
@@ -25,6 +25,8 @@ import random
 import os
 
 ## VARIABLES ##
+
+MAX_IMAGES = 5
 
 # Routes variables
 reserved_usernames = 'home signup login logout post'

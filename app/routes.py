@@ -2,7 +2,7 @@
 from routes_helper import *
 
  
-# Routes...
+# Routes
 
 @app.route('/')
 @app.route('/index')
@@ -92,7 +92,6 @@ def forgot_password():
 		token = id_generator(size=8)
 		token_user = TokenUser(token=token, user_id = user.id)
 		db.session.add(token_user)
-		#return token
 		# Write an email
 		subject = "DerMango | Forgot your password"
 		body = 'Please click on the following link to reset your password: http://127.0.0.1:5000/forgot_password/'+str(token)
@@ -212,29 +211,24 @@ def create_issue():
 	if request.method=='GET':
 		return render_template('create_issue.html', form=createIssueForm)	
 	if createIssueForm.validate_on_submit():
-		#return '01'
 		summary = createIssueForm.summary.data
 		patient_id = g.user.patient.id
-		#return '02'
 		issue = Issue(summary=summary, timestamp= datetime.utcnow(), patient_id=patient_id, is_closed=0)
-		#return '03'
 		db.session.add(issue)
 		db.session.flush()
 		#orig_filename = request.files[createIssueForm.image.name]
+		#filename = images.save(request.files[createIssueForm.image.name])
+		#createIssueForm.image.file.save('uploads/'+str(filename))
 		orig_filename = str(createIssueForm.image.data.filename)
 		uploaded_images = issue.getImages()
-		if uploaded_images is None: 
-			cnt = 0
-		else:
-			cnt = len(uploaded_images)
+		if uploaded_images is None: cnt = 0
+		else: cnt = len(uploaded_images)
 		filetype = orig_filename[::-1][0:orig_filename[::-1].index('.')][::-1] # get the filetype extension of the image
 		filename = str(g.user.id)+'_'+str(issue.id)+'_'+str(cnt)+'.'+filetype
-		#filename = images.save(request.files[createIssueForm.image.name])
 		createIssueForm.image.file.save('uploads/'+str(filename))	
 		image = Image(filename=filename, original_filename=orig_filename, timestamp= datetime.utcnow(), issue_id=issue.id)
 		db.session.add(image)
 		db.session.flush()
-		#createIssueForm.image.file.save('uploads/'+str(filename))
 		doc = assignIssueToDoctor(issue)
 		if doc is None:
 			return "Error 420: No doctor found in the system"
@@ -251,16 +245,18 @@ def create_issue():
 
 @app.route('/home/<id>', methods=['GET', 'POST'])
 @login_required
-def show_issue(id): # and diagnose
-	form = DiagnosisForm()
-	if request.method == 'POST': # Diagnose
+def show_issue(id):
+	diagnosisForm = DiagnosisForm()
+	uploadImageForm = UploadImageForm()
+	 # DIAGNOSE
+	if request.method == 'POST':
 		issue = Issue.query.get(id)
-		summary = form.diagnosis.data
+		summary = diagnosisForm.diagnosis.data
 		diagnosis = Diagnosis(diagnosis=summary, doc_id=g.user.doctor.id, issue_id=id, timestamp= datetime.utcnow())
 		db.session.add(diagnosis)
 		issue.diagnoses.append(diagnosis)
 		g.user.doctor.diagnoses.append(diagnosis)
-		issue.is_closed = int(form.resolved.data)
+		issue.is_closed = int(diagnosisForm.resolved.data)
 		db.session.commit()
 		## Send a message
 		SendSMS(issue.patient.phone, "SkinCheck: Your complaint, \'" + str(issue.summary) + "\', has been diagnosed by Dr. " + str(diagnosis.doctor.last_name) + ".")
@@ -270,37 +266,44 @@ def show_issue(id): # and diagnose
 		body = "Your complaint, \'" + str(issue.summary) + "\', has been diagnosed by Dr. " + str(diagnosis.doctor.last_name) + "."
 		sendEmail(subject, body, recipients=[email], sender='dermaplus.skincheck@gmail.com')
 		return redirect(url_for('show_issue', id=id))
-	# else if request.method = GET:
+	# ELSE
 	issue = Issue.query.get(id)
 	if g.user.isPatient():
-		issues = Issue.query.filter_by(patient_id=g.user.patient.id)
 		authenticate = g.user.patient.owns_issue(id)
 	elif g.user.isDoctor():
-		issues = Issue.query.filter(Issue.doctors.any(id=g.user.doctor.id)).all()
 		authenticate = g.user.doctor.owns_issue(id)
 	if authenticate is False:
 		return redirect(url_for("home"))
-	if issue is None: # will never reach this condition - can delete it
-		return 'No such issue found'
 	pics = Image.query.filter_by(issue_id=id).all()
 	URLs = []
 	for image in pics:
 		url = images.url(image.filename)
 		URLs.append(url)
-	return render_template('show_issue.html', issue=issue, issues=issues, URLs=URLs, images=images, form=form)
+	return render_template('show_issue.html', issue=issue, issues=None, URLs=URLs, images=images, form=diagnosisForm, form2=uploadImageForm)
 
 
 @app.route('/home/<issue_id>/upload', methods=['GET', 'POST'])
 @login_required
 def upload(issue_id):
-	if (request.method == 'POST') and ('image' in request.files):
-		filename = images.save(request.files['image'])
-		image = Image(filename=filename, issue_id=issue_id)
+	uploadImageForm = UploadImageForm()
+	if (request.method == 'POST'):
+		issue = Issue.query.get(issue_id)
+		orig_filename = str(uploadImageForm.image.data.filename)
+		uploaded_images = issue.getImages()
+		if len(uploaded_images) is MAX_IMAGES:
+			flash("You have already reached the maximum number of images per case")
+			return redirect(url_for("show_issue", id=issue_id))
+		if uploaded_images is None: cnt = 0
+		else: cnt = len(uploaded_images)
+		filetype = orig_filename[::-1][0:orig_filename[::-1].index('.')][::-1] # get the filetype extension of the image
+		filename = str(g.user.id)+'_'+str(issue.id)+'_'+str(cnt)+'.'+filetype
+		uploadImageForm.image.file.save('uploads/'+str(filename))	
+		image = Image(filename=filename, original_filename=orig_filename, timestamp= datetime.utcnow(), issue_id=issue.id)
 		db.session.add(image)
 		db.session.commit()
 		return redirect(url_for("show_issue", id=issue_id))
 	issue = Issue.query.get(issue_id)
-	return render_template('upload.html', issue=issue)
+	return render_template('upload.html', issue=issue, uploadImageForm=uploadImageForm)
 
 
 
