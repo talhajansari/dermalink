@@ -26,3 +26,5 @@ MAIL_USERNAME = 'dermaplus.skincheck@gmail.com'
 MAIL_PASSWORD = 'skin-check'
 # MAIL_USERNAME = 'dermangoplus@gmail.com'
 # MAIL_PASSWORD = 'derMango-Plus'
+
+SPLASH_PAGE = True
