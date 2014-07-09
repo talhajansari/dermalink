@@ -1,5 +1,6 @@
 # All non-route stuff is included in the file routes_helper
 from routes_helper import *
+from config import ONLY_SIGNUP
 
  
 # Routes
@@ -13,7 +14,7 @@ def index():
 		loginForm = LoginForm()
 		signupForm = SignupForm()
 		derm_signupForm = DermSignupForm()
-		return render_template("index.html", title = 'SkinCheck', form1=loginForm, form2=signupForm, form3=derm_signupForm)
+		return render_template("index.html", title = 'SkinCheck', form1=loginForm, form2=signupForm, form3=derm_signupForm, ONLY_SIGNUP=ONLY_SIGNUP)
 
 
 @app.route("/signup", methods=["POST"])
@@ -43,8 +44,11 @@ def signup():
 			user.patient = patient
 			db.session.flush()
 			db.session.commit()
-		login_user(user, remember=True)
 		#return redirect(request.args.get("next") or url_for("editProfile", username=user.username, user=user))
+		if ONLY_SIGNUP:
+			flash('Thank you for signing up. We will be in touch with you shortly')
+			return redirect(url_for('index'))
+		login_user(user, remember=True)
 		return redirect(url_for("editProfile", id=user.id))
 	return render_template("index.html", title = 'Sign Up', form1=loginForm, form2=signupForm, form3=derm_signupForm, submitted_form=signupForm)
 

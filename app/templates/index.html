@@ -32,12 +32,12 @@
 		  <!-- Favicons -->
 		  <!-- <link rel="apple-touch-icon-precomposed" sizes="144x144" href="../docs-assets/ico/apple-touch-icon-144-precomposed.png">
 		  <link rel="shortcut icon" href="../docs-assets/ico/favicon.png"> -->
-		  <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
-		</head>
-		<body>
+	<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+</head>
+<body>
 			
-			<!-- Start Rocket -->
-			<!-- ********************* -->
+	<!-- Start Rocket -->
+	<!-- ********************* -->
 			
 	<!-- Parallax Background
 	================================================== -->
@@ -83,11 +83,13 @@
 					</li> -->
 				</ul>
 				<ul class="nav navbar-nav navbar-right hidden-sm">
+					{% if not ONLY_SIGNUP %}
 					<li style="">
 						<a style=" padding-top: 25px; " href="#login_container">
 							<button type="button" class="btn btn-primary" style="margin-top:0">Login</button>
 						</a>
 		 			</li>
+		 			{% endif %}
 		 			<li style="">
 						<a style=" padding-top: 25px; " href="#signup_container">
 							<button type="button" class="btn btn-primary" style="margin-top:0">Signup</button>
@@ -512,6 +514,7 @@
 
 	<!-- Start Login_container Block
 	================================================== -->
+	{% if not ONLY_SIGNUP %}
 	<section id="login_container" class="section">
 		<div class="container" style=" text-align:center;">
 			<div class="row">
@@ -544,6 +547,7 @@
 			</div>
 		</div>
 	</section>
+	{% endif %}
 	<!-- ==================================================
 	End login Block -->
 

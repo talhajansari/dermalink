@@ -18,6 +18,7 @@ from wtforms.ext.sqlalchemy.orm import model_form
 # Communication
 from flask.ext.mail import Message
 from twilio.rest import TwilioRestClient
+import stripe
 
 # Python
 import string
@@ -45,7 +46,7 @@ MY_TWILIO_NUMBER = '+14408478798'
 # Assign issue to dermatologists
 def assignIssueToDoctor(issue):
 	doctors = Doctor.query.filter_by(is_available=1, is_complete=1).all()
-	if len(doctors) is 0: # No available doctors
+	if len(doctors) is 0: # No available doctors, just assign to the first doctor in the list?
 		doc = Doctor.query.first()
 		if doc is None:
 			return None
@@ -56,7 +57,7 @@ def assignIssueToDoctor(issue):
 		diff = 0
 		best_doc = None # Chose the best doc, based on availability etc.
 		for doc in doctors:
-			if doc.isAvailable() and (doc.issue_limit-doc.numOpenIssues())>=diff :
+			if doc.isAvailable() and (doc.issue_limit-doc.numOpenIssues())>=0 :
 				best_doc = doc
 		doc = best_doc		
 		doc.issues.append(issue)
@@ -103,3 +104,21 @@ def admin():
 	from config import SQLALCHEMY_DATABASE_URI
 	users = User.query.all()
 	return render_template("admin.html", users=users, db_env_var = os.environ.get('DATABASE_URL'), sqlalchemy_uri=SQLALCHEMY_DATABASE_URI)
+
+@app.route("/charge", methods=['POST'])
+def charge():
+	 # Amount in cents
+    amount = 500
+
+    customer = stripe.Customer.create(
+        email=g.user.email,
+        card=request.form['stripeToken']
+    )
+
+    charge = stripe.Charge.create(
+        customer=customer.id,
+        amount=amount,
+        currency='usd',
+        description='Flask Charge'
+    )
+    return "Succesfully charged"
