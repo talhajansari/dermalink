@@ -21,7 +21,7 @@ lm.init_app(app)
 mail = Mail(app)
 toolbar = DebugToolbarExtension(app)
 # the toolbar is only enabled in debug mode:
-app.debug = True
+#app.debug = True
 
 if DB is 'MongoDB':
 	db = MongoEngine(app)
