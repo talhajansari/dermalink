@@ -412,13 +412,21 @@ img.header_logo {
 	color: #1ABC9C;
 }
 
+/*	Error
+	==================================================*/
+#error {
+	padding: 30px 20px 20px 20px;
+	margin: 70px 0 0 0;
+}
+
 /*	Hero
 	==================================================*/
 #hero {
 	background: rgba(0, 0, 0, 0);
-	margin-top: 80px;
-	padding: 80px 0;
+	margin-top: 0px;
+	padding: 150px 0 0 0;
 	color: #000;
+	background-color: #005DC6;
 }
 #hero h1 {
 	font-size: 60px;
@@ -613,7 +621,7 @@ img.header_logo {
 
 .blox-element{
 	margin-top:3em;
-	width: 25em;
+	width: 30em;
 	float: left;
 }
 .macbookimg{
@@ -626,10 +634,10 @@ img.header_logo {
 }
 #hero.section.active-section{
 	background-color: #005DC6;
-	height: 40em;
+	height: 50em;
 }
 ul.nav.navbar-nav{
-	font-size: 2em;
+	font-size: 26px;
 	color:#fff;
 }
 .clear{
@@ -646,7 +654,7 @@ ul.nav.navbar-nav{
 .topSectionRight{
   width: 30em;
   margin-bottom: 10%;
-  margin-left: 43em;
+  margin-left: 55em;
 }
 .wrapThisIsh{
 	background-color: #DADFE1;

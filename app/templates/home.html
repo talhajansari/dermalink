@@ -1,10 +1,8 @@
-{% extends "flathood_base.html" %}
+{% extends "base_flathood.html" %}
 {% block content %}
 
 		<!-- Default column for when no accordions are open -->
 		{% if g.user.isPatient() %}
-		<div class="col col-sm-9">
-			<div class="panel">
 				<h3>New case</h3>
 				<form action="{{ url_for('create_issue') }}" method="post" name="create_issue", enctype="multipart/form-data">
 					{{form1.hidden_tag()}}
@@ -19,7 +17,6 @@
 					<p><input type="submit" value="Submit"></p>
 				</form>
 
-
 				<form action="charge" method="POST">
 				  <script
 				    src="https://checkout.stripe.com/checkout.js" class="stripe-button"
@@ -30,8 +27,6 @@
 				    data-image="/128x128.png">
 				  </script>
 				</form>
-			</div>
-		</div> 
 		{% endif %}
 
 {% endblock %}

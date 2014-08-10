@@ -8,8 +8,13 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 UPLOADED_IMAGES_DEST = os.path.join(basedir, 'uploads')
 CSRF_ENABLED = True
 SECRET_KEY = 'vkjrkvwjwhrbv49cn8hx239r8h'
-ONLY_SIGNUP = False
 DB = 'SQL'
+SHOW_LOGIN = True
+APP_NAME = 'Dermify'
+LOGO_TYPE = 'dplus' #'dplus' or 'splus'
+LOGO_URL_ICON = '/static/img/dplus_blueonwhite_icon.png'
+LOGO_URL_LARGE = '/static/img/dplus_blueonwhite_large.png'
+
 
 
 # SQLAlchemy Configuration

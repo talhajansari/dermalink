@@ -4,11 +4,11 @@
 	<!-- Meta, title, CSS, favicons, etc. -->
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<meta name="description" content="Skin Check">
-	<meta name="author" content="Skin Check">
+	<meta name="description" content="{{ session['appTitle'] }}">
+	<meta name="author" content="{{ session['appTitle'] }}">
 	
 	<title>
-		SkinCheck	
+		{{ session['appTitle'] }}	
 	</title>
 	
 	<!-- Bootstrap core CSS -->
@@ -30,9 +30,9 @@
 		  <![endif]-->
 		  
 		  <!-- Favicons -->
-		  <!-- <link rel="apple-touch-icon-precomposed" sizes="144x144" href="../docs-assets/ico/apple-touch-icon-144-precomposed.png">
-		  <link rel="shortcut icon" href="../docs-assets/ico/favicon.png"> -->
-	<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+<!-- 		  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="../docs-assets/ico/apple-touch-icon-144-precomposed.png">
+		<link rel="shortcut icon" href="../docs-assets/ico/favicon.png"> -->
+		<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
 </head>
 <body>
 			
@@ -48,7 +48,7 @@
 	
 	<!-- Start Header
 	================================================== -->
-	<header id="header" class="navbar navbar-inverse navbar-fixed-top" role="banner">
+	<header id="header" class="navbar navbar-inverse navbar-fixed-top" role="banner" style="height:80px;">
 		<div class="container">
 			<div class="navbar-header">
 				<button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".bs-navbar-collapse">
@@ -58,7 +58,7 @@
 					<span class="icon-bar"></span>
 				</button>
 				<!-- Your Logo -->
-				<a href="#hero" class="navbar-brand"><img class="header_logo" src="../static/rocket/demo/splus_blueonwhite_icon.png" alt="" /></a>
+				<a href="/" class="navbar-brand"><img class="header_logo" src="{{session['logoURL_icon']}}" alt="" / style="width:50px; height:auto;"></a>
 			</div>
 			<!-- Start Navigation -->
 			<nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
@@ -83,7 +83,7 @@
 					</li> -->
 				</ul>
 				<ul class="nav navbar-nav navbar-right hidden-sm">
-					{% if not ONLY_SIGNUP %}
+					{% if session['showlogin'] %}
 					<li style="">
 						<a style=" padding-top: 25px; " href="#login_container">
 							<button type="button" class="btn btn-primary" style="margin-top:0">Login</button>
@@ -121,12 +121,7 @@
 	<section id="error" class="section">
 		<div class="container">
 			<div class="row">
-				<div class="col-md-5 col-sm-5">
-					<div class="content-block animate" data-animate="fadeInLeft" style="margin-bottom: 50px;">
-						<br>
-						<br>
-						<br>
-						<br>
+				<div class="">
 						{% for message in messages %}
 						<li> <p class="lead">{{ message }}</p></li>
 						{% endfor %}
@@ -138,7 +133,7 @@
 						<li> <p class="lead">{{ error }}</p></li>
 						{% endfor %}
 						{% endif %}
-					</div>
+
 				</div>
 			</div>
 		</div>
@@ -158,8 +153,8 @@
 					<div class="col-md-6"> -->
 						<div class = "topSectionLeft">
 							<div class="blox-element animate" data-animate="fadeInDown"  role="navigation">
-								<h1><strong>SkinCheck</strong></h1>
-								<p class="lead">SkinCheck is an easy-to-use platform designed to provide user access to a network of top dermatologists.</p>
+								<h1><strong>{{ session['appTitle'] }}</strong></h1>
+								<p class="lead">{{ session['appTitle'] }} is an easy-to-use platform designed to provide user access to a network of top dermatologists.</p>
 								<p>
 									<!-- <a class="btn btn-primary btn-md btn-rocket btn-primary" href="#signup_container">Sign Up</a>
 									<a class="btn btn-primary btn-md btn-rocket btn-primary" href="#text">Explore</a></p> -->
@@ -167,7 +162,7 @@
 						</div>
 						<div class = "topSectionRight">
 							<div class = "macbookImage">
-								<img src = "../static/rocket/demo/macbook_2.png" class="macbookimg">
+								<img src = "../static/img/macbook.png" class="macbookimg">
 							</div>
 						</div>
 				</div>
@@ -238,13 +233,13 @@
 				<div class="col-md-3 col-sm-6">
 					<div class="service-block animate" data-animate="flipInX">
 						<h3><strong>Anonymous</strong></h3>
-						<p>Your identity is always protected, even from dermatologists. All pictures and information you use on SkinCheck is safe and anonymous.</p>
+						<p>Your identity is always protected, even from dermatologists. All pictures and information you use on {{ session['appTitle'] }} is safe and anonymous.</p>
 					</div>
 				</div>
 				<div class="col-md-3 col-sm-6">
 					<div class="service-block animate" data-animate="fadeInRight">
 						<h3><strong>Peace of Mind</strong></h3>
-						<p>We know here at SkinCheck that you can have an irritating rash, a worrying some mole, or even a bad case of acne and a date coming up; all you want is quick and reliable answers which will give you peace of mind or next steps.</p>
+						<p>We know here at {{ session['appTitle'] }} that you can have an irritating rash, a worrying some mole, or even a bad case of acne and a date coming up; all you want is quick and reliable answers which will give you peace of mind or next steps.</p>
 					</div>
 				</div>
 				<div class="col-md-3 col-sm-6">
@@ -380,8 +375,8 @@
 				<div class="col-md-5 col-sm-5">
 					<div class="content-block animate" data-animate="fadeInLeft" style="margin-bottom: 50px;">
 						<h1><strong>About Us</strong></h1>
-						<p class="lead"><strong>The SkinCheck platform was designed to simplify the process of receiving a dermatological opinion.</strong></p>
-						<p class="hidden-sm">In some cities, it can take up to 72 days to see a dermatologist. Through the SkinCheck platform, you are able receive professional opinions instantly. Snap a photo of the area of concern, and it is sent through an encrypted network to top-tier dermatologists. The platform is designed to provide you with possible diagonoses generated by crowd-sourcing to doctors. Your photos and information will never be shared with anyone outside of our network of doctors.</p>
+						<p class="lead"><strong>The {{ session['appTitle'] }} platform was designed to simplify the process of receiving a dermatological opinion.</strong></p>
+						<p class="hidden-sm">In some cities, it can take up to 72 days to see a dermatologist. Through the {{ session['appTitle'] }} platform, you are able receive professional opinions instantly. Snap a photo of the area of concern, and it is sent through an encrypted network to top-tier dermatologists. The platform is designed to provide you with possible diagonoses generated by crowd-sourcing to doctors. Your photos and information will never be shared with anyone outside of our network of doctors.</p>
 						<!-- <button class="btn btn-md btn-primary">Learn More</button> -->
 					</div>
 				</div>
@@ -450,7 +445,7 @@
 		<div class="container" style=" text-align:center">
 			<div class="row">
 				<div class="col-md-12">
-					<h1>Start using Skin Check today</h1>
+					<h1>Start using {{ session['appTitle'] }} today</h1>
 					<p class="lead">Get access to the best dermatologists, there's only one thing to do. Sign up!</p>
 					<form role="form" action="signup" method="post" name="signup" >
 						<div class="input-group" style="margin-right: auto; margin-left: auto;">
@@ -487,7 +482,7 @@
 		<div class="container" style=" text-align:center">
 			<div class="row">
 				<div class="col-md-12">
-					<h1>Are you dermatologist?</h1>
+					<h1>Are you a dermatologist?</h1>
 					<p class="lead">Get access to thousands of patients all at your fingertips, and get paid too. Sign up!</p>
 					<form role="form" action="derm_signup" method="post" name="derm_signup" >
 						<div class="input-group" style="margin-right: auto; margin-left: auto;">
@@ -514,12 +509,12 @@
 
 	<!-- Start Login_container Block
 	================================================== -->
-	{% if not ONLY_SIGNUP %}
+	{% if session['showlogin'] %}
 	<section id="login_container" class="section">
 		<div class="container" style=" text-align:center;">
 			<div class="row">
 				<div class="col-md-12">
-					<h1>Log in to SkinCheck </h1>
+					<h1>Log in to {{ session['appTitle'] }} </h1>
 					<p class="lead">See what dermatologists say about your new pimple</p>
 					<form role="form" action="login" method="post" name="login" >
 						<div class="input-group" style="margin-right: auto; margin-left: auto;">
@@ -565,7 +560,7 @@
 	
 	
 	<!-- ********************* -->
-	<!-- Start Rocket -->
+	<!-- End Rocket -->
 	
 </body>
 </html>

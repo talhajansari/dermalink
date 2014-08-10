@@ -50,6 +50,9 @@ class User(db.Model):
 
 	def __repr__(self):
 		return '<User %r>' % (self.email)
+	# Required for administrative interface. For python 3 please use __str__ instead.
+	def __unicode__(self):
+		return self.email
 
 
 class Patient(db.Model):

@@ -1,20 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.css') }}" />
+	<link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='bootstrap/css/bootstrap.css') }}" />
 	<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
 
 
 	<!-- <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet"> -->
-	<link href="/static/css/bootstrap-responsive.css" rel="stylesheet">
+	<link href="/static/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
 	<script src="http://code.jquery.com/jquery-latest.js"></script>
-	<script src="/static/js/bootstrap.min.js"></script>
+	<script src="/static/bootstrap/js/bootstrap.min.js"></script>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 	{% if title %}
-	<title>{{title}} - SkinCheck</title>
+	<title>{{title}} - {{session['title']}}</title>
 	{% else %}
-	<title>skinCheck</title>
+	<title>{{session['title']}}</title>
 	{% endif %}
 
 	<!-- so there is some padding between nav bar and content -->
@@ -35,7 +35,7 @@
 					<span class="icon-bar"></span>
 					<span class="icon-bar"></span>
 				</button>
-				<a class="navbar-brand" href="{{url_for('index') }}">Skin Check</a>
+				<a class="navbar-brand" href="{{url_for('index') }}">{{session['title']}}</a>
 			</div>
 			<div class="collapse navbar-collapse">
 				<ul class="nav navbar-nav">

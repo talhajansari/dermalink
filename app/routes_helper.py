@@ -9,6 +9,7 @@ from models import User, Image, Issue, Patient, Doctor, Diagnosis, TokenUser
 from datetime import datetime
 from werkzeug import secure_filename
 
+
 # Forms
 from forms import LoginForm, SignupForm, ForgotPasswordForm, ChangePasswordForm, CreateIssueForm, DermSignupForm, EditProfileForm, DiagnosisForm, UploadImageForm
 from flask.ext.wtf import Form
@@ -40,6 +41,30 @@ account = 'AC6056ccab9b128c038c932d4bbf81b662'
 token = 'd6a72dff4e0f118e2e52d15ef51f4548'
 client = TwilioRestClient(account, token)
 MY_TWILIO_NUMBER = '+14408478798'
+
+# Login-Authentication Functions
+@lm.user_loader
+def load_user(id):
+	return User.query.get(int(id))
+
+@app.before_request   
+def before_request():
+	g.user = current_user
+	#create session variables
+	from config import SHOW_LOGIN, APP_NAME, LOGO_URL_ICON, LOGO_URL_LARGE
+	session['showlogin'] = SHOW_LOGIN
+	session['appTitle'] = APP_NAME
+	session['logoURL_icon'] = LOGO_URL_ICON
+	session['logoURL_large'] = LOGO_URL_LARGE
+
+@app.route("/logout")
+@login_required
+def logout():
+	logout_user()
+	flash('Succesfully logged out.')
+	#form = LoginForm()
+	return redirect("/")
+
 
 ## FUNCTIONS ##
 
@@ -82,28 +107,15 @@ def sendEmail(subject, body, recipients, sender='derMangoPlus@gmail.com'):
 def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
 	return ''.join(random.choice(chars) for _ in range(size))
 
-# Login-Authentication Functions
-@lm.user_loader
-def load_user(id):
-	return User.query.get(int(id))
 
-@app.before_request   
-def before_request():
-	g.user = current_user
-
-@app.route("/logout")
-@login_required
-def logout():
-	logout_user()
-	#flash('Succesfully logged out.')
-	#form = LoginForm()
-	return redirect("/")
-
-@app.route("/admin")
-def admin():
+@app.route("/test")
+def test():
 	from config import SQLALCHEMY_DATABASE_URI
 	users = User.query.all()
-	return render_template("admin.html", users=users, db_env_var = os.environ.get('DATABASE_URL'), sqlalchemy_uri=SQLALCHEMY_DATABASE_URI)
+	session['tmp'] = 43
+	#dump('43')
+	return str(session['username'])
+	#return render_template("admin.html", users=users, db_env_var = os.environ.get('DATABASE_URL'), sqlalchemy_uri=SQLALCHEMY_DATABASE_URI)
 
 @app.route("/charge", methods=['POST'])
 def charge():
