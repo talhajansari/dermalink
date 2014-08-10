@@ -12,7 +12,7 @@ def index():
 		loginForm = LoginForm()
 		signupForm = SignupForm()
 		derm_signupForm = DermSignupForm()
-		return render_template("index.html", title = 'SkinCheck', form1=loginForm, form2=signupForm, form3=derm_signupForm, ONLY_SIGNUP=session['showlogin'])
+		return render_template("index.html", title = 'SkinCheck', form1=loginForm, form2=signupForm, form3=derm_signupForm)
 
 
 @app.route("/signup", methods=["POST"])
