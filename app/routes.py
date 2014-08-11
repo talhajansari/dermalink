@@ -43,7 +43,7 @@ def signup():
 			db.session.flush()
 			db.session.commit()
 		#return redirect(request.args.get("next") or url_for("editProfile", username=user.username, user=user))
-		if ONLY_SIGNUP:
+		if SHOW_LOGIN==False:
 			flash('Thank you for signing up. We will be in touch with you shortly')
 			return redirect(url_for('index'))
 		login_user(user, remember=True)
