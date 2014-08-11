@@ -13,7 +13,7 @@ if os.getenv('SERVER_ENV')=='PROD':
 	SHOW_LOGIN = False
 else:
  	SHOW_LOGIN = True
-APP_NAME = 'Dermify'
+APP_NAME = 'Dermifi'
 LOGO_TYPE = 'dplus' #'dplus' or 'splus'
 LOGO_URL_ICON = '/static/img/dplus_blueonwhite_icon.png'
 LOGO_URL_LARGE = '/static/img/dplus_blueonwhite_large.png'
