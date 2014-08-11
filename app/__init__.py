@@ -7,10 +7,12 @@ from flask.ext.mail import Mail
 from flask_debugtoolbar import DebugToolbarExtension
 import stripe
 from flask.ext.admin import Admin
+from werkzeug.contrib.fixers import ProxyFix
 
 # Initiaize the App
 app = Flask(__name__)
 app.config.from_object('config')
+app.wsgi_app = ProxyFix(app.wsgi_app)
 
 # Initialize the extensions
 db = SQLAlchemy(app)
