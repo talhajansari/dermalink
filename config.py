@@ -9,7 +9,7 @@ UPLOADED_IMAGES_DEST = os.path.join(basedir, 'uploads')
 CSRF_ENABLED = True
 SECRET_KEY = 'vkjrkvwjwhrbv49cn8hx239r8h'
 DB = 'SQL'
-if os.getenv('SERVER_ENV') is 'PROD':
+if os.getenv('SERVER_ENV')=='PROD':
 	SHOW_LOGIN = False
 else:
  	SHOW_LOGIN = True
