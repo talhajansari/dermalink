@@ -9,7 +9,10 @@ UPLOADED_IMAGES_DEST = os.path.join(basedir, 'uploads')
 CSRF_ENABLED = True
 SECRET_KEY = 'vkjrkvwjwhrbv49cn8hx239r8h'
 DB = 'SQL'
-SHOW_LOGIN = True
+if os.getenv('SERVER_ENV') is 'PROD':
+	SHOW_LOGIN = False
+else:
+ 	SHOW_LOGIN = True
 APP_NAME = 'Dermify'
 LOGO_TYPE = 'dplus' #'dplus' or 'splus'
 LOGO_URL_ICON = '/static/img/dplus_blueonwhite_icon.png'
