@@ -43,11 +43,11 @@ def signup():
 			db.session.flush()
 			db.session.commit()
 		#return redirect(request.args.get("next") or url_for("editProfile", username=user.username, user=user))
-		if session['showlogin']==False:
+		if session['allowLogin']==False:
 			flash('Thank you for signing up. We will be in touch with you shortly')
 			return redirect(url_for('index'))
 		login_user(user, remember=True)
-		return redirect(url_for("editProfile", id=user.id))
+		return redirect(url_for("home"))
 	return render_template("index.html", title = 'Sign Up', form1=loginForm, form2=signupForm, form3=derm_signupForm, submitted_form=signupForm)
 
 
@@ -79,7 +79,10 @@ def derm_signup():
 			db.session.commit()
 		login_user(user, remember=True)
 		#return redirect(request.args.get("next") or url_for("editProfile", username=user.username, user=user))
-		return redirect(url_for("editProfile", id=user.id))
+		if session['allowLogin']==False:
+			flash('Thank you for signing up. We will be in touch with you shortly')
+			return redirect(url_for('index'))
+		return redirect(url_for("home"))
 	return render_template("index.html", title = 'Sign Up', form1=loginForm, form2=signupForm, form3=derm_signupForm, submitted_form=derm_signupForm)
 
 @app.route("/forgot_password", methods=["GET","POST"])
@@ -155,7 +158,7 @@ def home():
 	createIssueForm = CreateIssueForm()
 	if g.user.isPatient():
 		complete = g.user.patient.isComplete()
-		if not complete:
+		if (not complete) and session['serv_env']=='PROD':
 			flash('You need to complete your profile in order to use SkinCheck')
 			return redirect(url_for("editProfile", id=g.user.id))
 		issues = Issue.query.filter_by(patient_id=g.user.patient.id) 
@@ -163,7 +166,7 @@ def home():
 	elif g.user.isDoctor():
 		doctor_id = g.user.doctor.id
 		complete = g.user.doctor.isComplete()
-		if not complete:
+		if (not complete) and session['serv_env']=='PROD':
 			flash('You need to complete your profile in order to use SkinCheck')
 			return redirect(url_for("editProfile", id=g.user.id))
 		issues = Issue.query.filter(Issue.doctors.any(id=doctor_id)).all()	
@@ -211,7 +214,7 @@ def editProfile(id):
 def create_issue():
 	createIssueForm = CreateIssueForm()
 	if request.method=='GET':
-		return render_template('create_issue.html', form=createIssueForm)	
+		return render_template('create_issue.html', form1=createIssueForm)	
 	if createIssueForm.validate_on_submit():
 		summary = createIssueForm.summary.data
 		patient_id = g.user.patient.id
@@ -233,8 +236,12 @@ def create_issue():
 		db.session.flush()
 		doc = assignIssueToDoctor(issue)
 		if doc is None:
-			return "Error 420: No doctor found in the system"
+			flash("No doctor available right now. Your case will be assigned to a the earliest available doctor")
+		pay_amount = charge(request.form['stripeToken'])
+		if pay_amount is not None:
+			order = Order(order_number=order_number_generator(), payment_amount=pay_amount, patient_id=patient_id, issue_id=issue.id) 
 		db.session.commit()
+		flash("Case created!")
 		# Send SMS notification
 		SendSMS(doc.phone, "SkinCheck: You have been assigned a new issue to diagnose")
 		# Write an email
@@ -243,7 +250,6 @@ def create_issue():
 		sendEmail(subject, body, recipients=[doc.user.email], sender='dermaplus.skincheck@gmail.com')
 		issue_id = issue.id
 		return redirect(url_for('show_issue', id=issue_id))
-
 
 @app.route('/home/<id>', methods=['GET', 'POST'])
 @login_required
@@ -254,7 +260,7 @@ def show_issue(id):
 	if request.method == 'POST':
 		issue = Issue.query.get(id)
 		summary = diagnosisForm.diagnosis.data
-		diagnosis = Diagnosis(diagnosis=summary, doc_id=g.user.doctor.id, issue_id=id, timestamp= datetime.utcnow())
+		diagnosis = Diagnosis(diagnosis=summary, doctor_id=g.user.doctor.id, issue_id=id, timestamp= datetime.utcnow())
 		db.session.add(diagnosis)
 		issue.diagnoses.append(diagnosis)
 		g.user.doctor.diagnoses.append(diagnosis)

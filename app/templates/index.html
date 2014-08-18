@@ -83,7 +83,7 @@
 					</li> -->
 				</ul>
 				<ul class="nav navbar-nav navbar-right hidden-sm">
-					{% if session['showlogin'] %}
+					{% if session['allowLogin'] %}
 					<li style="">
 						<a style=" padding-top: 25px; " href="#login_container">
 							<button type="button" class="btn btn-primary" style="margin-top:0">Login</button>
@@ -203,7 +203,7 @@
 					<div class="service-block animate" data-animate="fadeInLeft">
 						<span class="glyphicon glyphicon-usd"></span>
 						<h3><strong>Cheap</strong></h3>
-						<p>Only $9.99 per diagnosis</p>
+						<p>Only ${{session['caseCost']}} per diagnosis</p>
 					</div>
 				</div>
 				<div class="col-md-3 col-sm-6">
@@ -509,7 +509,7 @@
 
 	<!-- Start Login_container Block
 	================================================== -->
-	{% if session['showlogin'] %}
+	{% if session['allowLogin'] %}
 	<section id="login_container" class="section">
 		<div class="container" style=" text-align:center;">
 			<div class="row">

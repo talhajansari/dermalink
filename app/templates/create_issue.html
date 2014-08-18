@@ -1,21 +1,34 @@
 {% extends "base_flathood.html" %}
 {% block content %}
 
-<h1>Create New Case</h1>
-<br><br>
-<form action="{{ url_for('create_issue') }}" method="post" name="create_issue", enctype="multipart/form-data">
+    {% if g.user.isPatient() %}
+                <h3>New case</h3>
+                <form action="{{ url_for('create_issue') }}" method="post" name="create_issue", enctype="multipart/form-data">
+                    {{form1.hidden_tag()}}
+                    <dl>
+                        Describe your problem<br>
+                        {{form1.summary(size=250)}}
+                        <br>
+                        <br>
+                        Upload a picture
+                        {{form1.image(size=80)}}
+                    </dl>
+                    <!-- <p><input type="submit" value="Submit"></p> -->
+                <!-- </form> -->
 
-    {{form.hidden_tag()}}
-    <p>
-        Please describe your problem:<br>
-        {{form.summary(size=250)}}<br>
-    </p>
-    <p>
-        Upload a picture:<br>
-        {{form.image(size=80)}}<br>
-    </p>
-    <p><input type="submit" value="Submit"></p>
-</form>
+                <!-- <form action="charge" method="POST"> -->
+                  <script
+                    src="https://checkout.stripe.com/checkout.js" class="stripe-button"
+                    data-key="{{session['stripeKeys']['publishable_key']}}"
+                    data-amount="{{session['caseCost_cent']}}"
+                    data-name="Demo Site"
+                    data-description=" Pay {{session['caseCost']}}"
+                    data-image="{{session['logoURL_icon']}}">
+                  </script>
+                </form>
+        {% elif g.user.isDoctor() %}
+            <h3> You are a doctor. How can you create an issue?</h3>
+        {% endif %}
 
 {% endblock %}
 

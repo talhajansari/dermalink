@@ -29,17 +29,18 @@ from app import routes, models
 # Admin Dashboard Configuration #
 from flask.ext.admin import Admin, BaseView, expose
 from flask.ext.admin.contrib.sqla import ModelView
-from models import User, Patient, Doctor, Issue
 admin = Admin(app, 'Dermify')
-
 class MyView(BaseView):
     @expose('/')
     def index(self):
         return self.render('admin/index.html')
 
 # Add administrative views here
+from models import User, Patient, Doctor, Issue, Image, Order
 #admin.add_view(MyView(name="Index"))
 admin.add_view(ModelView(User, db.session))
 admin.add_view(ModelView(Patient, db.session))
 admin.add_view(ModelView(Doctor, db.session))
 admin.add_view(ModelView(Issue, db.session))
+admin.add_view(ModelView(Image, db.session))
+admin.add_view(ModelView(Order, db.session))

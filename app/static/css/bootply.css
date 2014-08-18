@@ -45,6 +45,10 @@ a,a:hover {
 	color:#ecf0f1;
 	text-decoration:none;
 }
+.panel a, .panel a:hover {
+	color:#005DC6;
+	text-decoration:none;
+}
 
 .highlight-bk {
 	background-color:#ff3333;
@@ -118,9 +122,11 @@ h3.highlight  {
 }
 
 .panel {
-	padding-left:27px;
-	padding-right:27px;
+/*	padding-left:27px;
+	padding-right:27px;*/
+	padding: 27px;
 	background-color: #ecf0f1;
+	border: none;
 }
 
 .navbar-logo {

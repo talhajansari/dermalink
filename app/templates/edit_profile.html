@@ -3,8 +3,6 @@
 
 
 		<!-- default column -->
-		<div class="col col-sm-9">
-			<div class="panel">
 				{% from "_formhelpers.html" import render_field %}
 				<form action="{{ url_for('editProfile', id=g.user.id) }}" method="post" name="editProfile">
 					<dl>
@@ -17,9 +15,6 @@
 			</div>
 		</div> 
 
-
-	</div>
-</div> <!-- main container -->
 
 
 

@@ -1,5 +1,6 @@
 #!flask/bin/python
 import imp
+from datetime import datetime
 from migrate.versioning import api
 from app import db
 from config import SQLALCHEMY_DATABASE_URI
@@ -8,7 +9,9 @@ migration = SQLALCHEMY_MIGRATE_REPO + '/versions/%03d_migration.py' % (api.db_ve
 tmp_module = imp.new_module('old_model')
 old_model = api.create_model(SQLALCHEMY_DATABASE_URI, SQLALCHEMY_MIGRATE_REPO)
 exec old_model in tmp_module.__dict__
-script = api.make_update_script_for_model(SQLALCHEMY_DATABASE_URI, SQLALCHEMY_MIGRATE_REPO, tmp_module.meta, db.metadata)
+# added by Talha 08/18/2014 to solve for database not defined error during migrations
+script_ext = "import datetime \n"
+script = script_ext + api.make_update_script_for_model(SQLALCHEMY_DATABASE_URI, SQLALCHEMY_MIGRATE_REPO, tmp_module.meta, db.metadata)
 open(migration, "wt").write(script)
 api.upgrade(SQLALCHEMY_DATABASE_URI, SQLALCHEMY_MIGRATE_REPO)
 print 'New migration saved as ' + migration

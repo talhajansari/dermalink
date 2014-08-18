@@ -5,8 +5,6 @@
 
 
 <!-- main column -->
-  <div class="col col-sm-9">
-      <div class="panel">
       <h3>{{issue.summary}}</h3>
         <h5>Uploaded pictures</h5>
           <div class="row">
@@ -20,7 +18,7 @@
             {% endfor %}
           </div> <!-- list-group / end -->
         </div>
-
+        <!-- IF ISSUE CLOSED -->
         {% if issue.is_closed %}
         <h5> Diagnoses Information: </h5>
             {% set allD = issue.diagnoses %}
@@ -30,7 +28,9 @@
             {% endfor %}
             </ul>
             <br>
+        <!-- IF ISSUE OPEN -->
         {% else %}
+          <!-- IF PATIENT -->
           {% if g.user.isPatient() %}
         <form action="{{ url_for('upload', issue_id=issue.id) }}" method="post" name="upload", enctype="multipart/form-data">
           {{form2.hidden_tag()}}
@@ -39,7 +39,8 @@
           </dl>
           <input type="submit" value-"Submit"></input>
         </form>
-        {% elif g.user.isDoctor() %}
+         <!-- IF DOCTOR -->
+         {% elif g.user.isDoctor() %}
         <h5> Submit response: </h5>
         <form action="{{url_for('show_issue', id=issue.id)}}" method="post" name="showIssue">
           {{form.hidden_tag()}}
@@ -57,8 +58,6 @@
 
       {% endif %}
       
-    </div>
-</div> 
 
 {% endblock %}
 

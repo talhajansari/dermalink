@@ -3,30 +3,11 @@
 
 		<!-- Default column for when no accordions are open -->
 		{% if g.user.isPatient() %}
-				<h3>New case</h3>
-				<form action="{{ url_for('create_issue') }}" method="post" name="create_issue", enctype="multipart/form-data">
-					{{form1.hidden_tag()}}
-					<dl>
-						Describe your problem<br>
-						{{form1.summary(size=250)}}
-						<br>
-						<br>
-						Upload a picture
-						{{form1.image(size=80)}}
-					</dl>
-					<p><input type="submit" value="Submit"></p>
-				</form>
+		<h3> You are a patient </h3>
+		<span><a href="{{ url_for('create_issue') }}">CREATE A NEW CASE</a></span>
 
-				<form action="charge" method="POST">
-				  <script
-				    src="https://checkout.stripe.com/checkout.js" class="stripe-button"
-				    data-key="pk_test_JSOR9hzJNMDkITuRoZ1PWuP7"
-				    data-amount="2000"
-				    data-name="Demo Site"
-				    data-description="2 widgets ($20.00)"
-				    data-image="/128x128.png">
-				  </script>
-				</form>
+		{% elif g.user.isDoctor() %}
+		<h3> You are a doctor. This is your Homescreen.</h3>
 		{% endif %}
 
 {% endblock %}

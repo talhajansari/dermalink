@@ -3,10 +3,9 @@ import time
 from datetime import datetime
 from sqlalchemy.orm import class_mapper, ColumnProperty
 
-
-
+# Doc <-> Issues : Many to many relationship 
 doc_table = db.Table('doc_table',
-	db.Column('doc_id', db.Integer, db.ForeignKey('doctor.id')),
+	db.Column('doctor_id', db.Integer, db.ForeignKey('doctor.id')),
 	db.Column('issue_id', db.Integer, db.ForeignKey('issue.id'))
 )
 
@@ -97,6 +96,7 @@ class Patient(db.Model):
 		db.session.commit()
 		return False
 
+# NOT MIGRATED TER (NAME CHANGE)
 class Doctor(db.Model):
 	id = db.Column(db.Integer, primary_key = True)	
 
@@ -126,7 +126,6 @@ class Doctor(db.Model):
 	issue_limit = db.Column(db.Integer(), index=True, unique=False, default=0) # Number of issues they are willing to have at a time
 	is_complete = db.Column(db.Boolean(), index = True, unique=False, default=0) # is profile complete
 	is_available = db.Column(db.Boolean, index = True, unique=False, default=1)
-	rating = db.Column(db.Float, index=True, unique=False)
 	# Relationships
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 	issues = db.relationship('Issue', secondary=doc_table, backref=db.backref('doctors', lazy='dynamic')) 
@@ -187,6 +186,7 @@ class Issue(db.Model):
 	# # Need to keep more information about the issue
 	timestamp = db.Column(db.DateTime, index = False, unique = False, default=datetime.utcnow()) # when was the issue created online
 	# howOld = db.Column(db.Integer(2), index = False, unique = False) # how many weeks old is the 'issue'
+	payment_made = db.Column(db.Boolean, index = False, unique = False, default=False)
 	is_closed = db.Column(db.Boolean, index = False, unique = False, default=False) # has the 'issue' been resolved?
 	is_complete = db.Column(db.Boolean, index = False, unique = False, default = False) 
 	# Relationships
@@ -218,16 +218,41 @@ class Image(db.Model):
 	original_filename = db.Column(db.String(64), index = False, unique = False) # name through which the file was uploaded
 	label = db.Column(db.String(64), index = False, unique = False)
 	date = db.Column(db.DateTime, index = False, unique = False)
-	timestamp = db.Column(db.DateTime, default=datetime.utcnow())
+	timestamp = db.Column(db.DateTime, index = False, unique = False, default=datetime.utcnow())
 	issue_id = db.Column(db.Integer, db.ForeignKey('issue.id'))
 
 
 class Diagnosis(db.Model):
 	id = db.Column(db.Integer, primary_key = True)
 	diagnosis = db.Column(db.String(512), unique=False)
-	timestamp = db.Column(db.DateTime, index = False, unique = False)
-	doc_id = db.Column(db.Integer, db.ForeignKey('doctor.id'))
+	timestamp = db.Column(db.DateTime, index = False, unique = False, default=datetime.utcnow())
+	doctor_id = db.Column(db.Integer, db.ForeignKey('doctor.id'))
 	issue_id = db.Column(db.Integer, db.ForeignKey('issue.id'))
+
+
+# NOT MIGRATED YET
+class Review(db.Model):
+	id = db.Column(db.Integer, primary_key = True)
+	timestamp = db.Column(db.DateTime, index = False, unique = False,  default=datetime.utcnow())
+	rating = db.Column(db.Integer) #Out of five?
+	comments = db.Column(db.String(512))
+	patient_id = db.Column(db.Integer, db.ForeignKey('patient.id'))
+	doctor_id = db.Column(db.Integer, db.ForeignKey('doctor.id'))
+	issue_id = db.Column(db.Integer, db.ForeignKey('issue.id'))
+
+# NOT MIGRATED YET
+# To record payment orders
+class Order(db.Model):
+	id = db.Column(db.Integer, primary_key = True)
+	timestamp = db.Column(db.DateTime, index = False, default=datetime.utcnow())
+	order_number = db.Column(db.String(16)) #Out of five?
+	payment_amount = db.Column(db.Float(16)) #Out of five?
+	patient_id = db.Column(db.Integer, db.ForeignKey('patient.id'))
+	doctor_id = db.Column(db.Integer, db.ForeignKey('doctor.id'))
+	issue_id = db.Column(db.Integer, db.ForeignKey('issue.id'))	
+
+# Table for dispute transactions
+
 
 class TokenUser(db.Model):
 	id = db.Column(db.Integer, primary_key = True)

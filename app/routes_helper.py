@@ -5,7 +5,7 @@ from app import app, db, lm, bcrypt, mail
 from flask import render_template, flash, redirect, session, url_for, request, g, jsonify
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from flaskext.uploads import UploadSet, configure_uploads, IMAGES
-from models import User, Image, Issue, Patient, Doctor, Diagnosis, TokenUser
+from models import User, Image, Issue, Patient, Doctor, Diagnosis, Order, TokenUser
 from datetime import datetime
 from werkzeug import secure_filename
 
@@ -51,11 +51,15 @@ def load_user(id):
 def before_request():
 	g.user = current_user
 	#create session variables
-	from config import SHOW_LOGIN, APP_NAME, LOGO_URL_ICON, LOGO_URL_LARGE
-	session['showlogin'] = SHOW_LOGIN
+	from config import ALLOW_LOGIN, APP_NAME, LOGO_URL_ICON, LOGO_URL_LARGE, SERV_ENV, CASE_COST, CASE_COST_CENTS, stripe_keys
+	session['allowLogin'] = ALLOW_LOGIN
 	session['appTitle'] = APP_NAME
 	session['logoURL_icon'] = LOGO_URL_ICON
 	session['logoURL_large'] = LOGO_URL_LARGE
+	session['serv_env'] = SERV_ENV
+	session['caseCost'] = CASE_COST
+	session['caseCost_cent'] = CASE_COST_CENTS
+	session['stripeKeys'] = stripe_keys
 
 @app.route("/logout")
 @login_required
@@ -84,6 +88,8 @@ def assignIssueToDoctor(issue):
 		for doc in doctors:
 			if doc.isAvailable() and (doc.issue_limit-doc.numOpenIssues())>=0 :
 				best_doc = doc
+		if best_doc is None:
+			return None
 		doc = best_doc		
 		doc.issues.append(issue)
 		doc.isAvailable()
@@ -93,44 +99,48 @@ def assignIssueToDoctor(issue):
 
 # Routes Functions 
 def SendSMS(number, body):
-	# client.sms.messages.create(to=number, from_=MY_TWILIO_NUMBER, body=body)
-	pass
+	if session['serv_env']=='PROD':
+		client.sms.messages.create(to=number, from_=MY_TWILIO_NUMBER, body=body)
+	else:
+		pass
 
 def sendEmail(subject, body, recipients, sender='derMangoPlus@gmail.com'):
-	# msg = Message(subject=subject,
- #                  sender=sender,
- #                  recipients=recipients)
-	# msg.body = body
-	# mail.send(msg)
-	pass
+	if session['serv_env']=='PROD':
+		msg = Message(subject=subject,
+	                   sender=sender,
+	                   recipients=recipients)
+		msg.body = body
+		mail.send(msg)
+	else:
+		pass
 
 def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
 	return ''.join(random.choice(chars) for _ in range(size))
 
+def order_number_generator (size=6, chars=string.digits):
+	return ''.join(random.choice(chars) for _ in range(size))
 
 @app.route("/test")
 def test():
 	from config import SQLALCHEMY_DATABASE_URI
 	users = User.query.all()
 	session['tmp'] = 43
-	#dump('43')
 	return str(session['username'])
 	#return render_template("admin.html", users=users, db_env_var = os.environ.get('DATABASE_URL'), sqlalchemy_uri=SQLALCHEMY_DATABASE_URI)
 
 @app.route("/charge", methods=['POST'])
-def charge():
-	 # Amount in cents
-    amount = 500
-
+def charge(stripeToken):
+	# Amount in cents
+    amount = int(session['caseCost_cent'])
     customer = stripe.Customer.create(
         email=g.user.email,
-        card=request.form['stripeToken']
+        card=stripeToken #request.form['stripeToken']
     )
-
     charge = stripe.Charge.create(
         customer=customer.id,
         amount=amount,
         currency='usd',
         description='Flask Charge'
     )
-    return "Succesfully charged"
+    flash('Succesfully Charged')
+    return amount
